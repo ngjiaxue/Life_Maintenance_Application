@@ -1,0 +1,6 @@
+==================================NOTES==================================
+1kg = 2.2046 pound
+all exercise based on 125 pound
+example: Running: 5 mph (12 min/mile)	240 (30 min)
+240 / 3 = 80 (per 10 min)
+calories = 80 / 125 * (kg * 2.2046);
