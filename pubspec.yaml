@@ -23,7 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.0
+  http: ^0.13.1
   intl: ^0.17.0
   badges: ^1.1.6
   fl_chart: ^0.20.1

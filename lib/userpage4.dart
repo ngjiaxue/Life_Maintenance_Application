@@ -1,4 +1,8 @@
 import 'dart:ui';
+import 'package:flutter/services.dart';
+import 'package:numberpicker/numberpicker.dart';
+
+import 'package:http/http.dart' as http;
 import 'user.dart';
 import 'methods.dart';
 import 'loginscreen.dart';
@@ -231,46 +235,109 @@ class _UserPage4State extends State<UserPage4>
                                     });
                                   },
                                   "Apply the change(s)?",
-                                  () {
+                                  () async {
                                     ScaffoldMessenger.of(context)
                                         .hideCurrentSnackBar();
-                                    setState(() {
-                                      if (_nameController.text.isNotEmpty) {
-                                        widget.user
-                                            .setName(_nameController.text);
+                                    await http.post(
+                                        Uri.parse(
+                                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                                        body: {
+                                          "name": _nameController.text,
+                                          "dob": _dobController.text,
+                                          "gender": _genderController.text,
+                                          "phone": _phoneController.text,
+                                          "height": _heightController.text,
+                                          "weight": _weightController.text,
+                                          // "name": _nameController.text.isNotEmpty? _nameController.text : null,
+                                          // "dob": _dobController.text.isNotEmpty? _dobController.text : null,
+                                          // "gender": _genderController.text.isNotEmpty? _genderController.text : null,
+                                          // "phone": _phoneController.text.isNotEmpty? _phoneController.text : null,
+                                          // "height": _heightController.text.isNotEmpty? _heightController.text : null,
+                                          // "weight":_weightController.text.isNotEmpty? _weightController.text : null,
+                                          "email": widget.user.getEmail(),
+                                        }).then((res) {
+                                      if (res.body == "success") {
+                                        Future.delayed(
+                                            Duration(milliseconds: 500), () {
+                                          methods.snackbarMessage(
+                                            context,
+                                            Duration(
+                                              milliseconds: 1500,
+                                            ),
+                                            Color(0XFFB563E0),
+                                            methods.textOnly(
+                                                "Profile updated successfully",
+                                                "Leoscar",
+                                                18.0,
+                                                Colors.white,
+                                                null,
+                                                null,
+                                                TextAlign.center),
+                                          );
+                                        });
+                                        setState(() {
+                                          if (_nameController.text.isNotEmpty) {
+                                            widget.user
+                                                .setName(_nameController.text);
+                                          }
+                                          if (_dobController.text.isNotEmpty) {
+                                            widget.user
+                                                .setDob(_dobController.text);
+                                          }
+                                          if (_genderController
+                                              .text.isNotEmpty) {
+                                            widget.user.setGender(
+                                                _genderController.text);
+                                          }
+                                          if (_phoneController
+                                              .text.isNotEmpty) {
+                                            widget.user.setPhone(
+                                                _phoneController.text);
+                                          }
+                                          if (_heightController
+                                              .text.isNotEmpty) {
+                                            widget.user.setHeight(
+                                                _heightController.text);
+                                          }
+                                          if (_weightController
+                                              .text.isNotEmpty) {
+                                            widget.user.setWeight(
+                                                _weightController.text);
+                                          }
+                                          _nameController.clear();
+                                          _dobController.clear();
+                                          _genderController.clear();
+                                          _emailController.clear();
+                                          _phoneController.clear();
+                                          _heightController.clear();
+                                          _weightController.clear();
+                                          _confirmationMessage = false;
+                                          _isEditing = false;
+                                        });
+                                      } else {
+                                        Future.delayed(
+                                            Duration(milliseconds: 500), () {
+                                          methods.snackbarMessage(
+                                            context,
+                                            Duration(
+                                              seconds: 1,
+                                            ),
+                                            Colors.red[400],
+                                            methods.textOnly(
+                                                "Fail to update profile...Please try again",
+                                                "Leoscar",
+                                                18.0,
+                                                Colors.white,
+                                                null,
+                                                null,
+                                                TextAlign.center),
+                                          );
+                                        });
+                                        setState(() {
+                                          _confirmationMessage = false;
+                                          _isEditing = true;
+                                        });
                                       }
-                                      if (_dobController.text.isNotEmpty) {
-                                        widget.user.setDob(_dobController.text);
-                                      }
-                                      if (_genderController.text.isNotEmpty) {
-                                        widget.user
-                                            .setGender(_genderController.text);
-                                      }
-                                      if (_emailController.text.isNotEmpty) {
-                                        widget.user
-                                            .setEmail(_emailController.text);
-                                      }
-                                      if (_phoneController.text.isNotEmpty) {
-                                        widget.user
-                                            .setPhone(_phoneController.text);
-                                      }
-                                      if (_heightController.text.isNotEmpty) {
-                                        widget.user
-                                            .setHeight(_heightController.text);
-                                      }
-                                      if (_weightController.text.isNotEmpty) {
-                                        widget.user
-                                            .setWeight(_weightController.text);
-                                      }
-                                      _nameController.clear();
-                                      _dobController.clear();
-                                      _genderController.clear();
-                                      _emailController.clear();
-                                      _phoneController.clear();
-                                      _heightController.clear();
-                                      _weightController.clear();
-                                      _confirmationMessage = false;
-                                      _isEditing = false;
                                     });
                                   });
                             }
@@ -325,12 +392,10 @@ class _UserPage4State extends State<UserPage4>
                 _information(
                     "Gender", widget.user.getGender(), 2, _genderController),
                 _information(
-                    "Email", widget.user.getEmail(), 3, _emailController),
-                _information(
-                    "Phone", widget.user.getPhone(), 4, _phoneController),
-                _information("Height", widget.user.getHeight() + " cm", 5,
+                    "Phone", widget.user.getPhone(), 3, _phoneController),
+                _information("Height", widget.user.getHeight() + " cm", 4,
                     _heightController),
-                _information("Weight", widget.user.getWeight() + " kg", 6,
+                _information("Weight", widget.user.getWeight() + " kg", 5,
                     _weightController),
                 Visibility(
                   visible: !_isEditing,
@@ -339,11 +404,12 @@ class _UserPage4State extends State<UserPage4>
                       SizedBox(
                         height: 30.0,
                       ),
-                      _information("Logout", "", 7, null),
-                      _information("Feedback", "", 8, null),
+                      _information("Logout", "", 6, null),
+                      _information("Feedback", "", 7, null),
                       SizedBox(
                         height: 30.0,
                       ),
+                      _information("Change Email", "", 8, _emailController),
                       _information("Change Password", "", 9, null),
                       _information("Delete Account", "", 10, null),
                     ],
@@ -389,34 +455,34 @@ class _UserPage4State extends State<UserPage4>
       );
     } else if (_index == 3) {
       _icon = Icon(
-        FlutterIcons.email_outline_mco,
-        color: _color,
-        size: 26.0,
-      );
-    } else if (_index == 4) {
-      _icon = Icon(
         FlutterIcons.mobile1_ant,
         color: _color,
       );
-    } else if (_index == 5) {
+    } else if (_index == 4) {
       _icon = Icon(
         FlutterIcons.human_male_height_mco,
         color: _color,
       );
-    } else if (_index == 6) {
+    } else if (_index == 5) {
       _icon = Icon(
         FlutterIcons.weight_kilogram_mco,
         color: _color,
       );
-    } else if (_index == 7) {
+    } else if (_index == 6) {
       _icon = Icon(
         FlutterIcons.logout_sli,
         color: _color,
       );
-    } else if (_index == 8) {
+    } else if (_index == 7) {
       _icon = Icon(
         FlutterIcons.comment_discussion_oct,
         color: _color,
+      );
+    } else if (_index == 8) {
+      _icon = Icon(
+        FlutterIcons.email_outline_mco,
+        color: _color,
+        size: 26.0,
       );
     } else if (_index == 9) {
       _icon = Icon(
@@ -451,7 +517,7 @@ class _UserPage4State extends State<UserPage4>
               color: _index != 10 ? _color : Colors.black12,
             ),
           ),
-          child: _index <= 6
+          child: _index <= 5
               ? _personalContent(_index, _leading, _content, _color, _icon,
                   _textEditingController)
               : _otherContent(_index, _leading, _content, _color, _icon),
@@ -551,15 +617,21 @@ class _UserPage4State extends State<UserPage4>
                 },
                 currentTime: DateTime.parse(widget.user.getDob()),
               );
-            } else if (_index == 5) {
+            } else if (_index == 4) {
               _showDialog(_index);
-            } else if (_index == 6) {
+            } else if (_index == 5) {
               _showDialog(_index);
             }
           },
           controller: _textEditingController,
+          inputFormatters: _index == 3
+              ? [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                ]
+              : [],
           cursorColor: _color,
-          readOnly: _index == 0 || _index == 3 || _index == 4 ? false : true,
+          readOnly: _index == 0 || _index == 2 || _index == 3 ? false : true,
           style: TextStyle(
             fontFamily: "Leoscar",
             fontSize: 18.0,
@@ -616,7 +688,7 @@ class _UserPage4State extends State<UserPage4>
       highlightColor: Colors.transparent,
       splashColor: _index != 10 ? _color.withOpacity(0.3) : Colors.red[200],
       onTap: () {
-        if (_index == 7) {
+        if (_index == 6) {
           _showSnackbar(
               Color(0XFFB563E0),
               () {
@@ -636,7 +708,7 @@ class _UserPage4State extends State<UserPage4>
                 //   Navigator.of(context).pop();
                 // });
               });
-        } else if (_index == 8) {
+        } else if (_index == 7) {
           Navigator.push(
             context,
             PageTransition(
@@ -644,7 +716,7 @@ class _UserPage4State extends State<UserPage4>
               type: PageTransitionType.fade,
             ),
           );
-        } else if (_index == 9) {
+        } else if (_index == 8) {
           Navigator.push(
             context,
             PageTransition(
@@ -652,11 +724,19 @@ class _UserPage4State extends State<UserPage4>
               type: PageTransitionType.fade,
             ),
           );
-        } else if (_index == 10) {
+        } else if (_index == 9) {
           Navigator.push(
             context,
             PageTransition(
               child: EditProfile(4, widget.user),
+              type: PageTransitionType.fade,
+            ),
+          );
+        } else if (_index == 10) {
+          Navigator.push(
+            context,
+            PageTransition(
+              child: EditProfile(6, widget.user),
               type: PageTransitionType.fade,
             ),
           );
@@ -725,105 +805,89 @@ class _UserPage4State extends State<UserPage4>
 
   void _showDialog(int _index) {
     showDialog<double>(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext context) {
-              // return Column(
-              //   children: <Widget>[
-              //     SizedBox(height: 16),
-              //     Text('Decimal', style: Theme.of(context).textTheme.headline6),
-              //     DecimalNumberPicker(
-              //       value: _currentDoubleValue,
-              //       minValue: 0,
-              //       maxValue: 10,
-              //       decimalPlaces: 2,
-              //       onChanged: (value) =>
-              //           setState(() => _currentDoubleValue = value),
-              //     ),
-              //     SizedBox(height: 32),
-              //   ],
-              // );
-              // return new DecimalNumberPicker(
-              //   minValue: _index == 5 ? 50 : 30,
-              //   maxValue: _index == 5 ? 200 : 300,
-              //   // title: _index == 5
-              //   //     ? methods.textOnly(
-              //   //         "Pick a new height",
-              //   //         "Leoscar",
-              //   //         26.0,
-              //   //         Color(0XFF7100AD),
-              //   //         FontWeight.bold,
-              //   //         FontStyle.normal,
-              //   //         TextAlign.start)
-              //   //     : methods.textOnly(
-              //   //         "Pick a new weight",
-              //   //         "Leoscar",
-              //   //         26.0,
-              //   //         Color(0XFF7100AD),
-              //   //         FontWeight.bold,
-              //   //         FontStyle.normal,
-              //   //         TextAlign.start),
-              //   // initialDoubleValue: _index == 5
-              //   //     ? (_height != 0.0
-              //   //         ? _height
-              //   //         : widget.user.getHeight() == "0.0"
-              //   //             ? 50.0
-              //   //             : double.parse(widget.user.getHeight()))
-              //   //     : (_weight != 0.0
-              //   //         ? _weight
-              //   //         : widget.user.getWeight() == "0.0"
-              //   //             ? 30.0
-              //   //             : double.parse(widget.user.getWeight())),
-              //   textStyle: TextStyle(
-              //     fontFamily: "Leoscar",
-              //     fontSize: 20.0,
-              //     letterSpacing: 1.0,
-              //     color: Colors.grey,
-              //   ),
-              //   selectedTextStyle: TextStyle(
-              //     fontFamily: "Leoscar",
-              //     fontSize: 22.0,
-              //     letterSpacing: 1.0,
-              //     color: Color(0XFF7100AD),
-              //   ),
-              //   //     confirmWidget: InkWell(
-              //   //       highlightColor: Colors.transparent,
-              //   //       splashColor: Color(0XFFE7BAFF),
-              //   //       child: Ink(
-              //   //         height: 36.0,
-              //   //         width: 70.0,
-              //   //         decoration: BoxDecoration(
-              //   //           color: Color(0XFF9866B3),
-              //   //           borderRadius: new BorderRadius.circular(
-              //   //             8.0,
-              //   //           ),
-              //   //         ),
-              //   //         child: Center(
-              //   //           child: methods.textOnly("Ok", "Leoscar", 18.0, Colors.white,
-              //   //               FontWeight.bold, null, null),
-              //   //         ),
-              //   //       ),
-              //   //     ),
-              //   //     cancelWidget: MaterialButton(
-              //   //       highlightColor: Colors.transparent,
-              //   //       splashColor: Color(0XFFE7BAFF),
-              //   //       shape: RoundedRectangleBorder(
-              //   //         borderRadius: BorderRadius.circular(8.0),
-              //   //       ),
-              //   //       onPressed: () {
-              //   //         Navigator.of(context).pop();
-              //   //       },
-              //   //       child: methods.textOnly("Cancel", "Leoscar", 18.0,
-              //   //           Color(0XFF9866B3), FontWeight.bold, null, null),
-              //   //     ),
-              // );
-            })
-        .then((value) {
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return new NumberPickerDialog.decimal(
+            minValue: _index == 4 ? 50 : 30,
+            maxValue: _index == 4 ? 200 : 300,
+            title: _index == 4
+                ? methods.textOnly(
+                    "Pick a new height",
+                    "Leoscar",
+                    26.0,
+                    Color(0XFF7100AD),
+                    FontWeight.bold,
+                    FontStyle.normal,
+                    TextAlign.start)
+                : methods.textOnly(
+                    "Pick a new weight",
+                    "Leoscar",
+                    26.0,
+                    Color(0XFF7100AD),
+                    FontWeight.bold,
+                    FontStyle.normal,
+                    TextAlign.start),
+            initialDoubleValue: _index == 4
+                ? (_height != 0.0
+                    ? _height
+                    : widget.user.getHeight() == "0.0"
+                        ? 50.0
+                        : double.parse(widget.user.getHeight()))
+                : (_weight != 0.0
+                    ? _weight
+                    : widget.user.getWeight() == "0.0"
+                        ? 30.0
+                        : double.parse(widget.user.getWeight())),
+            textStyle: TextStyle(
+              fontFamily: "Leoscar",
+              fontSize: 20.0,
+              letterSpacing: 1.0,
+              color: Colors.grey,
+            ),
+            selectedTextStyle: TextStyle(
+              fontFamily: "Leoscar",
+              fontSize: 22.0,
+              letterSpacing: 1.0,
+              color: Color(0XFF7100AD),
+            ),
+            confirmWidget: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Color(0XFFE7BAFF),
+              child: Ink(
+                height: 36.0,
+                width: 70.0,
+                decoration: BoxDecoration(
+                  color: Color(0XFF9866B3),
+                  borderRadius: new BorderRadius.circular(
+                    8.0,
+                  ),
+                ),
+                child: Center(
+                  child: methods.textOnly("Ok", "Leoscar", 18.0, Colors.white,
+                      FontWeight.bold, null, null),
+                ),
+              ),
+            ),
+            cancelWidget: MaterialButton(
+              highlightColor: Colors.transparent,
+              splashColor: Color(0XFFE7BAFF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: methods.textOnly("Cancel", "Leoscar", 18.0,
+                  Color(0XFF9866B3), FontWeight.bold, null, null),
+            ),
+          );
+        }).then((value) {
       setState(() {
-        if (_index == 5 && value != null) {
+        if (_index == 4 && value != null) {
           _height = value;
           _heightController.text = value.toString();
-        } else if (_index == 6 && value != null) {
+        } else if (_index == 5 && value != null) {
           _weight = value;
           _weightController.text = value.toString();
         }

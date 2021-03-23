@@ -1,13 +1,13 @@
-import 'package:life_maintenance_application/tabs.dart';
-import 'package:life_maintenance_application/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'tabs.dart';
+import 'user.dart';
+import 'methods.dart';
 import 'loginscreen.dart';
 import 'fadeanimation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -36,6 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
+  Methods methods = new Methods();
   User user;
   int _loggedIn =
       0; // 0 = navigate to login as unregistered user, 1 = navigate to login with email, 2 = navigate to tabs
@@ -70,6 +71,15 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             );
           } else {
+            methods.snackbarMessage(
+              context,
+              Duration(
+                seconds: 1,
+              ),
+              Color(0XFFB563E0),
+              methods.textOnly("Login successful...Welcome ${user.getName()}",
+                  "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+            );
             Navigator.push(
               context,
               PageTransition(

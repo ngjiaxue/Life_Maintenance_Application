@@ -1,7 +1,11 @@
 import 'dart:math';
+import 'package:page_transition/page_transition.dart';
+
+import 'loginscreen.dart';
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:line_icons/line_icons.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -9,7 +13,7 @@ import 'package:simple_animations/simple_animations.dart';
 
 class EditProfile extends StatefulWidget {
   final int
-      page; //1 = feedback, 2 = change password, 3 = new password, 4 = delete account, 5 = confirmation on delete account
+      page; //1 = feedback, 2 = change email, 3 = new email, 4 = change password, 5 = new password, 6 = delete account, 7 = confirmation on delete account
   final User user;
   EditProfile(this.page, this.user);
   @override
@@ -17,15 +21,33 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  Map<int, Color> _swatch = {
+    50: Color.fromRGBO(0, 0, 0, .1),
+    100: Color.fromRGBO(0, 0, 0, .2),
+    200: Color.fromRGBO(0, 0, 0, .3),
+    300: Color.fromRGBO(0, 0, 0, .4),
+    400: Color.fromRGBO(0, 0, 0, .5),
+    500: Color.fromRGBO(0, 0, 0, .6),
+    600: Color.fromRGBO(0, 0, 0, .7),
+    700: Color.fromRGBO(0, 0, 0, .8),
+    800: Color.fromRGBO(0, 0, 0, .9),
+    900: Color.fromRGBO(0, 0, 0, 1),
+  };
+
   Methods methods = new Methods();
   int _page = 0;
 
-  //used by 2 & 3
   bool _verifyPassword = true;
   String _passwordMessage = "";
 
   bool _verifyRetypePassword = true;
   String _retypePasswordMessage = "";
+
+  bool _verifyEmail = true;
+  String _emailMessage = "";
+
+  FocusNode _emailFocus = new FocusNode();
+  TextEditingController _emailController = new TextEditingController();
 
   bool _passwordHidden = true;
   FocusNode _passwordFocus = new FocusNode();
@@ -60,23 +82,29 @@ class _EditProfileState extends State<EditProfile> {
               Positioned.fill(
                 child: AnimatedBackground(_page),
               ),
-              onBottom(AnimatedWave(
-                page: _page,
-                height: 270,
-                speed: 1.0,
-              )),
-              onBottom(AnimatedWave(
-                page: _page,
-                height: 180,
-                speed: 0.9,
-                offset: pi,
-              )),
-              onBottom(AnimatedWave(
-                page: _page,
-                height: 330,
-                speed: 1.2,
-                offset: pi / 2,
-              )),
+              onBottom(
+                AnimatedWave(
+                  page: _page,
+                  height: 270,
+                  speed: 1.0,
+                ),
+              ),
+              onBottom(
+                AnimatedWave(
+                  page: _page,
+                  height: 180,
+                  speed: 0.9,
+                  offset: pi,
+                ),
+              ),
+              onBottom(
+                AnimatedWave(
+                  page: _page,
+                  height: 330,
+                  speed: 1.2,
+                  offset: pi / 2,
+                ),
+              ),
               Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
@@ -102,10 +130,14 @@ class _EditProfileState extends State<EditProfile> {
                             _page == 1
                                 ? "Send Us Your Feedback!"
                                 : _page == 2
-                                    ? "Change Password?"
+                                    ? "Change Email?"
                                     : _page == 3
-                                        ? "New Password"
-                                        : "Delete Account?",
+                                        ? "New Email"
+                                        : _page == 4
+                                            ? "Change Password?"
+                                            : _page == 5
+                                                ? "New Password"
+                                                : "Delete Account?",
                             "Leoscar",
                             22.0,
                             Colors.white,
@@ -119,12 +151,12 @@ class _EditProfileState extends State<EditProfile> {
               ),
               _page == 1
                   ? _feedbackBuild()
-                  : _page == 2
-                      ? _changePasswordBuild()
+                  : _page == 2 || _page == 4 || _page == 6
+                      ? _verifyPasswordBuild()
                       : _page == 3
-                          ? _newPasswordBuild()
-                          : _page == 4
-                              ? _changePasswordBuild()
+                          ? _newEmailBuild()
+                          : _page == 5
+                              ? _newPasswordBuild()
                               : _deleteAccountBuild(),
             ],
           ),
@@ -176,7 +208,7 @@ class _EditProfileState extends State<EditProfile> {
             ),
           ),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () {
             Navigator.of(context).pop();
             Future.delayed(Duration(milliseconds: 300), () {
@@ -189,15 +221,17 @@ class _EditProfileState extends State<EditProfile> {
               );
             });
           },
-          elevation: 10.0,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(80.0),
-            side: BorderSide(
-              color: Colors.black54,
+          style: ElevatedButton.styleFrom(
+            primary: Colors.white,
+            onPrimary: Colors.grey[350],
+            elevation: 20.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50.0),
+              side: BorderSide(
+                color: Colors.black54,
+              ),
             ),
           ),
-          padding: const EdgeInsets.all(0.0),
           child: methods.textOnly("Submit", "Leoscar", 18.0, Colors.black,
               FontWeight.normal, FontStyle.normal, TextAlign.center),
         ),
@@ -205,7 +239,7 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  Widget _changePasswordBuild() {
+  Widget _verifyPasswordBuild() {
     return Column(
       children: [
         Padding(
@@ -225,7 +259,7 @@ class _EditProfileState extends State<EditProfile> {
             color: Colors.white,
             child: Theme(
               data: ThemeData(
-                primaryColor: Colors.black,
+                primarySwatch: MaterialColor(0XFF000000, _swatch),
               ),
               child: TextField(
                 style: TextStyle(
@@ -238,7 +272,7 @@ class _EditProfileState extends State<EditProfile> {
                 focusNode: _passwordFocus,
                 textInputAction: TextInputAction.done,
                 keyboardType: TextInputType.text,
-                cursorColor: Color(0XFF9866B3),
+                cursorColor: Colors.black,
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.all(20.0),
                   focusedBorder: const OutlineInputBorder(
@@ -275,66 +309,51 @@ class _EditProfileState extends State<EditProfile> {
             ),
           ),
         ),
-        RaisedButton(
-          onPressed: () {
+        ElevatedButton(
+          onPressed: () async {
             _passwordFocus.unfocus();
-            // setState(() {
-            //   if (_page == 2) {
-            //     if (_passwordController.text == widget.user.getPassword()) {
-            //       _passwordHidden = true;
-            //       _passwordController.clear();
-            //       _page = 3;
-            //     } else {
-            //       Future.delayed(Duration(milliseconds: 300), () {
-            //         methods.snackbarMessage(
-            //           context,
-            //           Duration(seconds: 1),
-            //           Colors.red[400],
-            //           methods.textOnly(
-            //               "Incorrect password...please try again",
-            //               "Leoscar",
-            //               18.0,
-            //               Colors.white,
-            //               null,
-            //               null,
-            //               TextAlign.center),
-            //         );
-            //       });
-            //     }
-            //   } else {
-            //     if (_passwordController.text == widget.user.getPassword()) {
-            //       _passwordHidden = true;
-            //       _passwordController.clear();
-            //       _page = 5;
-            //     } else {
-            //       Future.delayed(Duration(milliseconds: 300), () {
-            //         methods.snackbarMessage(
-            //           context,
-            //           Duration(seconds: 1),
-            //           Colors.red[400],
-            //           methods.textOnly(
-            //               "Incorrect password...please try again",
-            //               "Leoscar",
-            //               18.0,
-            //               Colors.white,
-            //               null,
-            //               null,
-            //               TextAlign.center),
-            //         );
-            //       });
-            //     }
-            //   }
-            // });
+            await http.post(
+                Uri.parse(
+                    "https://lifemaintenanceapplication.000webhostapp.com/php/inappverifypassword.php"),
+                body: {
+                  "email": widget.user.getEmail(),
+                  "password": _passwordController.text,
+                }).then((res) {
+              if (res.body == "success") {
+                setState(() {
+                  _passwordController.clear();
+                  _page++;
+                });
+              } else {
+                methods.snackbarMessage(
+                  context,
+                  Duration(
+                    milliseconds: 1500,
+                  ),
+                  Colors.red[400],
+                  methods.textOnly(
+                      "Wrong password...Please try again",
+                      "Leoscar",
+                      18.0,
+                      Colors.white,
+                      null,
+                      null,
+                      TextAlign.center),
+                );
+              }
+            });
           },
-          elevation: 10.0,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(80.0),
-            side: BorderSide(
-              color: Colors.black54,
+          style: ElevatedButton.styleFrom(
+            primary: Colors.white,
+            onPrimary: Colors.grey[350],
+            elevation: 20.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50.0),
+              side: BorderSide(
+                color: Colors.black54,
+              ),
             ),
           ),
-          padding: const EdgeInsets.all(0.0),
           child: methods.textOnly("Submit", "Leoscar", 18.0, Colors.black,
               FontWeight.normal, FontStyle.normal, TextAlign.center),
         ),
@@ -342,13 +361,198 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
+  Widget _newEmailBuild() {
+    return Theme(
+      data: ThemeData(
+        primarySwatch: MaterialColor(0XFF000000, _swatch),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 80.0,
+            ),
+            child: _warningBar("WARNING!"),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 20.0,
+              horizontal: 10.0,
+            ),
+            child: Text(
+              "Once you had changed your email successfully, you need to verify your new email again before you are able to use your new email to login.",
+              style: TextStyle(
+                fontFamily: "Leoscar",
+                fontSize: 20.0,
+                height: 1.2,
+                letterSpacing: 1.0,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 10.0,
+              left: 20.0,
+              bottom: 5.0,
+              right: 20.0,
+            ),
+            child: Material(
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8.0),
+                ),
+              ),
+              color: Colors.white,
+              child: TextField(
+                style: TextStyle(
+                  fontFamily: "Leoscar",
+                  fontSize: 18.0,
+                  letterSpacing: 1.0,
+                ),
+                onChanged: (String value) {
+                  _emailMessage = "Please insert a valid email format";
+                  Pattern pattern =
+                      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[com]{3,}))$';
+                  RegExp regex = new RegExp(pattern);
+                  setState(() {
+                    if (!regex.hasMatch(value)) {
+                      _verifyEmail = false;
+                    } else {
+                      _verifyEmail = true;
+                    }
+                  });
+                },
+                controller: _emailController,
+                focusNode: _emailFocus,
+                textInputAction: TextInputAction.done,
+                keyboardType: TextInputType.emailAddress,
+                cursorColor: Colors.black,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(20.0),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Colors.black,
+                      width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
+                    ),
+                  ),
+                  hintText: "New Email",
+                  hintStyle: TextStyle(
+                    fontFamily: "Leoscar",
+                    fontSize: 14.0,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _showErrorMessage(!_verifyEmail, _emailMessage),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 15.0,
+              ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  _emailFocus.unfocus();
+                  if (_verifyEmail == false) {
+                    Future.delayed(Duration(milliseconds: 300), () {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(seconds: 1),
+                        Colors.red[400],
+                        methods.textOnly(
+                            "Please insert a valid email format",
+                            "Leoscar",
+                            18.0,
+                            Colors.white,
+                            null,
+                            null,
+                            TextAlign.center),
+                      );
+                    });
+                  } else {
+                    await http.post(
+                        Uri.parse(
+                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                        body: {
+                          "email": widget.user.getEmail(),
+                          "newEmail": _emailController.text,
+                        }).then((res) {
+                      if (res.body == "success") {
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                            child: LoginScreen(3),
+                            type: PageTransitionType.fade,
+                          ),
+                        );
+                        Future.delayed(Duration(milliseconds: 1000), () {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(seconds: 3),
+                            Color(0XFFB563E0),
+                            methods.textOnly(
+                                "Email changed successfully, please check your NEW email to verify your account",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                        });
+                      } else {
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(seconds: 1),
+                            Colors.red[400],
+                            methods.textOnly(
+                                "Email can't be changed...Please try again",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                        });
+                      }
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  onPrimary: Colors.grey[350],
+                  elevation: 20.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50.0),
+                    side: BorderSide(
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                child: methods.textOnly("Submit", "Leoscar", 18.0, Colors.black,
+                    FontWeight.normal, FontStyle.normal, TextAlign.center),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _newPasswordBuild() {
     return Theme(
       data: ThemeData(
-        primaryColor: Colors.black,
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.black,
-        ),
+        primarySwatch: MaterialColor(0XFF000000, _swatch),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -373,8 +577,10 @@ class _EditProfileState extends State<EditProfile> {
                 child: TextField(
                   onChanged: (String value) {
                     _passwordMessage = "Password must be at least ";
+                    _retypePasswordMessage = "Password not match";
                     setState(() {
                       _verifyPassword = false;
+                      _verifyRetypePassword = false;
                       if (value.length < 6) {
                         _passwordMessage += "6 characters";
                       } else if (!value.contains(new RegExp(r"(?=.*?[A-Z])"))) {
@@ -386,6 +592,10 @@ class _EditProfileState extends State<EditProfile> {
                       } else if (!value
                           .contains(new RegExp(r"(?=.*?[#?!@$%^&*-])"))) {
                         _passwordMessage += "1 special character";
+                      } else if (_passwordController.text ==
+                          _retypePasswordController.text) {
+                        _verifyPassword = true;
+                        _verifyRetypePassword = true;
                       } else {
                         _verifyPassword = true;
                       }
@@ -459,8 +669,6 @@ class _EditProfileState extends State<EditProfile> {
                       _verifyRetypePassword = false;
                       if (value == _passwordController.text) {
                         _verifyRetypePassword = true;
-                      } else {
-                        _retypePasswordMessage = "Password not match";
                       }
                     });
                   },
@@ -534,62 +742,70 @@ class _EditProfileState extends State<EditProfile> {
                 padding: const EdgeInsets.only(
                   top: 15.0,
                 ),
-                child: RaisedButton(
-                  onPressed: () {
+                child: ElevatedButton(
+                  onPressed: () async {
                     _passwordFocus.unfocus();
                     _retypePasswordFocus.unfocus();
-                    if (_passwordController.text ==
-                            _retypePasswordController.text &&
-                        _passwordController.text.isNotEmpty &&
-                        _retypePasswordController.text.isNotEmpty &&
-                        _verifyPassword &&
-                        _verifyRetypePassword) {
-                      _passwordFocus.unfocus();
-                      _retypePasswordFocus.unfocus();
-                      // widget.user.setPassword(_retypePasswordController.text);
-                      Navigator.of(context).pop();
-                      Future.delayed(Duration(milliseconds: 300), () {
-                        methods.snackbarMessage(
+                    await http.post(
+                        Uri.parse(
+                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                        body: {
+                          "email": widget.user.getEmail(),
+                          "newPassword": _passwordController.text,
+                        }).then((res) {
+                      if (res.body == "success") {
+                        Navigator.push(
                           context,
-                          Duration(seconds: 1),
-                          Color(0XFFB563E0),
-                          methods.textOnly(
-                              "Password changed successfully",
-                              "Leoscar",
-                              18.0,
-                              Colors.white,
-                              null,
-                              null,
-                              TextAlign.center),
+                          PageTransition(
+                            child: LoginScreen(2),
+                            type: PageTransitionType.fade,
+                          ),
                         );
-                      });
-                    } else {
-                      Future.delayed(Duration(milliseconds: 300), () {
-                        methods.snackbarMessage(
-                          context,
-                          Duration(seconds: 1),
-                          Colors.red[400],
-                          methods.textOnly(
-                              "Please amend the error(s)",
-                              "Leoscar",
-                              18.0,
-                              Colors.white,
-                              null,
-                              null,
-                              TextAlign.center),
-                        );
-                      });
-                    }
+                        Future.delayed(Duration(milliseconds: 1000), () {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(seconds: 2),
+                            Color(0XFFB563E0),
+                            methods.textOnly(
+                                "Please insert your NEW password to login",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                        });
+                      } else {
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(seconds: 1),
+                            Colors.red[400],
+                            methods.textOnly(
+                                "Password can't be changed...Please try again",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                        });
+                      }
+                    });
                   },
-                  elevation: 10.0,
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0),
-                    side: BorderSide(
-                      color: Colors.black54,
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                    onPrimary: Colors.grey[350],
+                    elevation: 20.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      side: BorderSide(
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
-                  padding: const EdgeInsets.all(0.0),
                   child: methods.textOnly(
                       "Submit",
                       "Leoscar",
@@ -614,50 +830,7 @@ class _EditProfileState extends State<EditProfile> {
           padding: const EdgeInsets.only(
             top: 80.0,
           ),
-          child: Container(
-            height: 50.0,
-            decoration: BoxDecoration(
-              color: Colors.red[400],
-              border: Border(
-                top: BorderSide(
-                  color: Colors.black,
-                  width: 1.5,
-                ),
-                bottom: BorderSide(
-                  color: Colors.black,
-                  width: 1.5,
-                ),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 4.0,
-                    right: 10.0,
-                  ),
-                  child: Icon(
-                    FlutterIcons.warning_ant,
-                    color: Colors.white,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 3.0,
-                  ),
-                  child: methods.textOnly(
-                      "This is EXTREMELY IMPORTANT!",
-                      "Leoscar",
-                      20.0,
-                      Colors.white,
-                      FontWeight.normal,
-                      FontStyle.normal,
-                      TextAlign.center),
-                ),
-              ],
-            ),
-          ),
+          child: _warningBar("This is EXTREMELY IMPORTANT!"),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(
@@ -676,84 +849,118 @@ class _EditProfileState extends State<EditProfile> {
             textAlign: TextAlign.justify,
           ),
         ),
-        Container(
-          height: 50.0,
-          decoration: BoxDecoration(
-            color: Colors.red[400],
-            border: Border(
-              top: BorderSide(
-                color: Colors.black,
-                width: 1.5,
-              ),
-              bottom: BorderSide(
-                color: Colors.black,
-                width: 1.5,
-              ),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 4.0,
-                  right: 10.0,
-                ),
-                child: Icon(
-                  FlutterIcons.warning_ant,
-                  color: Colors.white,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 3.0,
-                ),
-                child: methods.textOnly(
-                    "This is EXTREMELY IMPORTANT!",
-                    "Leoscar",
-                    20.0,
-                    Colors.white,
-                    FontWeight.normal,
-                    FontStyle.normal,
-                    TextAlign.center),
-              ),
-            ],
-          ),
-        ),
+        _warningBar("This is EXTREMELY IMPORTANT!"),
         Padding(
           padding: const EdgeInsets.only(
             top: 20.0,
           ),
-          child: RaisedButton(
-            onPressed: () {
-              widget.user.setEmail("");
-              // widget.user.setPassword("");
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-              Future.delayed(Duration(milliseconds: 300), () {
-                methods.snackbarMessage(
-                  context,
-                  Duration(seconds: 1),
-                  Color(0XFFB563E0),
-                  methods.textOnly("Account deleted", "Leoscar", 18.0,
-                      Colors.white, null, null, TextAlign.center),
-                );
+          child: ElevatedButton(
+            onPressed: () async {
+              await http.post(
+                  Uri.parse(
+                      "https://lifemaintenanceapplication.000webhostapp.com/php/deleteaccount.php"),
+                  body: {
+                    "email": widget.user.getEmail(),
+                  }).then((res) {
+                if (res.body == "success") {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      child: LoginScreen(3),
+                      type: PageTransitionType.fade,
+                    ),
+                  );
+                  Future.delayed(Duration(milliseconds: 1000), () {
+                    methods.snackbarMessage(
+                      context,
+                      Duration(seconds: 2),
+                      Color(0XFFB563E0),
+                      methods.textOnly(
+                          "Account deleted...You are no longer available to login with the deleted email",
+                          "Leoscar",
+                          18.0,
+                          Colors.white,
+                          null,
+                          null,
+                          TextAlign.center),
+                    );
+                  });
+                } else {
+                  methods.snackbarMessage(
+                    context,
+                    Duration(
+                      milliseconds: 1500,
+                    ),
+                    Colors.red[400],
+                    methods.textOnly(
+                        "Account can't be deleted...Please try again",
+                        "Leoscar",
+                        18.0,
+                        Colors.white,
+                        null,
+                        null,
+                        TextAlign.center),
+                  );
+                }
               });
             },
-            elevation: 10.0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(80.0),
-              side: BorderSide(
-                color: Colors.black54,
+            style: ElevatedButton.styleFrom(
+              primary: Colors.white,
+              onPrimary: Colors.grey[350],
+              elevation: 20.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50.0),
+                side: BorderSide(
+                  color: Colors.black54,
+                ),
               ),
             ),
-            padding: const EdgeInsets.all(0.0),
             child: methods.textOnly("Delete", "Leoscar", 18.0, Colors.black,
                 FontWeight.normal, FontStyle.normal, TextAlign.center),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _warningBar(String text) {
+    return Container(
+      height: 50.0,
+      decoration: BoxDecoration(
+        color: Colors.red[400],
+        border: Border(
+          top: BorderSide(
+            color: Colors.black,
+            width: 1.5,
+          ),
+          bottom: BorderSide(
+            color: Colors.black,
+            width: 1.5,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              bottom: 4.0,
+              right: 10.0,
+            ),
+            child: Icon(
+              FlutterIcons.warning_ant,
+              color: Colors.white,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 3.0,
+            ),
+            child: methods.textOnly(text, "Leoscar", 20.0, Colors.white,
+                FontWeight.normal, FontStyle.normal, TextAlign.center),
+          ),
+        ],
+      ),
     );
   }
 
@@ -835,7 +1042,7 @@ class CurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint white;
-    if (page != 5 && page != 4) {
+    if (page != 6 && page != 7) {
       white = Paint()..color = Colors.white.withAlpha(60);
     } else {
       white = Paint()..color = Colors.black.withAlpha(100);
@@ -878,12 +1085,12 @@ class AnimatedBackground extends StatelessWidget {
     Color _color2;
     Color _color3;
     Color _color4;
-    if (page != 5 && page != 4) {
+    if (page != 6 && page != 7) {
       _color1 = Color(0XFFFC00FF).withOpacity(0.5);
       _color2 = Color(0XFFFC00FF).withOpacity(0.8);
       _color3 = Color(0XFF00DBDE).withOpacity(0.5);
       _color4 = Color(0XFF00DBDE).withOpacity(0.8);
-    } else if (page == 4) {
+    } else if (page == 6) {
       _color1 = Colors.red.withOpacity(0.8);
       _color2 = Colors.red.withOpacity(1);
       _color3 = Colors.black.withOpacity(0.8);

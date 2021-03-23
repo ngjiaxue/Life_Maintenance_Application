@@ -93,6 +93,7 @@ class Methods {
               "TextInputType(name: TextInputType.number, signed: false, decimal: false)"
           ? [
               FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(11),
             ]
           : [],
       obscureText: obscureText,
@@ -270,37 +271,37 @@ class Methods {
     );
   }
 
-  Widget statusButton(String status, bool _color, Function method) {
-    //start statusButton method
-    return FlatButton(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      onPressed: method,
-      child: _color
-          ? Ink(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.orange[200],
-                      Colors.orange[300],
-                      Colors.orange[400],
-                      Colors.orange[600],
-                      Colors.orange[700],
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0)),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-                child: textOnly(
-                    status, "Oxanium Regular", 20.0, null, null, null, null),
-              ),
-            )
-          : textOnly(status, "Oxanium Regular", 20.0, null, null, null, null),
-    );
-  } //end statusButton method
+  // Widget statusButton(String status, bool _color, Function method) {
+  //   //start statusButton method
+  //   return FlatButton(
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(8.0),
+  //     ),
+  //     onPressed: method,
+  //     child: _color
+  //         ? Ink(
+  //             decoration: BoxDecoration(
+  //                 gradient: LinearGradient(
+  //                   colors: [
+  //                     Colors.orange[200],
+  //                     Colors.orange[300],
+  //                     Colors.orange[400],
+  //                     Colors.orange[600],
+  //                     Colors.orange[700],
+  //                   ],
+  //                   begin: Alignment.topLeft,
+  //                   end: Alignment.bottomRight,
+  //                 ),
+  //                 borderRadius: BorderRadius.circular(8.0)),
+  //             child: Container(
+  //               padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+  //               child: textOnly(
+  //                   status, "Oxanium Regular", 20.0, null, null, null, null),
+  //             ),
+  //           )
+  //         : textOnly(status, "Oxanium Regular", 20.0, null, null, null, null),
+  //   );
+  // } //end statusButton method
 
   Widget pendingOrDeliveringOrDelivered(String status) {
     //start _pendingOrDeliveringOrDelivered method

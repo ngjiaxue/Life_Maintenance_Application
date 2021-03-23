@@ -24,7 +24,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  //to test
+  Map<int, Color> _swatch = {
+    50: Color.fromRGBO(152, 102, 187, .1),
+    100: Color.fromRGBO(152, 102, 187, .2),
+    200: Color.fromRGBO(152, 102, 187, .3),
+    300: Color.fromRGBO(152, 102, 187, .4),
+    400: Color.fromRGBO(152, 102, 187, .5),
+    500: Color.fromRGBO(152, 102, 187, .6),
+    600: Color.fromRGBO(152, 102, 187, .7),
+    700: Color.fromRGBO(152, 102, 187, .8),
+    800: Color.fromRGBO(152, 102, 187, .9),
+    900: Color.fromRGBO(152, 102, 187, 1),
+  };
   User user;
   int _i = 0; //to let the animation text stop
   int _buttonClicked =
@@ -75,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPref();
     KeyboardVisibilityNotification().addNewListener(
       onShow: () {
         setState(() {
@@ -83,26 +93,16 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       },
     );
-    if (widget.userLogout == 4) {
+    if (widget.userLogout == 3) {
+      _savePref(3);
+    } else if (widget.userLogout == 4) {
       _loginPressed = false;
     }
-    // _loadPref(); //call _loadPref method
+    _loadPref(); //call _loadPref method
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<int, Color> _swatch = {
-      50: Color.fromRGBO(152, 102, 187, .1),
-      100: Color.fromRGBO(152, 102, 187, .2),
-      200: Color.fromRGBO(152, 102, 187, .3),
-      300: Color.fromRGBO(152, 102, 187, .4),
-      400: Color.fromRGBO(152, 102, 187, .5),
-      500: Color.fromRGBO(152, 102, 187, .6),
-      600: Color.fromRGBO(152, 102, 187, .7),
-      700: Color.fromRGBO(152, 102, 187, .8),
-      800: Color.fromRGBO(152, 102, 187, .9),
-      900: Color.fromRGBO(152, 102, 187, 1),
-    };
     _screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: GestureDetector(
@@ -350,7 +350,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ],
                                           textStyle: TextStyle(
                                             fontFamily: "Kultur",
-                                            fontSize: 40.0,
+                                            fontSize: 35.0,
                                             color: Color(0XFF3E005E),
                                           ),
                                           speed: Duration(milliseconds: 100),
@@ -359,9 +359,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       : Text(" "),
                             )
                           : methods.textOnly(
-                              "YOUR HEALTH IS OUR DUTY",
+                              "YOUR HEALTH\nIS OUR DUTY",
                               "Kultur",
-                              40.0,
+                              35.0,
                               Color(0XFF3E005E),
                               FontWeight.normal,
                               FontStyle.normal,
@@ -454,12 +454,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Row(
                         children: <Widget>[
-                          Checkbox(
-                            value: _isChecked,
-                            activeColor: Color(0XFF933FBF),
-                            onChanged: (bool value) {
-                              _onTick(value); //call _onTick method
-                            },
+                          Theme(
+                            data: ThemeData(
+                              unselectedWidgetColor: Colors.grey[400],
+                            ),
+                            child: Checkbox(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              value: _isChecked,
+                              activeColor: Color(0XFF933FBF),
+                              onChanged: (bool value) {
+                                _onTick(value); //call _onTick method
+                              },
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(
@@ -934,14 +942,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Row(
                           children: <Widget>[
-                            Checkbox(
-                              value: _isChecked1,
-                              activeColor: Color(0XFF933FBF),
-                              onChanged: (bool value) {
-                                setState(() {
-                                  _isChecked1 = value;
-                                });
-                              },
+                            Theme(
+                              data: ThemeData(
+                                unselectedWidgetColor: Colors.grey[400],
+                              ),
+                              child: Checkbox(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                value: _isChecked1,
+                                activeColor: Color(0XFF933FBF),
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    _isChecked1 = value;
+                                  });
+                                },
+                              ),
                             ),
                             Padding(
                               padding: const EdgeInsets.only(
@@ -1028,7 +1044,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (widget.userLogout == 2) {
       setState(() {
         _emailController.text = email;
-        _passwordController.clear();
         _savePref(2);
       });
     } else {
@@ -1101,8 +1116,8 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.transparent,
           body: StatefulBuilder(builder: (context, newSetState) {
             return Theme(
-              data: Theme.of(context).copyWith(
-                primaryColor: Color(0XFF9866B3),
+              data: ThemeData(
+                primarySwatch: MaterialColor(0XFF9866B3, _swatch),
                 textSelectionTheme: TextSelectionThemeData(
                   cursorColor: Color(0XFF9866B3),
                 ),
@@ -1396,8 +1411,8 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (BuildContext context) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            primaryColor: Color(0XFF9866B3),
+          data: ThemeData(
+            primarySwatch: MaterialColor(0XFF9866B3, _swatch),
             textSelectionTheme: TextSelectionThemeData(
               cursorColor: Color(0XFF9866B3),
             ),
@@ -1467,25 +1482,52 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: methods.textOnly("Resend", "Leoscar", 18.0,
                       Colors.white, FontWeight.bold, null, null),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_resendverificationEmailController.text.isNotEmpty &&
                         _informationValidate1) {
-                      methods.snackbarMessage(
-                        context,
-                        Duration(
-                          seconds: 3,
-                        ),
-                        Color(0XFFB563E0),
-                        methods.textOnly(
-                            "Verification email resend, please check your email",
-                            "Leoscar",
-                            18.0,
-                            Colors.white,
-                            null,
-                            null,
-                            TextAlign.center),
-                      );
-                      Navigator.of(context).pop();
+                      await http.post(
+                          Uri.parse(
+                              "https://lifemaintenanceapplication.000webhostapp.com/php/resendverificationemail.php"),
+                          body: {
+                            'email': _resendverificationEmailController.text,
+                          }).then((res) {
+                        print(res.body);
+                        if (res.body == "success") {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(
+                              seconds: 3,
+                            ),
+                            Color(0XFFB563E0),
+                            methods.textOnly(
+                                "Verification email resend, please check your email",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                          Navigator.of(context).pop();
+                        } else {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(
+                              seconds: 1,
+                            ),
+                            Colors.red[400],
+                            methods.textOnly(
+                                "Unable to resend verification email...Please try again",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                        }
+                      });
+
                       // String email = _resendverificationEmailController.text;
                       // http.post(urlResend, body: {
                       //   //find database with the email inserted
@@ -1572,6 +1614,15 @@ class _LoginScreenState extends State<LoginScreen> {
           } else {
             _savePref(2); //call _savePref method
           }
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Color(0XFFB563E0),
+            methods.textOnly("Login successful...Welcome ${user.getName()}",
+                "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+          );
         } else if (userDetails[0] == "success") {
           User user = new User(userDetails[1], userDetails[2], userDetails[3],
               userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
@@ -1589,6 +1640,15 @@ class _LoginScreenState extends State<LoginScreen> {
           } else {
             _savePref(2); //call _savePref method
           }
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Color(0XFFB563E0),
+            methods.textOnly("Login successful...Welcome ${user.getName()}",
+                "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+          );
         } else if (res.body == "incorrect password") {
           methods.snackbarMessage(
             context,
@@ -1678,11 +1738,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             actions: <Widget>[
-              new FlatButton(
-                highlightColor: Colors.transparent,
-                splashColor: Color(0XFFE7BAFF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+              new TextButton(
+                style: ButtonStyle(
+                  overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Color(0XFFE7BAFF),
+                  ),
+                  shape: MaterialStateProperty.resolveWith(
+                    (states) => RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
                 ),
                 child: methods.textOnly(
                     "Cancel",
@@ -1700,12 +1765,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   });
                 },
               ),
-              new FlatButton(
-                highlightColor: Colors.transparent,
-                splashColor: Color(0XFFE7BAFF),
-                color: Color(0XFF9866B3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+              new TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateColor.resolveWith(
+                    (states) => Color(0XFF9866B3),
+                  ),
+                  overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Color(0XFFE7BAFF),
+                  ),
+                  shape: MaterialStateProperty.resolveWith(
+                    (states) => RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
                 ),
                 child: methods.textOnly("Accept", "Leoscar", 18.0, Colors.white,
                     FontWeight.bold, FontStyle.normal, TextAlign.start),
