@@ -278,53 +278,53 @@ class _EditProfileState extends State<EditProfile> {
         RaisedButton(
           onPressed: () {
             _passwordFocus.unfocus();
-            setState(() {
-              if (_page == 2) {
-                if (_passwordController.text == widget.user.getPassword()) {
-                  _passwordHidden = true;
-                  _passwordController.clear();
-                  _page = 3;
-                } else {
-                  Future.delayed(Duration(milliseconds: 300), () {
-                    methods.snackbarMessage(
-                      context,
-                      Duration(seconds: 1),
-                      Colors.red[400],
-                      methods.textOnly(
-                          "Incorrect password...please try again",
-                          "Leoscar",
-                          18.0,
-                          Colors.white,
-                          null,
-                          null,
-                          TextAlign.center),
-                    );
-                  });
-                }
-              } else {
-                if (_passwordController.text == widget.user.getPassword()) {
-                  _passwordHidden = true;
-                  _passwordController.clear();
-                  _page = 5;
-                } else {
-                  Future.delayed(Duration(milliseconds: 300), () {
-                    methods.snackbarMessage(
-                      context,
-                      Duration(seconds: 1),
-                      Colors.red[400],
-                      methods.textOnly(
-                          "Incorrect password...please try again",
-                          "Leoscar",
-                          18.0,
-                          Colors.white,
-                          null,
-                          null,
-                          TextAlign.center),
-                    );
-                  });
-                }
-              }
-            });
+            // setState(() {
+            //   if (_page == 2) {
+            //     if (_passwordController.text == widget.user.getPassword()) {
+            //       _passwordHidden = true;
+            //       _passwordController.clear();
+            //       _page = 3;
+            //     } else {
+            //       Future.delayed(Duration(milliseconds: 300), () {
+            //         methods.snackbarMessage(
+            //           context,
+            //           Duration(seconds: 1),
+            //           Colors.red[400],
+            //           methods.textOnly(
+            //               "Incorrect password...please try again",
+            //               "Leoscar",
+            //               18.0,
+            //               Colors.white,
+            //               null,
+            //               null,
+            //               TextAlign.center),
+            //         );
+            //       });
+            //     }
+            //   } else {
+            //     if (_passwordController.text == widget.user.getPassword()) {
+            //       _passwordHidden = true;
+            //       _passwordController.clear();
+            //       _page = 5;
+            //     } else {
+            //       Future.delayed(Duration(milliseconds: 300), () {
+            //         methods.snackbarMessage(
+            //           context,
+            //           Duration(seconds: 1),
+            //           Colors.red[400],
+            //           methods.textOnly(
+            //               "Incorrect password...please try again",
+            //               "Leoscar",
+            //               18.0,
+            //               Colors.white,
+            //               null,
+            //               null,
+            //               TextAlign.center),
+            //         );
+            //       });
+            //     }
+            //   }
+            // });
           },
           elevation: 10.0,
           color: Colors.white,
@@ -546,7 +546,7 @@ class _EditProfileState extends State<EditProfile> {
                         _verifyRetypePassword) {
                       _passwordFocus.unfocus();
                       _retypePasswordFocus.unfocus();
-                      widget.user.setPassword(_retypePasswordController.text);
+                      // widget.user.setPassword(_retypePasswordController.text);
                       Navigator.of(context).pop();
                       Future.delayed(Duration(milliseconds: 300), () {
                         methods.snackbarMessage(
@@ -727,7 +727,7 @@ class _EditProfileState extends State<EditProfile> {
           child: RaisedButton(
             onPressed: () {
               widget.user.setEmail("");
-              widget.user.setPassword("");
+              // widget.user.setPassword("");
               Navigator.of(context).pop();
               Navigator.of(context).pop();
               Future.delayed(Duration(milliseconds: 300), () {

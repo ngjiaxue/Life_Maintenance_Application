@@ -1,7 +1,6 @@
 import 'loginscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class Methods {
   List<Color> _color = [
@@ -247,17 +246,6 @@ class Methods {
         ),
       ],
     );
-  }
-
-  Future<bool> showMessage(String msg, Toast toastLength, ToastGravity gravity,
-      Color backgroundColor, Color textColor, double fontSize) {
-    return Fluttertoast.showToast(
-        msg: msg,
-        toastLength: toastLength,
-        gravity: gravity,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        fontSize: fontSize);
   }
 
   Widget appBarColor() {

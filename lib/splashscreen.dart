@@ -1,8 +1,12 @@
-import 'package:flutter/services.dart';
+import 'package:life_maintenance_application/tabs.dart';
+import 'package:life_maintenance_application/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'loginscreen.dart';
 import 'fadeanimation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
 
 void main() => runApp(MyApp());
@@ -32,18 +36,24 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
+  User user;
+  int _loggedIn =
+      0; // 0 = navigate to login as unregistered user, 1 = navigate to login with email, 2 = navigate to tabs
   bool run = false;
 
   @override
   void initState() {
     super.initState();
+    _loadPref();
     controller = AnimationController(
         duration: const Duration(milliseconds: 2500), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() {
         setState(() {
           run = true;
-          if (animation.value > 0.99) {
+        });
+        if (animation.value > 0.99) {
+          if (_loggedIn == 0) {
             Navigator.push(
               context,
               PageTransition(
@@ -51,41 +61,26 @@ class _SplashScreenState extends State<SplashScreen>
                 type: PageTransitionType.fade,
               ),
             );
-            // if (widget.loggedIn == 0) {
-            //   Navigator.push(
-            //     context,
-            //     ScaleRoute(
-            //       page: Tabs(
-            //         user: widget.user,
-            //       ),
-            //     ),
-            //   );
-            // } else if (widget.loggedIn == 1) {
-            //   Navigator.push(
-            //     context,
-            //     ScaleRoute(
-            //       page: LoginScreen(1),
-            //     ),
-            //   );
-            // } else if (widget.loggedIn == 2) {
-            //   Navigator.push(
-            //     context,
-            //     ScaleRoute(
-            //       page: AdminTabs(
-            //         user: widget.user,
-            //       ),
-            //     ),
-            //   );
-            // } else {
-            //   Navigator.push(
-            //     context,
-            //     ScaleRoute(
-            //       page: Tabs(user: widget.user),
-            //     ),
-            //   );
-            // }
+          } else if (_loggedIn == 1) {
+            Navigator.push(
+              context,
+              PageTransition(
+                child: LoginScreen(2),
+                type: PageTransitionType.fade,
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              PageTransition(
+                child: Tabs(
+                  user: user,
+                ),
+                type: PageTransitionType.fade,
+              ),
+            );
           }
-        });
+        }
       });
     controller.repeat();
   }
@@ -179,5 +174,41 @@ class _SplashScreenState extends State<SplashScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _loadPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String _email = (prefs.getString('email') ?? '');
+    String _password = (prefs.getString('pass') ?? '');
+    if (_email.isNotEmpty && _password.isNotEmpty) {
+      await http.post(
+          Uri.parse(
+              "https://lifemaintenanceapplication.000webhostapp.com/php/login.php"),
+          body: {
+            "email": _email,
+            "password": _password,
+          }).then((res) {
+        List userDetails = res.body.split("&");
+        if (userDetails[0] == "success admin") {
+          user = new User(userDetails[1], userDetails[2], userDetails[3],
+              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          setState(() {
+            _loggedIn = 2;
+          });
+        } else if (userDetails[0] == "success") {
+          user = new User(userDetails[1], userDetails[2], userDetails[3],
+              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          setState(() {
+            _loggedIn = 2;
+          });
+        }
+      }).catchError((err) {
+        print(err);
+      });
+    } else if (_email.isNotEmpty) {
+      setState(() {
+        _loggedIn = 1;
+      });
+    }
   }
 }

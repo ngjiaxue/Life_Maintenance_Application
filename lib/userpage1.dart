@@ -339,87 +339,84 @@ class _UserPage1State extends State<UserPage1> {
         barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
-          return Column(
-            children: [
-              Container(
-                color: Colors.white,
-                child: new DecimalNumberPicker(
-                  minValue: _index == 0 ? 50 : 30,
-                  maxValue: _index == 0 ? 200 : 300,
-                  onChanged: (double value) {},
-                  value: _index == 0
-                      ? (_height != 0.0
-                          ? _height
-                          : widget.user.getHeight() == "0.0"
-                              ? 50.0
-                              : double.parse(widget.user.getHeight()))
-                      : (_weight != 0.0
-                          ? _weight
-                          : widget.user.getWeight() == "0.0"
-                              ? 30.0
-                              : double.parse(widget.user.getWeight())),
-                  // title: _index == 0
-                  //     ? methods.textOnly(
-                  //         "Pick a new height",
-                  //         "Leoscar",
-                  //         26.0,
-                  //         Color(0XFF7100AD),
-                  //         FontWeight.bold,
-                  //         FontStyle.normal,
-                  //         TextAlign.start)
-                  //     : methods.textOnly(
-                  //         "Pick a new weight",
-                  //         "Leoscar",
-                  //         26.0,
-                  //         Color(0XFF7100AD),
-                  //         FontWeight.bold,
-                  //         FontStyle.normal,
-                  //         TextAlign.start),
-                  textStyle: TextStyle(
-                    fontFamily: "Leoscar",
-                    fontSize: 20.0,
-                    letterSpacing: 1.0,
-                    color: Colors.grey,
+          return new NumberPickerDialog.decimal(
+            minValue: _index == 0 ? 50 : 30,
+            maxValue: _index == 0 ? 200 : 300,
+            title: _index == 0
+                ? methods.textOnly(
+                    "Pick a new height",
+                    "Leoscar",
+                    26.0,
+                    Color(0XFF7100AD),
+                    FontWeight.bold,
+                    FontStyle.normal,
+                    TextAlign.start)
+                : methods.textOnly(
+                    "Pick a new weight",
+                    "Leoscar",
+                    26.0,
+                    Color(0XFF7100AD),
+                    FontWeight.bold,
+                    FontStyle.normal,
+                    TextAlign.start),
+            initialDoubleValue: _index == 0
+                ? (_height != 0.0
+                    ? _height
+                    : widget.user.getHeight() == "0.0"
+                        ? 50.0
+                        : double.parse(widget.user.getHeight()))
+                : (_weight != 0.0
+                    ? _weight
+                    : widget.user.getWeight() == "0.0"
+                        ? 30.0
+                        : double.parse(widget.user.getWeight())),
+            textStyle: TextStyle(
+              fontFamily: "Leoscar",
+              fontSize: 20.0,
+              letterSpacing: 1.0,
+              color: Colors.grey,
+            ),
+            selectedTextStyle: TextStyle(
+              fontFamily: "Leoscar",
+              fontSize: 22.0,
+              letterSpacing: 1.0,
+              color: Color(0XFF7100AD),
+            ),
+            confirmWidget: TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateColor.resolveWith(
+                  (states) => Color(0XFF9866B3),
+                ),
+                overlayColor: MaterialStateColor.resolveWith(
+                  (states) => Color(0XFFE7BAFF),
+                ),
+                shape: MaterialStateProperty.resolveWith(
+                  (states) => RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  selectedTextStyle: TextStyle(
-                    fontFamily: "Leoscar",
-                    fontSize: 22.0,
-                    letterSpacing: 1.0,
-                    color: Color(0XFF7100AD),
-                  ),
-                  // confirmWidget: InkWell(
-                  //   highlightColor: Colors.transparent,
-                  //   splashColor: Color(0XFFE7BAFF),
-                  //   child: Ink(
-                  //     height: 36.0,
-                  //     width: 70.0,
-                  //     decoration: BoxDecoration(
-                  //       color: Color(0XFF9866B3),
-                  //       borderRadius: new BorderRadius.circular(
-                  //         8.0,
-                  //       ),
-                  //     ),
-                  //     child: Center(
-                  //       child: methods.textOnly("Ok", "Leoscar", 18.0, Colors.white,
-                  //           FontWeight.bold, null, null),
-                  //     ),
-                  //   ),
-                  // ),
-                  // cancelWidget: MaterialButton(
-                  //   highlightColor: Colors.transparent,
-                  //   splashColor: Color(0XFFE7BAFF),
-                  //   shape: RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.circular(8.0),
-                  //   ),
-                  //   onPressed: () {
-                  //     Navigator.of(context).pop();
-                  //   },
-                  //   child: methods.textOnly("Cancel", "Leoscar", 18.0,
-                  //       Color(0XFF9866B3), FontWeight.bold, null, null),
-                  // ),
                 ),
               ),
-            ],
+              onPressed: () {},
+              child: methods.textOnly("Submit", "Leoscar", 18.0, Colors.white,
+                  FontWeight.bold, null, null),
+            ),
+            cancelWidget: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                  (states) => Color(0XFFE7BAFF),
+                ),
+                shape: MaterialStateProperty.resolveWith(
+                  (states) => RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+              ),
+              child: methods.textOnly("Cancel", "Leoscar", 18.0,
+                  Color(0XFF9866B3), FontWeight.bold, null, null),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
           );
         }).then((value) {
       setState(() {

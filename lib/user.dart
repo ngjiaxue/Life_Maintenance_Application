@@ -2,26 +2,20 @@ import 'food.dart';
 import 'exercise.dart';
 
 class User {
-  String _name,
-      _dob,
-      _gender,
-      _email,
-      _phone,
-      _password,
-      _height = "0.0",
-      _weight = "0.0";
+  String _name, _dob, _gender, _email, _phone, _height, _weight;
 
   List<Food> _foodList = [];
   List<Exercise> _exerciseList = [];
 
   User(String name, String dob, String gender, String email, String phone,
-      String password) {
+      String height, String weight) {
     this._name = name;
     this._dob = dob;
     this._gender = gender;
     this._email = email;
     this._phone = phone;
-    this._password = password;
+    this._height = height;
+    this._weight = weight;
   }
 
   String getName() {
@@ -42,10 +36,6 @@ class User {
 
   String getPhone() {
     return this._phone;
-  }
-
-  String getPassword() {
-    return this._password;
   }
 
   String getHeight() {
@@ -82,10 +72,6 @@ class User {
 
   void setPhone(String phone) {
     this._phone = phone;
-  }
-
-  void setPassword(String password) {
-    this._password = password;
   }
 
   void setHeight(String height) {

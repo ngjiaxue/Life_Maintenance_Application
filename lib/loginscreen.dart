@@ -5,18 +5,19 @@ import 'fadeanimation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:line_icons/line_icons.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 void main() => runApp(LoginScreen(1));
 
 class LoginScreen extends StatefulWidget {
-  final int
-      userLogout; //1 = do ntg, 2 = clear password & remember me, 3 = clear email & password & remember me, 4 = signup
+  final int userLogout; //1 = do ntg, 2 = clear password & remember me
   LoginScreen(this.userLogout);
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -24,10 +25,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   //to test
-  User user = new User("Ng Jia Xue", "1998-12-07", "Male",
-      "ngjiaxueuum@gmail.com", "0178441087", "1q2w#E");
-  //used by both screens
-  int _i = 0;
+  User user;
+  int _i = 0; //to let the animation text stop
   int _buttonClicked =
       0; //0 = login, 1 = forget password, 2 = resend verification email, 3 = sign up
   double _screenHeight;
@@ -76,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    _loadPref();
     KeyboardVisibilityNotification().addNewListener(
       onShow: () {
         setState(() {
@@ -624,6 +624,27 @@ class _LoginScreenState extends State<LoginScreen> {
                             context,
                             minTime: DateTime(DateTime.now().year - 100, 1, 1),
                             maxTime: DateTime.now(),
+                            theme: DatePickerTheme(
+                              cancelStyle: TextStyle(
+                                fontFamily: "Leoscar",
+                                fontSize: 17.0,
+                                color: Colors.grey,
+                                letterSpacing: 1.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              doneStyle: TextStyle(
+                                fontFamily: "Leoscar",
+                                fontSize: 17.0,
+                                color: Color(0XFF9866B3),
+                                letterSpacing: 1.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              itemStyle: TextStyle(
+                                fontFamily: "Leoscar",
+                                fontSize: 17.0,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
                             onCancel: () {
                               setState(() {
                                 if (_dobController.text == " ") {
@@ -967,68 +988,58 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   } //end sign up card
 
-  // void _savePref(int value) async {
-  //   //start _savePref method
-  //   String email = _emailController.text;
-  //   String password = _passwordController.text;
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   if (value == 1) {
-  //     await prefs.setString('email', email);
-  //     await prefs.setString('pass', password);
-  // methods.snackbarMessage(context, "Email & Password saved", Color(0XFFB563E0),);
-  //     methods.showMessage("Email & Password saved", Toast.LENGTH_SHORT,
-  //         ToastGravity.CENTER, Colors.orange[400], Colors.white, 16.0);
-  //   } else if (value == 2) {
-  //     await prefs.setString('email', email);
-  //     await prefs.setString('pass', '');
-  //     setState(() {
-  //       _emailController.text = email;
-  //       _passwordController.text = '';
-  //       _isChecked = false;
-  //     });
-  //   } else {
-  //     await prefs.setString('email', '');
-  //     await prefs.setString('pass', '');
-  //     setState(() {
-  //       _emailController.text = '';
-  //       _passwordController.text = '';
-  //       _isChecked = false;
-  //     });
-  //     methods.showMessage("Email & Password removed", Toast.LENGTH_SHORT,
-  //         ToastGravity.CENTER, Colors.orange[400], Colors.white, 16.0);
-  //   }
-  // } //end _savePref method
+  //start _savePref method
+  void _savePref(int value) async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (value == 1) {
+      await prefs.setString('email', email);
+      await prefs.setString('pass', password);
+    } else if (value == 2) {
+      await prefs.setString('email', email);
+      await prefs.setString('pass', '');
+      setState(() {
+        _emailController.text = email;
+        _passwordController.text = '';
+        _isChecked = false;
+      });
+    } else {
+      await prefs.setString('email', '');
+      await prefs.setString('pass', '');
+    }
+  } //end _savePref method
 
-  // void _loadPref() async {
-  //   //start _loadPref method
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String email = (prefs.getString('email')) ?? '';
-  //   String password = (prefs.getString('pass')) ?? '';
-  //   if (widget.userLogout == 1 && email.length > 1) {
-  //     setState(() {
-  //       _emailController.text = email;
-  //       _passwordController.text = password;
-  //       if (_passwordController.text.isNotEmpty) {
-  //         _isChecked = true;
-  //       } else {
-  //         _isChecked = false;
-  //       }
-  //     });
-  //   } else if (widget.userLogout == 2) {
-  //     setState(() {
-  //       _emailController.text = email;
-  //       _passwordController.clear();
-  //       _savePref(2);
-  //     });
-  //   } else {
-  //     setState(() {
-  //       prefs.setString('email', null);
-  //       prefs.setString('pass', null);
-  //       _emailController.clear();
-  //       _passwordController.clear();
-  //     });
-  //   }
-  // } //end _loadPref method
+  //start _loadPref method
+  Future<void> _loadPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String email = (prefs.getString('email')) ?? '';
+    String password = (prefs.getString('pass')) ?? '';
+    if (widget.userLogout == 1 && email.length > 1) {
+      setState(() {
+        _emailController.text = email;
+        _passwordController.text = password;
+        if (_passwordController.text.isNotEmpty) {
+          _isChecked = true;
+        } else {
+          _isChecked = false;
+        }
+      });
+    } else if (widget.userLogout == 2) {
+      setState(() {
+        _emailController.text = email;
+        _passwordController.clear();
+        _savePref(2);
+      });
+    } else {
+      setState(() {
+        prefs.setString('email', '');
+        prefs.setString('pass', '');
+        _emailController.clear();
+        _passwordController.clear();
+      });
+    }
+  } //end _loadPref method
 
 //start _onTick method
   void _onTick(bool value) {
@@ -1047,7 +1058,6 @@ class _LoginScreenState extends State<LoginScreen> {
             methods.textOnly("Email & password saved", "Leoscar", 18.0,
                 Colors.white, null, null, TextAlign.center),
           );
-          // _savePref(1); //call _savePref method
         } else {
           methods.snackbarMessage(
             context,
@@ -1058,7 +1068,6 @@ class _LoginScreenState extends State<LoginScreen> {
             methods.textOnly("Email & password removed", "Leoscar", 18.0,
                 Colors.white, null, null, TextAlign.center),
           );
-          // _savePref(3); //call _savePref method
         }
       } else {
         _isChecked = false;
@@ -1538,128 +1547,80 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     if (_emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
-      // methods.snackbarMessage(
-      //   context,
-      //   Duration(
-      //     milliseconds: 1200,
-      //   ),
-      //   "Login successfully...Welcome User!",
-      //   Color(0XFFB563E0),
-      // );
-      // Future.delayed(Duration(milliseconds: 500), () {
-      if (_emailController.text == user.getEmail() &&
-          _passwordController.text == user.getPassword()) {
-        Navigator.push(
-          context,
-          PageTransition(
-            child: Tabs(
-              user: user,
+      await http.post(
+          Uri.parse(
+              "https://lifemaintenanceapplication.000webhostapp.com/php/login.php"),
+          body: {
+            'email': _emailController.text,
+            'password': _passwordController.text,
+          }).then((res) {
+        List userDetails = res.body.split("&");
+        if (userDetails[0] == "success admin") {
+          User user = new User(userDetails[1], userDetails[2], userDetails[3],
+              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          Navigator.push(
+            context,
+            PageTransition(
+              child: Tabs(
+                user: user,
+              ),
+              type: PageTransitionType.fade,
             ),
-            type: PageTransitionType.fade,
-          ),
-        );
-        methods.snackbarMessage(
-          context,
-          Duration(
-            seconds: 1,
-          ),
-          Color(0XFFB563E0),
-          methods.textOnly("Login successfully...Welcome ${user.getName()}",
-              "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
-        );
-        // Flushbar(
-        //   duration: Duration(milliseconds: 1500),
-        //   backgroundColor: Color(0XFFB563E0),
-        //   messageText: methods.textOnly(
-        //       "Login successfully...Welcome ${user.getName()}!",
-        //       "Leoscar",
-        //       18.0,
-        //       Colors.white,
-        //       null,
-        //       null,
-        //       TextAlign.center),
-        // )..show(context);
-      } else {
-        methods.snackbarMessage(
-          context,
-          Duration(
-            seconds: 1,
-          ),
-          Colors.red[400],
-          methods.textOnly("Incorrect email or password...Please try again",
-              "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
-        );
-        // Flushbar(
-        //   duration: Duration(milliseconds: 1500),
-        //   backgroundColor: Colors.red[400],
-        //   messageText: methods.textOnly(
-        //       "Incorrect email or password...Please try again!",
-        //       "Leoscar",
-        //       18.0,
-        //       Colors.white,
-        //       null,
-        //       null,
-        //       TextAlign.center),
-        // )..show(context);
-      }
-      // });
-
-      //  var res = await http.post(urlLogin, body: {
-      //   'email': _emailController.text,
-      //   'password': _passwordController.text
-      // });
-      // List userDetails = res.body.split("&");
-      // if (userDetails[0] == "success admin") {
-      //   User user = new User(userDetails[1], userDetails[2], "ADMIN", "ADMIN",
-      //       null, null, "XX.XX");
-      //   Navigator.push(
-      //     //route to tabs
-      //     context,
-      //     ScaleRoute(
-      //       page: AdminTabs(user: user),
-      //     ),
-      //   );
-      // } else if (userDetails[0] == "success") {
-      //   User user = new User(
-      //       userDetails[1],
-      //       userDetails[2],
-      //       userDetails[3],
-      //       userDetails[4],
-      //       userDetails[5] == null ? null : double.parse(userDetails[5]),
-      //       userDetails[6] == null ? null : double.parse(userDetails[6]),
-      //       userDetails[7]);
-      //   Navigator.push(
-      //     context,
-      //     ScaleRoute(
-      //       page: Tabs(user: user),
-      //     ),
-      //   );
-      // } else if (res.body == "incorrect password") {
-      //   methods.showMessage("Incorrect Password", Toast.LENGTH_LONG,
-      //       ToastGravity.CENTER, Colors.orange[900], Colors.white, 16.0);
-      //   setState(() {
-      //     _passwordController.clear();
-      //     _isChecked = false;
-      //   });
-      //   _savePref(2);
-      // } else if (res.body == "no verify success") {
-      //   methods.showMessage(
-      //       "Please check your email to activate this account",
-      //       Toast.LENGTH_LONG,
-      //       ToastGravity.CENTER,
-      //       Colors.orange,
-      //       Colors.white,
-      //       16.0);
-      // } else {
-      //   methods.showMessage("Incorrect Email/Password", Toast.LENGTH_SHORT,
-      //       ToastGravity.CENTER, Colors.orange[900], Colors.white, 16.0);
-      //   setState(() {
-      //     _emailController.clear();
-      //     _passwordController.clear();
-      //     _isChecked = false;
-      //   });
-      //   _savePref(3);
-      // }
+          );
+          if (_isChecked) {
+            _savePref(1); //call _savePref method
+          } else {
+            _savePref(2); //call _savePref method
+          }
+        } else if (userDetails[0] == "success") {
+          User user = new User(userDetails[1], userDetails[2], userDetails[3],
+              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          Navigator.push(
+            context,
+            PageTransition(
+              child: Tabs(
+                user: user,
+              ),
+              type: PageTransitionType.fade,
+            ),
+          );
+          if (_isChecked) {
+            _savePref(1); //call _savePref method
+          } else {
+            _savePref(2); //call _savePref method
+          }
+        } else if (res.body == "incorrect password") {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Colors.red[400],
+            methods.textOnly("Incorrect password...Please try again", "Leoscar",
+                18.0, Colors.white, null, null, TextAlign.center),
+          );
+        } else if (res.body == "no verify success") {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Colors.red[400],
+            methods.textOnly("Please check your email to activate this account",
+                "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+          );
+        } else {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Colors.red[400],
+            methods.textOnly("Incorrect email/password...Please try again",
+                "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+          );
+        }
+      });
     } else {
       methods.snackbarMessage(
         context,
@@ -1769,7 +1730,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end _showEULA method
 
   //start _signUp method
-  void _signUp() {
+  void _signUp() async {
     //test if all blanks is not empty
     if (_nameController1.text.isNotEmpty &&
         _dobController.text.isNotEmpty &&
@@ -1787,89 +1748,86 @@ class _LoginScreenState extends State<LoginScreen> {
           _informationValidate2[6] == true &&
           _isChecked1 == true) {
         //add user data into database
-        String name = _nameController1.text;
-        String dob = _dobController.text;
-        String gender = _genderController.text;
-        String email = _emailController1.text;
-        String phone = _phoneController1.text;
-        String password = _passwordController1.text;
-        // http.post(urlSignUp, body: {
-        //   "name": name,
-        //   "dob": dob,
-        //   "gender": gender,
-        //   "email": email,
-        //   "password": password,
-        //   "phone": phone,
-        // }).then((res) {
-        //   if (res.body == "success") {
-        //     //if successfully added to database then pop signupscreen
-        //     setState(() {
-        //       _loginPressed = true;
-        //       _nameController1.clear();
-        //       _dobController.clear();
-        //       _genderController.clear();
-        //       _emailController1.clear();
-        //       _phoneController1.clear();
-        //       _passwordController1.clear();
-        //       _retypepasswordController1.clear();
-        //       _isChecked1 = false;
-        //     });
-        setState(() {
-          user = new User(
-              _nameController1.text,
-              _dobController.text,
-              _genderController.text,
-              _emailController1.text,
-              _phoneController1.text,
-              _retypePasswordController1.text);
-          _emailController.text = _emailController1.text;
-          _nameController1.clear();
-          _dobController.clear();
-          _genderController.clear();
-          _emailController1.clear();
-          _phoneController1.clear();
-          _passwordController1.clear();
-          _retypePasswordController1.clear();
-          _buttonClicked = 0;
-          _isChecked1 = false;
-          _passwordHidden3 = true;
-          _passwordHidden4 = true;
-          _loginPressed = true;
+        await http.post(
+            Uri.parse(
+                "https://lifemaintenanceapplication.000webhostapp.com/php/signup.php"),
+            body: {
+              "name": _nameController1.text,
+              "dob": _dobController.text,
+              "gender": _genderController.text,
+              "email": _emailController1.text,
+              "phone": _phoneController1.text,
+              "password": _passwordController1.text,
+            }).then((res) {
+          print(res.body);
+          if (res.body == "success") {
+            //if successfully added to database then pop signupscreen
+            setState(() {
+              _loginPressed = true;
+              _nameController1.clear();
+              _dobController.clear();
+              _genderController.clear();
+              _emailController1.clear();
+              _phoneController1.clear();
+              _passwordController1.clear();
+              _retypePasswordController1.clear();
+              _buttonClicked = 0;
+              _isChecked1 = false;
+              _passwordHidden3 = true;
+              _passwordHidden4 = true;
+              _loginPressed = true;
+            });
+            // setState(() {
+            //   user = new User(
+            //       _nameController1.text,
+            //       _dobController.text,
+            //       _genderController.text,
+            //       _emailController1.text,
+            //       _phoneController1.text,
+            //       _retypePasswordController1.text);
+            //   _emailController.text = _emailController1.text;
+            //   _nameController1.clear();
+            //   _dobController.clear();
+            //   _genderController.clear();
+            //   _emailController1.clear();
+            //   _phoneController1.clear();
+            //   _passwordController1.clear();
+            //   _retypePasswordController1.clear();
+            //   _buttonClicked = 0;
+            //   _isChecked1 = false;
+            //   _passwordHidden3 = true;
+            //   _passwordHidden4 = true;
+            //   _loginPressed = true;
+            // });
+            methods.snackbarMessage(
+              context,
+              Duration(
+                seconds: 3,
+              ),
+              Color(0XFFB563E0),
+              methods.textOnly(
+                  "Registration success, please check your email to verify your account",
+                  "Leoscar",
+                  18.0,
+                  Colors.white,
+                  null,
+                  null,
+                  TextAlign.center),
+            );
+          } else {
+            methods.snackbarMessage(
+              context,
+              Duration(
+                seconds: 3,
+              ),
+              Colors.red[400],
+              methods.textOnly("Registration failed", "Leoscar", 18.0,
+                  Colors.white, null, null, TextAlign.center),
+            );
+          }
+        }).catchError((err) {
+          print(err);
         });
-        methods.snackbarMessage(
-          context,
-          Duration(
-            seconds: 3,
-          ),
-          Color(0XFFB563E0),
-          methods.textOnly(
-              "Registration success, please check your email to verify your account",
-              "Leoscar",
-              18.0,
-              Colors.white,
-              null,
-              null,
-              TextAlign.center),
-        );
-        //     methods.showMessage(
-        //         "Registration success, please check your email to verify your account",
-        //         Toast.LENGTH_LONG,
-        //         ToastGravity.CENTER,
-        //         Colors.orange[400],
-        //         Colors.white,
-        //         16.0);
-        //   } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        // new SnackBar(
-        //   content: Text(
-        //       "Registration Failed"),
-        // ),
-        //     methods.showMessage("Registration Failed", Toast.LENGTH_SHORT,
-        //         ToastGravity.CENTER, Colors.red, Colors.white, 16.0);
-        //   }
-        // }).catchError((err) {
-        //   print(err);
-        // });
       } else if (_informationValidate2[0] == false ||
           _informationValidate2[1] == false ||
           _informationValidate2[2] == false ||
@@ -1886,8 +1844,6 @@ class _LoginScreenState extends State<LoginScreen> {
           methods.textOnly("Please amend the error(s)", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
-        // methods.showMessage("Please amend the error(s)", Toast.LENGTH_SHORT,
-        //     ToastGravity.CENTER, Colors.red, Colors.white, 16.0);
 
         //test whether user agree EULA or not
       } else if (_isChecked1 == false) {
@@ -1903,13 +1859,6 @@ class _LoginScreenState extends State<LoginScreen> {
         Future.delayed(Duration(milliseconds: 500), () {
           _showEULA();
         });
-        // methods.showMessage(
-        //     "Please accept the License Agreement",
-        //     Toast.LENGTH_SHORT,
-        //     ToastGravity.CENTER,
-        //     Colors.red,
-        //     Colors.white,
-        //     16.0);
       }
     } //test if any blanks is empty
     else {

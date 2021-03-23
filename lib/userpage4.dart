@@ -1,12 +1,11 @@
 import 'dart:ui';
 import 'user.dart';
 import 'methods.dart';
+import 'loginscreen.dart';
 import 'editprofile.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-// import 'package:flushbar/flushbar.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -626,9 +625,16 @@ class _UserPage4State extends State<UserPage4>
               "Do you want to Logout?",
               () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                Future.delayed(Duration(milliseconds: 300), () {
-                  Navigator.of(context).pop();
-                });
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    child: LoginScreen(2),
+                    type: PageTransitionType.fade,
+                  ),
+                );
+                // Future.delayed(Duration(milliseconds: 300), () {
+                //   Navigator.of(context).pop();
+                // });
               });
         } else if (_index == 8) {
           Navigator.push(
@@ -695,7 +701,7 @@ class _UserPage4State extends State<UserPage4>
           GestureDetector(
             child: Container(
               child: Icon(
-                LineIcons.closedCaptioning,
+                LineIcons.times,
                 color: Colors.white,
               ),
             ),
@@ -719,84 +725,100 @@ class _UserPage4State extends State<UserPage4>
 
   void _showDialog(int _index) {
     showDialog<double>(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return new DecimalNumberPicker(
-            minValue: _index == 5 ? 50 : 30,
-            maxValue: _index == 5 ? 200 : 300,
-            // title: _index == 5
-            //     ? methods.textOnly(
-            //         "Pick a new height",
-            //         "Leoscar",
-            //         26.0,
-            //         Color(0XFF7100AD),
-            //         FontWeight.bold,
-            //         FontStyle.normal,
-            //         TextAlign.start)
-            //     : methods.textOnly(
-            //         "Pick a new weight",
-            //         "Leoscar",
-            //         26.0,
-            //         Color(0XFF7100AD),
-            //         FontWeight.bold,
-            //         FontStyle.normal,
-            //         TextAlign.start),
-            // initialDoubleValue: _index == 5
-            //     ? (_height != 0.0
-            //         ? _height
-            //         : widget.user.getHeight() == "0.0"
-            //             ? 50.0
-            //             : double.parse(widget.user.getHeight()))
-            //     : (_weight != 0.0
-            //         ? _weight
-            //         : widget.user.getWeight() == "0.0"
-            //             ? 30.0
-            //             : double.parse(widget.user.getWeight())),
-            textStyle: TextStyle(
-              fontFamily: "Leoscar",
-              fontSize: 20.0,
-              letterSpacing: 1.0,
-              color: Colors.grey,
-            ),
-            selectedTextStyle: TextStyle(
-              fontFamily: "Leoscar",
-              fontSize: 22.0,
-              letterSpacing: 1.0,
-              color: Color(0XFF7100AD),
-            ),
-            //   confirmWidget: InkWell(
-            //     highlightColor: Colors.transparent,
-            //     splashColor: Color(0XFFE7BAFF),
-            //     child: Ink(
-            //       height: 36.0,
-            //       width: 70.0,
-            //       decoration: BoxDecoration(
-            //         color: Color(0XFF9866B3),
-            //         borderRadius: new BorderRadius.circular(
-            //           8.0,
-            //         ),
-            //       ),
-            //       child: Center(
-            //         child: methods.textOnly("Ok", "Leoscar", 18.0, Colors.white,
-            //             FontWeight.bold, null, null),
-            //       ),
-            //     ),
-            //   ),
-            //   cancelWidget: MaterialButton(
-            //     highlightColor: Colors.transparent,
-            //     splashColor: Color(0XFFE7BAFF),
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(8.0),
-            //     ),
-            //     onPressed: () {
-            //       Navigator.of(context).pop();
-            //     },
-            //     child: methods.textOnly("Cancel", "Leoscar", 18.0,
-            //         Color(0XFF9866B3), FontWeight.bold, null, null),
-            //   ),
-          );
-        }).then((value) {
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              // return Column(
+              //   children: <Widget>[
+              //     SizedBox(height: 16),
+              //     Text('Decimal', style: Theme.of(context).textTheme.headline6),
+              //     DecimalNumberPicker(
+              //       value: _currentDoubleValue,
+              //       minValue: 0,
+              //       maxValue: 10,
+              //       decimalPlaces: 2,
+              //       onChanged: (value) =>
+              //           setState(() => _currentDoubleValue = value),
+              //     ),
+              //     SizedBox(height: 32),
+              //   ],
+              // );
+              // return new DecimalNumberPicker(
+              //   minValue: _index == 5 ? 50 : 30,
+              //   maxValue: _index == 5 ? 200 : 300,
+              //   // title: _index == 5
+              //   //     ? methods.textOnly(
+              //   //         "Pick a new height",
+              //   //         "Leoscar",
+              //   //         26.0,
+              //   //         Color(0XFF7100AD),
+              //   //         FontWeight.bold,
+              //   //         FontStyle.normal,
+              //   //         TextAlign.start)
+              //   //     : methods.textOnly(
+              //   //         "Pick a new weight",
+              //   //         "Leoscar",
+              //   //         26.0,
+              //   //         Color(0XFF7100AD),
+              //   //         FontWeight.bold,
+              //   //         FontStyle.normal,
+              //   //         TextAlign.start),
+              //   // initialDoubleValue: _index == 5
+              //   //     ? (_height != 0.0
+              //   //         ? _height
+              //   //         : widget.user.getHeight() == "0.0"
+              //   //             ? 50.0
+              //   //             : double.parse(widget.user.getHeight()))
+              //   //     : (_weight != 0.0
+              //   //         ? _weight
+              //   //         : widget.user.getWeight() == "0.0"
+              //   //             ? 30.0
+              //   //             : double.parse(widget.user.getWeight())),
+              //   textStyle: TextStyle(
+              //     fontFamily: "Leoscar",
+              //     fontSize: 20.0,
+              //     letterSpacing: 1.0,
+              //     color: Colors.grey,
+              //   ),
+              //   selectedTextStyle: TextStyle(
+              //     fontFamily: "Leoscar",
+              //     fontSize: 22.0,
+              //     letterSpacing: 1.0,
+              //     color: Color(0XFF7100AD),
+              //   ),
+              //   //     confirmWidget: InkWell(
+              //   //       highlightColor: Colors.transparent,
+              //   //       splashColor: Color(0XFFE7BAFF),
+              //   //       child: Ink(
+              //   //         height: 36.0,
+              //   //         width: 70.0,
+              //   //         decoration: BoxDecoration(
+              //   //           color: Color(0XFF9866B3),
+              //   //           borderRadius: new BorderRadius.circular(
+              //   //             8.0,
+              //   //           ),
+              //   //         ),
+              //   //         child: Center(
+              //   //           child: methods.textOnly("Ok", "Leoscar", 18.0, Colors.white,
+              //   //               FontWeight.bold, null, null),
+              //   //         ),
+              //   //       ),
+              //   //     ),
+              //   //     cancelWidget: MaterialButton(
+              //   //       highlightColor: Colors.transparent,
+              //   //       splashColor: Color(0XFFE7BAFF),
+              //   //       shape: RoundedRectangleBorder(
+              //   //         borderRadius: BorderRadius.circular(8.0),
+              //   //       ),
+              //   //       onPressed: () {
+              //   //         Navigator.of(context).pop();
+              //   //       },
+              //   //       child: methods.textOnly("Cancel", "Leoscar", 18.0,
+              //   //           Color(0XFF9866B3), FontWeight.bold, null, null),
+              //   //     ),
+              // );
+            })
+        .then((value) {
       setState(() {
         if (_index == 5 && value != null) {
           _height = value;
