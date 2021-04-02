@@ -1,15 +1,14 @@
 import 'dart:ui';
-import 'package:flutter/services.dart';
-import 'package:numberpicker/numberpicker.dart';
-
-import 'package:http/http.dart' as http;
 import 'user.dart';
 import 'methods.dart';
 import 'loginscreen.dart';
 import 'editprofile.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:line_icons/line_icons.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -248,12 +247,6 @@ class _UserPage4State extends State<UserPage4>
                                           "phone": _phoneController.text,
                                           "height": _heightController.text,
                                           "weight": _weightController.text,
-                                          // "name": _nameController.text.isNotEmpty? _nameController.text : null,
-                                          // "dob": _dobController.text.isNotEmpty? _dobController.text : null,
-                                          // "gender": _genderController.text.isNotEmpty? _genderController.text : null,
-                                          // "phone": _phoneController.text.isNotEmpty? _phoneController.text : null,
-                                          // "height": _heightController.text.isNotEmpty? _heightController.text : null,
-                                          // "weight":_weightController.text.isNotEmpty? _weightController.text : null,
                                           "email": widget.user.getEmail(),
                                         }).then((res) {
                                       if (res.body == "success") {
@@ -602,6 +595,27 @@ class _UserPage4State extends State<UserPage4>
                 context,
                 minTime: DateTime(DateTime.now().year - 100, 1, 1),
                 maxTime: DateTime.now(),
+                theme: DatePickerTheme(
+                  cancelStyle: TextStyle(
+                    fontFamily: "Leoscar",
+                    fontSize: 17.0,
+                    color: Colors.grey,
+                    letterSpacing: 1.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  doneStyle: TextStyle(
+                    fontFamily: "Leoscar",
+                    fontSize: 17.0,
+                    color: Color(0XFF9866B3),
+                    letterSpacing: 1.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  itemStyle: TextStyle(
+                    fontFamily: "Leoscar",
+                    fontSize: 17.0,
+                    letterSpacing: 1.0,
+                  ),
+                ),
                 onCancel: () {
                   setState(() {
                     if (_dobController.text == " ") {
@@ -624,6 +638,7 @@ class _UserPage4State extends State<UserPage4>
             }
           },
           controller: _textEditingController,
+          keyboardType: _index == 3 ? TextInputType.number : TextInputType.name,
           inputFormatters: _index == 3
               ? [
                   FilteringTextInputFormatter.digitsOnly,
@@ -864,8 +879,8 @@ class _UserPage4State extends State<UserPage4>
                   ),
                 ),
                 child: Center(
-                  child: methods.textOnly("Ok", "Leoscar", 18.0, Colors.white,
-                      FontWeight.bold, null, null),
+                  child: methods.textOnly("Submit", "Leoscar", 18.0,
+                      Colors.white, FontWeight.bold, null, null),
                 ),
               ),
             ),

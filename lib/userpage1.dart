@@ -1,10 +1,10 @@
 import 'dart:math';
-import 'package:numberpicker/numberpicker.dart';
-
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
+import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
 class UserPage1 extends StatefulWidget {
@@ -283,7 +283,7 @@ class _UserPage1State extends State<UserPage1> {
                       letterSpacing: 1.0,
                     ),
                     margin: EdgeInsets.only(
-                      right: 12.0,
+                      right: 14.0,
                     ),
                     padding: EdgeInsets.symmetric(
                       vertical: 5.0,
@@ -335,6 +335,7 @@ class _UserPage1State extends State<UserPage1> {
 
   void _showDialog(int _index) {
     //0 = height, 1 = weight
+    bool _cancelPressed = false;
     showDialog<double>(
         barrierDismissible: false,
         context: context,
@@ -382,23 +383,23 @@ class _UserPage1State extends State<UserPage1> {
               letterSpacing: 1.0,
               color: Color(0XFF7100AD),
             ),
-            confirmWidget: TextButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateColor.resolveWith(
-                  (states) => Color(0XFF9866B3),
-                ),
-                overlayColor: MaterialStateColor.resolveWith(
-                  (states) => Color(0XFFE7BAFF),
-                ),
-                shape: MaterialStateProperty.resolveWith(
-                  (states) => RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+            confirmWidget: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Color(0XFFE7BAFF),
+              child: Ink(
+                height: 36.0,
+                width: 70.0,
+                decoration: BoxDecoration(
+                  color: Color(0XFF9866B3),
+                  borderRadius: new BorderRadius.circular(
+                    8.0,
                   ),
                 ),
+                child: Center(
+                  child: methods.textOnly("Submit", "Leoscar", 18.0,
+                      Colors.white, FontWeight.bold, null, null),
+                ),
               ),
-              onPressed: () {},
-              child: methods.textOnly("Submit", "Leoscar", 18.0, Colors.white,
-                  FontWeight.bold, null, null),
             ),
             cancelWidget: TextButton(
               style: ButtonStyle(
@@ -414,20 +415,67 @@ class _UserPage1State extends State<UserPage1> {
               child: methods.textOnly("Cancel", "Leoscar", 18.0,
                   Color(0XFF9866B3), FontWeight.bold, null, null),
               onPressed: () {
+                setState(() {
+                  _cancelPressed = true;
+                });
                 Navigator.of(context).pop();
               },
             ),
           );
-        }).then((value) {
+        }).then((value) async {
+      if (!_cancelPressed) {
+        await http.post(
+            Uri.parse(
+                "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+            body: {
+              "page1Edit": _index.toString(),
+              "value": value.toString(),
+              "email": widget.user.getEmail(),
+            }).then((res) {
+          if (res.body == "success") {
+            _index == 0
+                ? widget.user.setHeight(value.toString())
+                : widget.user.setWeight(value.toString());
+            Future.delayed(Duration(milliseconds: 500), () {
+              methods.snackbarMessage(
+                context,
+                Duration(
+                  milliseconds: 1500,
+                ),
+                Color(0XFFB563E0),
+                methods.textOnly(
+                    (_index == 0 ? "Height" : "Weight") +
+                        " updated successfully",
+                    "Leoscar",
+                    18.0,
+                    Colors.white,
+                    null,
+                    null,
+                    TextAlign.center),
+              );
+            });
+          } else {
+            Future.delayed(Duration(milliseconds: 500), () {
+              methods.snackbarMessage(
+                context,
+                Duration(
+                  seconds: 1,
+                ),
+                Colors.red[400],
+                methods.textOnly("Fail to update...Please try again", "Leoscar",
+                    18.0, Colors.white, null, null, TextAlign.center),
+              );
+            });
+          }
+        });
+      }
       setState(() {
         if (_index == 0 && value != null) {
           func2(1);
           _height = value;
-          widget.user.setHeight(value.toString());
         } else if (_index == 1 && value != null) {
           func2(2);
           _weight = value;
-          widget.user.setWeight(value.toString());
         }
       });
     });
