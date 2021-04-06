@@ -461,10 +461,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             data: ThemeData(
                               unselectedWidgetColor: Colors.grey[400],
                             ),
-                            child: Checkbox(
-                              // shape: RoundedRectangleBorder(
-                              //   borderRadius: BorderRadius.circular(4.0),
-                              // ),
+                            child: Switch(
                               value: _isChecked,
                               activeColor: Color(0XFF933FBF),
                               onChanged: (bool value) {
@@ -949,10 +946,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               data: ThemeData(
                                 unselectedWidgetColor: Colors.grey[400],
                               ),
-                              child: Checkbox(
-                                // shape: RoundedRectangleBorder(
-                                //   borderRadius: BorderRadius.circular(4.0),
-                                // ),
+                              child: Switch(
                                 value: _isChecked1,
                                 activeColor: Color(0XFF933FBF),
                                 onChanged: (bool value) {

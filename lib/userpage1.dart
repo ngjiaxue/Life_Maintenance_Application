@@ -1,12 +1,11 @@
 import 'dart:math';
-import 'package:flutter/scheduler.dart';
-import 'package:line_icons/line_icons.dart';
-
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/scheduler.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
@@ -24,7 +23,7 @@ class UserPage1 extends StatefulWidget {
       this.callback1,
       this.func1})
       : super(key: key);
-  @override
+
   @override
   State<StatefulWidget> createState() {
     return _UserPage1State(callback2: () {
@@ -339,6 +338,7 @@ class _UserPage1State extends State<UserPage1> {
 
   void _showNumberPicker(int _index) {
     //0 = height, 1 = weight
+    bool _loading = false;
     double _tempValue = _index == 0
         ? (_height != 0.0
             ? _height
@@ -355,94 +355,120 @@ class _UserPage1State extends State<UserPage1> {
       Duration(days: 365),
       Color(0XFFB563E0),
       StatefulBuilder(builder: (context, newSetState) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              child: Container(
-                child: Icon(
-                  LineIcons.times,
-                  color: Colors.white,
-                ),
-              ),
-              onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-            ),
-            DecimalNumberPicker(
-                minValue: _index == 0 ? 50 : 30,
-                maxValue: _index == 0 ? 200 : 300,
-                decimalPlaces: 1,
-                value: _tempValue,
-                onChanged: (value) {
-                  newSetState(() {
-                    _tempValue = value;
-                  });
-                }),
-            GestureDetector(
-              child: Container(
-                child: Icon(
-                  LineIcons.check,
-                  color: Colors.white,
-                ),
-              ),
-              onTap: () async {
-                await http.post(
-                    Uri.parse(
-                        "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
-                    body: {
-                      "page1Edit": _index.toString(),
-                      "value": _tempValue.toString(),
-                      "email": widget.user.getEmail(),
-                    }).then((res) {
-                  if (res.body == "success") {
-                    _index == 0
-                        ? widget.user.setHeight(_tempValue.toStringAsFixed(1))
-                        : widget.user.setWeight(_tempValue.toStringAsFixed(1));
-                    Future.delayed(Duration(milliseconds: 500), () {
-                      methods.snackbarMessage(
-                        context,
-                        Duration(
-                          milliseconds: 1500,
+        return _loading == false
+            ? Container(
+                height: _screenHeight / 4.5,
+                child: Column(
+                  children: [
+                    methods.textOnly(
+                        "Please insert your " +
+                            (_index == 0 ? "height (cm)" : "weight (kg)"),
+                        "Leoscar",
+                        18.0,
+                        Colors.white,
+                        null,
+                        null,
+                        TextAlign.center),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          child: Container(
+                            child: Icon(
+                              LineIcons.times,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onTap: () => ScaffoldMessenger.of(context)
+                              .hideCurrentSnackBar(),
                         ),
-                        Color(0XFFB563E0),
-                        methods.textOnly(
-                            (_index == 0 ? "Height" : "Weight") +
-                                " updated successfully",
-                            "Leoscar",
-                            18.0,
-                            Colors.white,
-                            null,
-                            null,
-                            TextAlign.center),
-                      );
-                    });
-                  } else {
-                    Future.delayed(Duration(milliseconds: 500), () {
-                      methods.snackbarMessage(
-                        context,
-                        Duration(
-                          seconds: 1,
+                        DecimalNumberPicker(
+                            minValue: _index == 0 ? 50 : 30,
+                            maxValue: _index == 0 ? 200 : 300,
+                            decimalPlaces: 1,
+                            value: _tempValue,
+                            onChanged: (value) {
+                              newSetState(() {
+                                _tempValue = value;
+                              });
+                            }),
+                        GestureDetector(
+                          child: Container(
+                            child: Icon(
+                              LineIcons.check,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onTap: () async {
+                            newSetState(() {
+                              _loading = true;
+                            });
+                            await http.post(
+                                Uri.parse(
+                                    "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                                body: {
+                                  "page1Edit": _index.toString(),
+                                  "value": _tempValue.toString(),
+                                  "email": widget.user.getEmail(),
+                                }).then((res) {
+                              if (res.body == "success") {
+                                _index == 0
+                                    ? widget.user.setHeight(
+                                        _tempValue.toStringAsFixed(1))
+                                    : widget.user.setWeight(
+                                        _tempValue.toStringAsFixed(1));
+                                Future.delayed(Duration(milliseconds: 500), () {
+                                  methods.snackbarMessage(
+                                    context,
+                                    Duration(
+                                      milliseconds: 1500,
+                                    ),
+                                    Color(0XFFB563E0),
+                                    methods.textOnly(
+                                        (_index == 0 ? "Height" : "Weight") +
+                                            " updated successfully",
+                                        "Leoscar",
+                                        18.0,
+                                        Colors.white,
+                                        null,
+                                        null,
+                                        TextAlign.center),
+                                  );
+                                });
+                              } else {
+                                Future.delayed(Duration(milliseconds: 500), () {
+                                  methods.snackbarMessage(
+                                    context,
+                                    Duration(
+                                      seconds: 1,
+                                    ),
+                                    Colors.red[400],
+                                    methods.textOnly(
+                                        "Fail to update...Please try again",
+                                        "Leoscar",
+                                        18.0,
+                                        Colors.white,
+                                        null,
+                                        null,
+                                        TextAlign.center),
+                                  );
+                                });
+                              }
+                              SchedulerBinding.instance
+                                  .addPostFrameCallback((_) {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                                setState(() {});
+                              });
+                            });
+                          },
                         ),
-                        Colors.red[400],
-                        methods.textOnly(
-                            "Fail to update...Please try again",
-                            "Leoscar",
-                            18.0,
-                            Colors.white,
-                            null,
-                            null,
-                            TextAlign.center),
-                      );
-                    });
-                  }
-                  SchedulerBinding.instance.addPostFrameCallback((_) {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    setState(() {});
-                  });
-                });
-              },
-            ),
-          ],
-        );
+                      ],
+                    ),
+                  ],
+                ))
+            : methods.textOnly("Loading......", "Leoscar", 20.0, Colors.white,
+                FontWeight.normal, FontStyle.normal, TextAlign.center);
       }),
     );
   }

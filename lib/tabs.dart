@@ -262,11 +262,13 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         }).then((res) {
       if (res.body != "no data") {
         var _extractData = json.decode(res.body);
-        if (option == "food") {
-          _foodList = _extractData;
-        } else {
-          _exerciseList = _extractData;
-        }
+        setState(() {
+          if (option == "food") {
+            _foodList = _extractData;
+          } else {
+            _exerciseList = _extractData;
+          }
+        });
       } else {
         methods.snackbarMessage(
           context,
@@ -291,11 +293,13 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         }).then((res) {
       if (res.body != "no data" && res.body != "connected but no data") {
         var _extractData = json.decode(res.body);
-        if (option == "food") {
-          _userFoodList = _extractData;
-        } else {
-          _userExerciseList = _extractData;
-        }
+        setState(() {
+          if (option == "food") {
+            _userFoodList = _extractData;
+          } else {
+            _userExerciseList = _extractData;
+          }
+        });
       } else if (res.body == "connected but no data") {
       } else {
         methods.snackbarMessage(

@@ -117,77 +117,123 @@ class _AddItemState extends State<AddItem> {
                                 FlutterIcons.keyboard_arrow_right_mdi,
                               ),
                               onTap: () {
+                                bool _loading = false;
+                                FocusScope.of(context).unfocus();
                                 methods.snackbarMessage(
                                   context,
                                   Duration(days: 365),
                                   Color(0XFFB563E0),
                                   StatefulBuilder(
                                       builder: (context, newSetState) {
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        GestureDetector(
-                                            child: Container(
-                                              child: Icon(
-                                                LineIcons.times,
-                                                color: Colors.white,
-                                              ),
+                                    return _loading == false
+                                        ? Container(
+                                            height: _screenHeight / 4.5,
+                                            child: Column(
+                                              children: [
+                                                methods.textOnly(
+                                                    "Please insert " +
+                                                        (widget.option == "food"
+                                                            ? "amount (grams)"
+                                                            : "duration (minutes)"),
+                                                    "Leoscar",
+                                                    18.0,
+                                                    Colors.white,
+                                                    null,
+                                                    null,
+                                                    TextAlign.center),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    GestureDetector(
+                                                        child: Container(
+                                                          child: Icon(
+                                                            LineIcons.times,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            _amount = 0.0;
+                                                            _duration = 0;
+                                                          });
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .hideCurrentSnackBar();
+                                                        }),
+                                                    widget.option == "food"
+                                                        ? DecimalNumberPicker(
+                                                            minValue: 0,
+                                                            maxValue: 10000,
+                                                            decimalPlaces: 1,
+                                                            value: _amount,
+                                                            onChanged: (value) {
+                                                              newSetState(() {
+                                                                _amount = value;
+                                                              });
+                                                            })
+                                                        : NumberPicker(
+                                                            minValue: 0,
+                                                            maxValue: 200,
+                                                            value: _duration,
+                                                            onChanged: (value) {
+                                                              newSetState(() {
+                                                                _duration =
+                                                                    value;
+                                                              });
+                                                            }),
+                                                    GestureDetector(
+                                                      child: Container(
+                                                        child: Icon(
+                                                          LineIcons.check,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      onTap: () async {
+                                                        newSetState(() {
+                                                          _loading = true;
+                                                        });
+                                                        await _addToList(
+                                                            _searchList
+                                                                    .isNotEmpty
+                                                                ? _searchList[
+                                                                    index]
+                                                                : widget.dbList[
+                                                                    index],
+                                                            widget.option ==
+                                                                    "food"
+                                                                ? _amount
+                                                                    .toString()
+                                                                : _duration
+                                                                    .toString());
+                                                        SchedulerBinding
+                                                            .instance
+                                                            .addPostFrameCallback(
+                                                                (_) {
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .hideCurrentSnackBar();
+                                                          setState(() {
+                                                            _amount = 0.0;
+                                                            _duration = 0;
+                                                          });
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                            onTap: () {
-                                              setState(() {
-                                                _amount = 0.0;
-                                                _duration = 0;
-                                              });
-                                              ScaffoldMessenger.of(context)
-                                                  .hideCurrentSnackBar();
-                                            }),
-                                        widget.option == "food"
-                                            ? DecimalNumberPicker(
-                                                minValue: 0,
-                                                maxValue: 10000,
-                                                decimalPlaces: 1,
-                                                value: _amount,
-                                                onChanged: (value) {
-                                                  newSetState(() {
-                                                    _amount = value;
-                                                  });
-                                                })
-                                            : NumberPicker(
-                                                minValue: 0,
-                                                maxValue: 200,
-                                                value: _duration,
-                                                onChanged: (value) {
-                                                  newSetState(() {
-                                                    _duration = value;
-                                                  });
-                                                }),
-                                        GestureDetector(
-                                          child: Container(
-                                            child: Icon(
-                                              LineIcons.check,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            _addToList(
-                                                _searchList.isNotEmpty
-                                                    ? _searchList[index]
-                                                    : widget.dbList[index],
-                                                _amount.toString());
-                                            SchedulerBinding.instance
-                                                .addPostFrameCallback((_) {
-                                              ScaffoldMessenger.of(context)
-                                                  .hideCurrentSnackBar();
-                                              setState(() {
-                                                _amount = 0.0;
-                                                _duration = 0;
-                                              });
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    );
+                                          )
+                                        : methods.textOnly(
+                                            "Loading......",
+                                            "Leoscar",
+                                            20.0,
+                                            Colors.white,
+                                            FontWeight.normal,
+                                            FontStyle.normal,
+                                            TextAlign.center);
                                   }),
                                 );
                               },

@@ -139,7 +139,7 @@ class _UserPage3State extends State<UserPage3>
                                         Container(
                                           // color: Colors.green,
                                           child: methods.textOnly(
-                                              "Total calories burned: ${double.parse(widget.userExerciseList[index]["calories"]) / 30 / 125 * (double.parse(widget.user.getWeight()) * 2.2046) * double.parse(widget.userExerciseList[index]["amount"])} calories",
+                                              "Total calories burned: ${(double.parse(widget.userExerciseList[index]["calories"]) / 30 / 125 * (double.parse(widget.user.getWeight()) * 2.2046) * double.parse(widget.userExerciseList[index]["amount"])).toStringAsFixed(1)} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,
@@ -176,9 +176,9 @@ class _UserPage3State extends State<UserPage3>
                                 height: _screenHeight / 4,
                                 width: _screenHeight / 4,
                                 // color: Colors.pink,
-                                child: Image.network(
-                                  widget.userExerciseList[index]["imagesource"],
-                                ),
+                                // child: Image.network(
+                                //   widget.userExerciseList[index]["imagesource"],
+                                // ),
                               ),
                             ),
                           ),

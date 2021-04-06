@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'tabs.dart';
 import 'user.dart';
 import 'methods.dart';
@@ -199,15 +201,30 @@ class _SplashScreenState extends State<SplashScreen>
             "password": _password,
           }).then((res) {
         List userDetails = res.body.split("&");
+
         if (userDetails[0] == "success admin") {
-          user = new User(userDetails[1], userDetails[2], userDetails[3],
-              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          user = new User(
+            userDetails[1],
+            userDetails[2],
+            userDetails[3],
+            userDetails[4],
+            userDetails[5],
+            userDetails[6],
+            userDetails[7],
+          );
           setState(() {
             _loggedIn = 2;
           });
         } else if (userDetails[0] == "success") {
-          user = new User(userDetails[1], userDetails[2], userDetails[3],
-              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          user = new User(
+            userDetails[1],
+            userDetails[2],
+            userDetails[3],
+            userDetails[4],
+            userDetails[5],
+            userDetails[6],
+            userDetails[7],
+          );
           setState(() {
             _loggedIn = 2;
           });
