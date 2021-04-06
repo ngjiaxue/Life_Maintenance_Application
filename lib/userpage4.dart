@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:flutter/scheduler.dart';
+
 import 'user.dart';
 import 'methods.dart';
 import 'loginscreen.dart';
@@ -107,16 +109,8 @@ class _UserPage4State extends State<UserPage4>
                       padding: const EdgeInsets.only(
                         left: 30.0,
                       ),
-                      child: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: methods.color(),
-                            tileMode: TileMode.clamp,
-                          ).createShader(bounds);
-                        },
-                        child: Text(
+                      child: methods.shaderMask(
+                        Text(
                           "Profile",
                           style: TextStyle(
                             fontFamily: "Leoscar",
@@ -126,6 +120,7 @@ class _UserPage4State extends State<UserPage4>
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        true,
                       ),
                     ),
                   ),
@@ -179,19 +174,12 @@ class _UserPage4State extends State<UserPage4>
                           backgroundColor:
                               !_isEditing ? Colors.white : Colors.red,
                           child: !_isEditing
-                              ? ShaderMask(
-                                  shaderCallback: (Rect bounds) {
-                                    return LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: methods.color(),
-                                      tileMode: TileMode.clamp,
-                                    ).createShader(bounds);
-                                  },
-                                  child: Icon(
+                              ? methods.shaderMask(
+                                  Icon(
                                     LineIcons.camera,
                                     color: Colors.white,
                                   ),
+                                  true,
                                 )
                               : Icon(
                                   FlutterIcons.cancel_mco,
@@ -341,16 +329,8 @@ class _UserPage4State extends State<UserPage4>
                           backgroundColor:
                               !_isEditing ? Colors.white : Colors.green,
                           child: !_isEditing
-                              ? ShaderMask(
-                                  shaderCallback: (Rect bounds) {
-                                    return LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: methods.color(),
-                                      tileMode: TileMode.clamp,
-                                    ).createShader(bounds);
-                                  },
-                                  child: Padding(
+                              ? methods.shaderMask(
+                                  Padding(
                                     padding: const EdgeInsets.only(
                                       left: 4.0,
                                     ),
@@ -359,6 +339,7 @@ class _UserPage4State extends State<UserPage4>
                                       color: Colors.white,
                                     ),
                                   ),
+                                  true,
                                 )
                               : Icon(
                                   FlutterIcons.save_faw,
@@ -632,9 +613,9 @@ class _UserPage4State extends State<UserPage4>
                 currentTime: DateTime.parse(widget.user.getDob()),
               );
             } else if (_index == 4) {
-              _showDialog(_index);
+              _showNumberPicker(_index);
             } else if (_index == 5) {
-              _showDialog(_index);
+              _showNumberPicker(_index);
             }
           },
           controller: _textEditingController,
@@ -818,96 +799,71 @@ class _UserPage4State extends State<UserPage4>
     );
   }
 
-  void _showDialog(int _index) {
-    showDialog<double>(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return new NumberPickerDialog.decimal(
-            minValue: _index == 4 ? 50 : 30,
-            maxValue: _index == 4 ? 200 : 300,
-            title: _index == 4
-                ? methods.textOnly(
-                    "Pick a new height",
-                    "Leoscar",
-                    26.0,
-                    Color(0XFF7100AD),
-                    FontWeight.bold,
-                    FontStyle.normal,
-                    TextAlign.start)
-                : methods.textOnly(
-                    "Pick a new weight",
-                    "Leoscar",
-                    26.0,
-                    Color(0XFF7100AD),
-                    FontWeight.bold,
-                    FontStyle.normal,
-                    TextAlign.start),
-            initialDoubleValue: _index == 4
-                ? (_height != 0.0
-                    ? _height
-                    : widget.user.getHeight() == "0.0"
-                        ? 50.0
-                        : double.parse(widget.user.getHeight()))
-                : (_weight != 0.0
-                    ? _weight
-                    : widget.user.getWeight() == "0.0"
-                        ? 30.0
-                        : double.parse(widget.user.getWeight())),
-            textStyle: TextStyle(
-              fontFamily: "Leoscar",
-              fontSize: 20.0,
-              letterSpacing: 1.0,
-              color: Colors.grey,
-            ),
-            selectedTextStyle: TextStyle(
-              fontFamily: "Leoscar",
-              fontSize: 22.0,
-              letterSpacing: 1.0,
-              color: Color(0XFF7100AD),
-            ),
-            confirmWidget: InkWell(
-              highlightColor: Colors.transparent,
-              splashColor: Color(0XFFE7BAFF),
-              child: Ink(
-                height: 36.0,
-                width: 70.0,
-                decoration: BoxDecoration(
-                  color: Color(0XFF9866B3),
-                  borderRadius: new BorderRadius.circular(
-                    8.0,
-                  ),
-                ),
-                child: Center(
-                  child: methods.textOnly("Submit", "Leoscar", 18.0,
-                      Colors.white, FontWeight.bold, null, null),
+  void _showNumberPicker(int _index) {
+    double _tempValue = _index == 4
+        ? (_height != 0.0
+            ? _height
+            : widget.user.getHeight() == "0.0"
+                ? 50.0
+                : double.parse(widget.user.getHeight()))
+        : (_weight != 0.0
+            ? _weight
+            : widget.user.getWeight() == "0.0"
+                ? 30.0
+                : double.parse(widget.user.getWeight()));
+    methods.snackbarMessage(
+      context,
+      Duration(days: 365),
+      Color(0XFFB563E0),
+      StatefulBuilder(builder: (context, newSetState) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              child: Container(
+                child: Icon(
+                  LineIcons.times,
+                  color: Colors.white,
                 ),
               ),
+              onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
             ),
-            cancelWidget: MaterialButton(
-              highlightColor: Colors.transparent,
-              splashColor: Color(0XFFE7BAFF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
+            DecimalNumberPicker(
+                minValue: _index == 0 ? 50 : 30,
+                maxValue: _index == 0 ? 200 : 300,
+                decimalPlaces: 1,
+                value: _tempValue,
+                onChanged: (value) {
+                  newSetState(() {
+                    _tempValue = value;
+                  });
+                }),
+            GestureDetector(
+              child: Container(
+                child: Icon(
+                  LineIcons.check,
+                  color: Colors.white,
+                ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
+              onTap: () {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  setState(() {
+                    if (_index == 4 && _tempValue != null) {
+                      _height = _tempValue;
+                      _heightController.text = _tempValue.toString();
+                    } else if (_index == 5 && _tempValue != null) {
+                      _weight = _tempValue;
+                      _weightController.text = _tempValue.toString();
+                    }
+                  });
+                });
               },
-              child: methods.textOnly("Cancel", "Leoscar", 18.0,
-                  Color(0XFF9866B3), FontWeight.bold, null, null),
             ),
-          );
-        }).then((value) {
-      setState(() {
-        if (_index == 4 && value != null) {
-          _height = value;
-          _heightController.text = value.toString();
-        } else if (_index == 5 && value != null) {
-          _weight = value;
-          _weightController.text = value.toString();
-        }
-      });
-    });
+          ],
+        );
+      }),
+    );
   }
 
   @override

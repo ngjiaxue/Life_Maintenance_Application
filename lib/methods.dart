@@ -226,23 +226,10 @@ class Methods {
           padding: const EdgeInsets.only(
             top: 10.0,
           ),
-          child: ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return LinearGradient(
-                end: Alignment.topCenter,
-                begin: Alignment.bottomCenter,
-                colors: color(),
-                tileMode: TileMode.clamp,
-              ).createShader(bounds);
-            },
-            child: textOnly(
-                "No record found",
-                "Leoscar",
-                fontSize,
-                Colors.white,
-                FontWeight.normal,
-                FontStyle.normal,
-                TextAlign.center),
+          child: shaderMask(
+            textOnly("No record found", "Leoscar", fontSize, Colors.white,
+                FontWeight.normal, FontStyle.normal, TextAlign.center),
+            true,
           ),
         ),
       ],
@@ -271,6 +258,19 @@ class Methods {
     );
   }
 
+  Widget shaderMask(Widget child, bool ascending) {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return LinearGradient(
+          begin: ascending ? Alignment.topCenter : Alignment.bottomCenter,
+          end: ascending ? Alignment.bottomCenter : Alignment.topCenter,
+          colors: color(),
+          tileMode: TileMode.clamp,
+        ).createShader(bounds);
+      },
+      child: child,
+    );
+  }
   // Widget statusButton(String status, bool _color, Function method) {
   //   //start statusButton method
   //   return FlatButton(

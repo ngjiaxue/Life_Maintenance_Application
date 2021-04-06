@@ -1,13 +1,16 @@
 import 'user.dart';
-import 'food.dart';
+import 'additem.dart';
 import 'methods.dart';
-import "package:intl/intl.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:page_transition/page_transition.dart';
 
 class UserPage2 extends StatefulWidget {
   final User user;
-  const UserPage2({Key key, this.user}) : super(key: key);
+  final List foodList;
+  final List userFoodList;
+  const UserPage2({Key key, this.user, this.foodList, this.userFoodList})
+      : super(key: key);
   @override
   _UserPage2State createState() => _UserPage2State();
 }
@@ -15,10 +18,7 @@ class UserPage2 extends StatefulWidget {
 class _UserPage2State extends State<UserPage2>
     with AutomaticKeepAliveClientMixin {
   Methods methods = new Methods();
-  Food food;
-  TextEditingController _amountController = TextEditingController();
   double _screenHeight;
-  String _item;
 
   @override
   void initState() {
@@ -32,15 +32,15 @@ class _UserPage2State extends State<UserPage2>
     return Container(
       child: Stack(
         children: [
-          widget.user.getFoodList().length == 0
+          widget.userFoodList.length == 0
               ? Center(
                   child: methods.noRecordFound(5, 24.0),
                 )
               : ListView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: widget.user.getFoodList().length,
+                  itemCount: widget.userFoodList.length,
                   itemBuilder: (context, index) {
-                    int _count = (widget.user.getFoodList().length - 1) - index;
+                    int _count = (widget.userFoodList.length - 1) - index;
                     return Container(
                       height: _screenHeight / 2.5,
                       child: Stack(
@@ -80,7 +80,6 @@ class _UserPage2State extends State<UserPage2>
                                           CrossAxisAlignment.start,
                                       children: [
                                         Container(
-                                          // color: Colors.orange,
                                           height: _screenHeight / 4.58,
                                           width: _screenHeight / 4.38,
                                           child: Column(
@@ -88,9 +87,8 @@ class _UserPage2State extends State<UserPage2>
                                                 CrossAxisAlignment.start,
                                             children: [
                                               methods.textOnly(
-                                                  widget.user
-                                                      .getFoodList()[_count]
-                                                      .getName(),
+                                                  widget.userFoodList[_count]
+                                                      ["name"],
                                                   "Leoscar",
                                                   32.0,
                                                   Colors.black,
@@ -98,17 +96,22 @@ class _UserPage2State extends State<UserPage2>
                                                   FontStyle.normal,
                                                   TextAlign.start),
                                               Spacer(),
-                                              methods.textOnly(
-                                                  "${widget.user.getFoodList()[_count].getCaloriesPer100g()} calories (per 100 grams)",
-                                                  "Leoscar",
-                                                  18.0,
-                                                  Colors.black,
-                                                  FontWeight.normal,
-                                                  FontStyle.normal,
-                                                  TextAlign.start),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 15.0,
+                                                ),
+                                                child: methods.textOnly(
+                                                    "${widget.userFoodList[_count]["calories"]} calories (per 100 grams)",
+                                                    "Leoscar",
+                                                    18.0,
+                                                    Colors.black,
+                                                    FontWeight.normal,
+                                                    FontStyle.normal,
+                                                    TextAlign.start),
+                                              ),
                                               Spacer(),
                                               methods.textOnly(
-                                                  "Amount taken: ${widget.user.getFoodList()[_count].getAmount()} grams",
+                                                  "Amount taken: ${double.parse(widget.userFoodList[_count]["amount"]).toStringAsFixed(1)}",
                                                   "Leoscar",
                                                   18.0,
                                                   Colors.black,
@@ -122,8 +125,7 @@ class _UserPage2State extends State<UserPage2>
                                         Container(
                                           // color: Colors.green,
                                           child: methods.textOnly(
-                                              // "Total calories: ${double.parse(_list[_count][1]) / 100 * double.parse(_list[_count][2])} calories",
-                                              "Total calories: ${widget.user.getFoodList()[_count].getTotalCalories()} calories",
+                                              "Total calories: ${(double.parse(widget.userFoodList[_count]["calories"]) / 100 * double.parse(widget.userFoodList[_count]["amount"])).toStringAsFixed(1)} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,
@@ -135,8 +137,10 @@ class _UserPage2State extends State<UserPage2>
                                         Align(
                                           alignment: Alignment.bottomRight,
                                           child: methods.textOnly(
-                                              "Date added: ${widget.user.getFoodList()[_count].getDate()}",
+                                              "Date added: ${widget.userFoodList[_count]["date"]}",
+                                              // "Date added: ${widget.user.getFoodList()[_count].getDate()}",
                                               // "Date added: " + _list[_count][3],
+                                              // "temp",
                                               "Leoscar",
                                               12.0,
                                               Colors.black,
@@ -160,12 +164,9 @@ class _UserPage2State extends State<UserPage2>
                               child: Container(
                                 height: _screenHeight / 4,
                                 width: _screenHeight / 4,
-                                // color: Colors.pink,
-                                child: Image.asset(
-                                  widget.user
-                                      .getFoodList()[_count]
-                                      .getImageLocation(),
-                                ),
+                                // child: Image.network(
+                                //   widget.userFoodList[_count]["imagesource"],
+                                // ),
                               ),
                             ),
                           ),
@@ -188,174 +189,26 @@ class _UserPage2State extends State<UserPage2>
                     borderRadius: BorderRadius.circular(50),
                     side: BorderSide(color: Colors.black12),
                   ),
-                  child: ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: methods.color(),
-                        tileMode: TileMode.clamp,
-                      ).createShader(bounds);
-                    },
-                    child: Icon(
+                  child: methods.shaderMask(
+                    Icon(
                       FlutterIcons.addfile_ant,
                       size: 30.0,
                       color: Colors.white,
                     ),
+                    true,
                   ),
                   heroTag: 1,
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) =>
-                          StatefulBuilder(builder: (context, newSetState) {
-                        return AlertDialog(
-                          title: methods.textOnly(
-                              "Add New Food?",
-                              "Leoscar",
-                              26.0,
-                              Color(0XFF7100AD),
-                              FontWeight.bold,
-                              null,
-                              null),
-                          content: Container(
-                            height: _screenHeight / 7,
-                            child: Column(
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      hint: methods.textOnly(
-                                          "Select Food",
-                                          "Leoscar",
-                                          18.0,
-                                          null,
-                                          FontWeight.normal,
-                                          FontStyle.normal,
-                                          TextAlign.start),
-                                      value: _item,
-                                      items: [
-                                        "Banana",
-                                        "Apple",
-                                        "Kuey Teow Soup",
-                                        "Fried Chicken",
-                                        "Orange",
-                                        "Fried Rice",
-                                        "Mango",
-                                        "Nasi Lemak",
-                                        "Chicken Chop",
-                                        "Roti Canai"
-                                      ]
-                                          .map((label) => DropdownMenuItem(
-                                                child: Text(
-                                                  label,
-                                                  style: TextStyle(
-                                                    fontFamily: "Leoscar",
-                                                    fontSize: 17.0,
-                                                    letterSpacing: 1.0,
-                                                  ),
-                                                ),
-                                                value: label,
-                                              ))
-                                          .toList(),
-                                      onChanged: (String _value) {
-                                        newSetState(() {
-                                          _item = _value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(),
-                                  child: TextField(
-                                    style: TextStyle(
-                                      fontFamily: "Leoscar",
-                                      fontSize: 17.0,
-                                      letterSpacing: 1.0,
-                                    ),
-                                    controller: _amountController,
-                                    textInputAction: TextInputAction.done,
-                                    keyboardType: TextInputType.number,
-                                    cursorColor: Color(0XFF9866B3),
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.all(20.0),
-                                      focusedBorder: const UnderlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0XFF9866B3),
-                                          width: 1.5,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0),
-                                        ),
-                                      ),
-                                      hintText: "Amount taken (grams)",
-                                      hintStyle: TextStyle(
-                                        fontFamily: "Leoscar",
-                                        fontSize: 17.0,
-                                        letterSpacing: 1.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            MaterialButton(
-                              highlightColor: Colors.transparent,
-                              splashColor: Color(0XFFE7BAFF),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                _amountController.clear();
-                                _item = null;
-                              },
-                              child: methods.textOnly(
-                                  "Cancel",
-                                  "Leoscar",
-                                  18.0,
-                                  Color(0XFF9866B3),
-                                  FontWeight.bold,
-                                  null,
-                                  null),
-                            ),
-                            MaterialButton(
-                              highlightColor: Colors.transparent,
-                              splashColor: Color(0XFFE7BAFF),
-                              color: Color(0XFF9866B3),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              onPressed: () {
-                                DateFormat dateFormat =
-                                    DateFormat("yyyy-MM-dd HH:mm:ss");
-                                Navigator.of(context).pop();
-                                setState(() {
-                                  widget.user.setFoodList(Food(
-                                      _item,
-                                      _amountController.text,
-                                      dateFormat
-                                          .format(DateTime.now())
-                                          .toString()));
-                                  _amountController.clear();
-                                  _item = null;
-                                });
-                              },
-                              child: methods.textOnly("Add", "Leoscar", 18.0,
-                                  Colors.white, FontWeight.bold, null, null),
-                            ),
-                          ],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(8.0),
-                            ),
-                          ),
-                        );
-                      }),
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        child: AddItem(
+                          option: "food",
+                          dbList: widget.foodList,
+                          user: widget.user,
+                        ),
+                        type: PageTransitionType.fade,
+                      ),
                     );
                   }),
             ),

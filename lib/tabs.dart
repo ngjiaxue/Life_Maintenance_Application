@@ -1,5 +1,6 @@
 import 'user.dart';
 import 'methods.dart';
+import 'dart:convert';
 import 'userpage1.dart';
 import 'userpage2.dart';
 import 'userpage3.dart';
@@ -7,6 +8,7 @@ import 'userpage4.dart';
 import 'fadeanimation.dart';
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_icons/flutter_icons.dart';
 // import 'package:overlay_support/overlay_support.dart';
 
@@ -21,6 +23,10 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   Methods methods = new Methods();
   User user;
   List<bool> _tabSelected = [true, false, false, false];
+  List _foodList;
+  List _exerciseList;
+  List _userFoodList;
+  List _userExerciseList;
   bool _fadeIn = false;
   bool _onDrag = true;
   double _screenHeight;
@@ -31,6 +37,10 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _loadList("food");
+    _loadList("exercise");
+    _loadUserList("food");
+    _loadUserList("exercise");
     _getBadgeCount(0);
     Future.delayed(Duration(milliseconds: 1300), () {
       setState(() {
@@ -116,6 +126,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         ),
         UserPage2(
           user: widget.user,
+          foodList: _foodList,
+          userFoodList: _userFoodList,
         ),
         UserPage3(
           callback1: () {
@@ -134,6 +146,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             });
           },
           user: widget.user,
+          exerciseList: _exerciseList,
+          userExerciseList: _userExerciseList,
         ),
         UserPage4(
           user: widget.user,
@@ -237,6 +251,64 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         : Scaffold();
   }
 
+  Future<void> _loadList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
+        body: {
+          "option": option,
+        }).then((res) {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        if (option == "food") {
+          _foodList = _extractData;
+        } else {
+          _exerciseList = _extractData;
+        }
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
+
+  Future<void> _loadUserList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
+        body: {
+          "email": widget.user.getEmail(),
+          "option": option,
+        }).then((res) {
+      if (res.body != "no data" && res.body != "connected but no data") {
+        var _extractData = json.decode(res.body);
+        if (option == "food") {
+          _userFoodList = _extractData;
+        } else {
+          _userExerciseList = _extractData;
+        }
+      } else if (res.body == "connected but no data") {
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
+
   Widget _unactiveIcon(IconData iconData, int index, bool visible) {
     return GestureDetector(
       onTap: () {
@@ -265,19 +337,12 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
                 FontWeight.normal,
                 FontStyle.normal,
                 TextAlign.center),
-            child: ShaderMask(
-              shaderCallback: (Rect bounds) {
-                return LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: methods.color(),
-                  tileMode: TileMode.clamp,
-                ).createShader(bounds);
-              },
-              child: Icon(
+            child: methods.shaderMask(
+              Icon(
                 iconData,
                 color: Colors.white,
               ),
+              false,
             ),
           ),
         ),
@@ -350,16 +415,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
                             color: Colors.white,
                           ),
                         ),
-                        ShaderMask(
-                          shaderCallback: (Rect bounds) {
-                            return LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: methods.color(),
-                              tileMode: TileMode.clamp,
-                            ).createShader(bounds);
-                          },
-                          child: methods.textOnly(
+                        methods.shaderMask(
+                          methods.textOnly(
                               label,
                               "Leoscar",
                               15.0,
@@ -367,6 +424,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
                               FontWeight.normal,
                               FontStyle.normal,
                               TextAlign.start),
+                          false,
                         ),
                       ],
                     ),

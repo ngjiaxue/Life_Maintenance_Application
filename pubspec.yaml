@@ -26,10 +26,10 @@ dependencies:
   http: ^0.13.1
   intl: ^0.17.0
   badges: ^1.1.6
-  fl_chart: ^0.20.1
+  fl_chart: ^0.35.0
   line_icons: ^2.0.1
   supercharged: ^2.0.0
-  numberpicker: ^1.3.0
+  numberpicker: ^2.0.1
   flutter_icons: ^1.1.0
   page_transition: ^1.1.7+5
   simple_animations: ^3.0.2

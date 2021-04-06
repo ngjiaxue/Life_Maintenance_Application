@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'package:flutter/scheduler.dart';
+import 'package:line_icons/line_icons.dart';
+
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +37,11 @@ class _UserPage1State extends State<UserPage1> {
   double _height = 0.0;
   double _weight = 0.0;
   bool _toolTipShowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -223,18 +231,10 @@ class _UserPage1State extends State<UserPage1> {
                     ),
                     child: GestureDetector(
                       onTap: _leading == "Height: "
-                          ? () => _showDialog(0)
-                          : () => _showDialog(1),
-                      child: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: methods.color(),
-                            tileMode: TileMode.clamp,
-                          ).createShader(bounds);
-                        },
-                        child: Icon(
+                          ? () => _showNumberPicker(0)
+                          : () => _showNumberPicker(1),
+                      child: methods.shaderMask(
+                        Icon(
                           widget.user.getHeight() == "0.0" &&
                                   _leading == "Height: "
                               ? FlutterIcons.add_circle_outline_mdi
@@ -244,6 +244,7 @@ class _UserPage1State extends State<UserPage1> {
                                   : FlutterIcons.circle_edit_outline_mco,
                           color: Colors.white,
                         ),
+                        true,
                       ),
                     ),
                   )
@@ -308,20 +309,13 @@ class _UserPage1State extends State<UserPage1> {
                       // borderRadius: BorderRadius.circular(8.0),
                     ),
                     verticalOffset: 15.0,
-                    child: ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: methods.color(),
-                          tileMode: TileMode.clamp,
-                        ).createShader(bounds);
-                      },
-                      child: Icon(
+                    child: methods.shaderMask(
+                      Icon(
                         FlutterIcons.question_circle_o_faw,
                         // size: 20.0,
                         color: Colors.white,
                       ),
+                      true,
                     ),
                   ),
                 ),
@@ -333,152 +327,114 @@ class _UserPage1State extends State<UserPage1> {
     );
   }
 
-  void _showDialog(int _index) {
+  void _showNumberPicker(int _index) {
     //0 = height, 1 = weight
-    bool _cancelPressed = false;
-    showDialog<double>(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return new NumberPickerDialog.decimal(
-            minValue: _index == 0 ? 50 : 30,
-            maxValue: _index == 0 ? 200 : 300,
-            title: _index == 0
-                ? methods.textOnly(
-                    "Pick a new height",
-                    "Leoscar",
-                    26.0,
-                    Color(0XFF7100AD),
-                    FontWeight.bold,
-                    FontStyle.normal,
-                    TextAlign.start)
-                : methods.textOnly(
-                    "Pick a new weight",
-                    "Leoscar",
-                    26.0,
-                    Color(0XFF7100AD),
-                    FontWeight.bold,
-                    FontStyle.normal,
-                    TextAlign.start),
-            initialDoubleValue: _index == 0
-                ? (_height != 0.0
-                    ? _height
-                    : widget.user.getHeight() == "0.0"
-                        ? 50.0
-                        : double.parse(widget.user.getHeight()))
-                : (_weight != 0.0
-                    ? _weight
-                    : widget.user.getWeight() == "0.0"
-                        ? 30.0
-                        : double.parse(widget.user.getWeight())),
-            textStyle: TextStyle(
-              fontFamily: "Leoscar",
-              fontSize: 20.0,
-              letterSpacing: 1.0,
-              color: Colors.grey,
-            ),
-            selectedTextStyle: TextStyle(
-              fontFamily: "Leoscar",
-              fontSize: 22.0,
-              letterSpacing: 1.0,
-              color: Color(0XFF7100AD),
-            ),
-            confirmWidget: InkWell(
-              highlightColor: Colors.transparent,
-              splashColor: Color(0XFFE7BAFF),
-              child: Ink(
-                height: 36.0,
-                width: 70.0,
-                decoration: BoxDecoration(
-                  color: Color(0XFF9866B3),
-                  borderRadius: new BorderRadius.circular(
-                    8.0,
-                  ),
-                ),
-                child: Center(
-                  child: methods.textOnly("Submit", "Leoscar", 18.0,
-                      Colors.white, FontWeight.bold, null, null),
+    double _tempValue = _index == 0
+        ? (_height != 0.0
+            ? _height
+            : widget.user.getHeight() == "0.0"
+                ? 50.0
+                : double.parse(widget.user.getHeight()))
+        : (_weight != 0.0
+            ? _weight
+            : widget.user.getWeight() == "0.0"
+                ? 30.0
+                : double.parse(widget.user.getWeight()));
+    methods.snackbarMessage(
+      context,
+      Duration(days: 365),
+      Color(0XFFB563E0),
+      StatefulBuilder(builder: (context, newSetState) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              child: Container(
+                child: Icon(
+                  LineIcons.times,
+                  color: Colors.white,
                 ),
               ),
+              onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
             ),
-            cancelWidget: TextButton(
-              style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith(
-                  (states) => Color(0XFFE7BAFF),
-                ),
-                shape: MaterialStateProperty.resolveWith(
-                  (states) => RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
+            DecimalNumberPicker(
+                minValue: _index == 0 ? 50 : 30,
+                maxValue: _index == 0 ? 200 : 300,
+                decimalPlaces: 1,
+                value: _tempValue,
+                onChanged: (value) {
+                  newSetState(() {
+                    _tempValue = value;
+                  });
+                }),
+            GestureDetector(
+              child: Container(
+                child: Icon(
+                  LineIcons.check,
+                  color: Colors.white,
                 ),
               ),
-              child: methods.textOnly("Cancel", "Leoscar", 18.0,
-                  Color(0XFF9866B3), FontWeight.bold, null, null),
-              onPressed: () {
-                setState(() {
-                  _cancelPressed = true;
+              onTap: () async {
+                await http.post(
+                    Uri.parse(
+                        "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                    body: {
+                      "page1Edit": _index.toString(),
+                      "value": _tempValue.toString(),
+                      "email": widget.user.getEmail(),
+                    }).then((res) {
+                  if (res.body == "success") {
+                    _index == 0
+                        ? widget.user.setHeight(_tempValue.toStringAsFixed(1))
+                        : widget.user.setWeight(_tempValue.toStringAsFixed(1));
+                    Future.delayed(Duration(milliseconds: 500), () {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          milliseconds: 1500,
+                        ),
+                        Color(0XFFB563E0),
+                        methods.textOnly(
+                            (_index == 0 ? "Height" : "Weight") +
+                                " updated successfully",
+                            "Leoscar",
+                            18.0,
+                            Colors.white,
+                            null,
+                            null,
+                            TextAlign.center),
+                      );
+                    });
+                  } else {
+                    Future.delayed(Duration(milliseconds: 500), () {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          seconds: 1,
+                        ),
+                        Colors.red[400],
+                        methods.textOnly(
+                            "Fail to update...Please try again",
+                            "Leoscar",
+                            18.0,
+                            Colors.white,
+                            null,
+                            null,
+                            TextAlign.center),
+                      );
+                    });
+                  }
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    setState(() {});
+                  });
                 });
-                Navigator.of(context).pop();
               },
             ),
-          );
-        }).then((value) async {
-      if (!_cancelPressed) {
-        await http.post(
-            Uri.parse(
-                "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
-            body: {
-              "page1Edit": _index.toString(),
-              "value": value.toString(),
-              "email": widget.user.getEmail(),
-            }).then((res) {
-          if (res.body == "success") {
-            _index == 0
-                ? widget.user.setHeight(value.toString())
-                : widget.user.setWeight(value.toString());
-            Future.delayed(Duration(milliseconds: 500), () {
-              methods.snackbarMessage(
-                context,
-                Duration(
-                  milliseconds: 1500,
-                ),
-                Color(0XFFB563E0),
-                methods.textOnly(
-                    (_index == 0 ? "Height" : "Weight") +
-                        " updated successfully",
-                    "Leoscar",
-                    18.0,
-                    Colors.white,
-                    null,
-                    null,
-                    TextAlign.center),
-              );
-            });
-          } else {
-            Future.delayed(Duration(milliseconds: 500), () {
-              methods.snackbarMessage(
-                context,
-                Duration(
-                  seconds: 1,
-                ),
-                Colors.red[400],
-                methods.textOnly("Fail to update...Please try again", "Leoscar",
-                    18.0, Colors.white, null, null, TextAlign.center),
-              );
-            });
-          }
-        });
-      }
-      setState(() {
-        if (_index == 0 && value != null) {
-          func2(1);
-          _height = value;
-        } else if (_index == 1 && value != null) {
-          func2(2);
-          _weight = value;
-        }
-      });
-    });
+          ],
+        );
+      }),
+    );
   }
 }
 
@@ -521,31 +477,17 @@ class _NestedTabBarState extends State<NestedTabBar>
             labelColor: Colors.white,
             unselectedLabelColor: Colors.black54,
             tabs: [
-              ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: methods.color(),
-                    tileMode: TileMode.clamp,
-                  ).createShader(bounds);
-                },
-                child: Icon(
+              methods.shaderMask(
+                Icon(
                   FlutterIcons.food_apple_outline_mco,
                 ),
+                true,
               ),
-              ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: methods.color(),
-                    tileMode: TileMode.clamp,
-                  ).createShader(bounds);
-                },
-                child: Icon(
+              methods.shaderMask(
+                Icon(
                   FlutterIcons.running_faw5s,
                 ),
+                true,
               ),
             ],
           ),
