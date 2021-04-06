@@ -1,8 +1,9 @@
 import 'user.dart';
+import 'additem.dart';
 import 'methods.dart';
-import "package:intl/intl.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:page_transition/page_transition.dart';
 
 class UserPage3 extends StatefulWidget {
   final User user;
@@ -33,11 +34,8 @@ class _UserPage3State extends State<UserPage3>
   VoidCallback callback2;
   Function(int) func2;
   _UserPage3State({this.callback2, this.func2});
-  // List<Exercise> _list = [];
   Methods methods = new Methods();
-  TextEditingController _durationController = TextEditingController();
   double _screenHeight;
-  String _item;
 
   @override
   void initState() {
@@ -51,16 +49,16 @@ class _UserPage3State extends State<UserPage3>
     return Container(
       child: Stack(
         children: [
-          widget.user.getExerciseList().length == 0
+          widget.userExerciseList.length == 0
               ? Center(
                   child: methods.noRecordFound(5, 24.0),
                 )
               : ListView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: widget.user.getExerciseList().length,
+                  itemCount: widget.userExerciseList.length,
                   itemBuilder: (context, index) {
-                    int _count =
-                        (widget.user.getExerciseList().length - 1) - index;
+                    // int _count =
+                    //     (widget.user.getExerciseList().length - 1) - index;
                     return Container(
                       height: _screenHeight / 2.5,
                       child: Stack(
@@ -108,9 +106,8 @@ class _UserPage3State extends State<UserPage3>
                                                 CrossAxisAlignment.start,
                                             children: [
                                               methods.textOnly(
-                                                  widget.user
-                                                      .getExerciseList()[_count]
-                                                      .getName(),
+                                                  widget.userExerciseList[index]
+                                                      ["name"],
                                                   "Leoscar",
                                                   32.0,
                                                   Colors.black,
@@ -119,7 +116,7 @@ class _UserPage3State extends State<UserPage3>
                                                   TextAlign.start),
                                               Spacer(),
                                               methods.textOnly(
-                                                  "${widget.user.getExerciseList()[_count].getCaloriesBurnedPer30Min()} calories burned (per 30 minutes)",
+                                                  "${widget.userExerciseList[index]["calories"]} calories burned (per 30 minutes)",
                                                   "Leoscar",
                                                   18.0,
                                                   Colors.black,
@@ -128,7 +125,7 @@ class _UserPage3State extends State<UserPage3>
                                                   TextAlign.start),
                                               Spacer(),
                                               methods.textOnly(
-                                                  "Exercise duration: ${widget.user.getExerciseList()[_count].getDuration()} minutes",
+                                                  "Exercise duration: ${widget.userExerciseList[index]["amount"]} minutes",
                                                   "Leoscar",
                                                   18.0,
                                                   Colors.black,
@@ -142,7 +139,7 @@ class _UserPage3State extends State<UserPage3>
                                         Container(
                                           // color: Colors.green,
                                           child: methods.textOnly(
-                                              "Total calories burned: ${widget.user.getExerciseList()[_count].getTotalCaloriesBurned()} calories",
+                                              "Total calories burned: ${double.parse(widget.userExerciseList[index]["calories"]) / 30 / 125 * (double.parse(widget.user.getWeight()) * 2.2046) * double.parse(widget.userExerciseList[index]["amount"])} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,
@@ -154,7 +151,7 @@ class _UserPage3State extends State<UserPage3>
                                         Align(
                                           alignment: Alignment.bottomRight,
                                           child: methods.textOnly(
-                                              "Date added: ${widget.user.getExerciseList()[_count].getDate()}",
+                                              "Date added: ${widget.userExerciseList[index]["date"]}",
                                               "Leoscar",
                                               12.0,
                                               Colors.black,
@@ -179,10 +176,8 @@ class _UserPage3State extends State<UserPage3>
                                 height: _screenHeight / 4,
                                 width: _screenHeight / 4,
                                 // color: Colors.pink,
-                                child: Image.asset(
-                                  widget.user
-                                      .getExerciseList()[_count]
-                                      .getImageLocation(),
+                                child: Image.network(
+                                  widget.userExerciseList[index]["imagesource"],
                                 ),
                               ),
                             ),
@@ -216,186 +211,17 @@ class _UserPage3State extends State<UserPage3>
                   ),
                   heroTag: 2,
                   onPressed: () {
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (context) =>
-                    //       StatefulBuilder(builder: (context, newSetState) {
-                    //     return AlertDialog(
-                    //       title: methods.textOnly(
-                    //           "Add New Exercise?",
-                    //           "Leoscar",
-                    //           26.0,
-                    //           Color(0XFF7100AD),
-                    //           FontWeight.bold,
-                    //           null,
-                    //           null),
-                    //       content: Container(
-                    //         height: _screenHeight / 7,
-                    //         child: Column(
-                    //           children: [
-                    //             Container(
-                    //               width: double.infinity,
-                    //               child: DropdownButtonHideUnderline(
-                    //                 child: DropdownButton<String>(
-                    //                   hint: methods.textOnly(
-                    //                       "Select Exercise",
-                    //                       "Leoscar",
-                    //                       18.0,
-                    //                       null,
-                    //                       FontWeight.normal,
-                    //                       FontStyle.normal,
-                    //                       TextAlign.start),
-                    //                   value: _item,
-                    //                   items: [
-                    //                     "Jogging",
-                    //                     "Cycling",
-                    //                     "Swimming",
-                    //                     "Badminton",
-                    //                     "Tennis",
-                    //                   ]
-                    //                       .map((label) => DropdownMenuItem(
-                    //                             child: Text(
-                    //                               label,
-                    //                               style: TextStyle(
-                    //                                 fontFamily: "Leoscar",
-                    //                                 fontSize: 17.0,
-                    //                                 letterSpacing: 1.0,
-                    //                               ),
-                    //                             ),
-                    //                             value: label,
-                    //                           ))
-                    //                       .toList(),
-                    //                   onChanged: (String _value) {
-                    //                     newSetState(() {
-                    //                       _item = _value;
-                    //                     });
-                    //                   },
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //             Padding(
-                    //               padding: const EdgeInsets.only(),
-                    //               child: TextField(
-                    //                 style: TextStyle(
-                    //                   fontFamily: "Leoscar",
-                    //                   fontSize: 17.0,
-                    //                   letterSpacing: 1.0,
-                    //                 ),
-                    //                 controller: _durationController,
-                    //                 textInputAction: TextInputAction.done,
-                    //                 keyboardType: TextInputType.number,
-                    //                 cursorColor: Color(0XFF9866B3),
-                    //                 decoration: InputDecoration(
-                    //                   contentPadding: EdgeInsets.all(20.0),
-                    //                   focusedBorder: const UnderlineInputBorder(
-                    //                     borderSide: const BorderSide(
-                    //                       color: Color(0XFF9866B3),
-                    //                       width: 1.5,
-                    //                     ),
-                    //                     borderRadius: BorderRadius.all(
-                    //                       Radius.circular(8.0),
-                    //                     ),
-                    //                   ),
-                    //                   hintText: "Exercise duration (minutes)",
-                    //                   hintStyle: TextStyle(
-                    //                     fontFamily: "Leoscar",
-                    //                     fontSize: 17.0,
-                    //                     letterSpacing: 1.0,
-                    //                   ),
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //       actions: <Widget>[
-                    //         MaterialButton(
-                    //           highlightColor: Colors.transparent,
-                    //           splashColor: Color(0XFFE7BAFF),
-                    //           shape: RoundedRectangleBorder(
-                    //             borderRadius: BorderRadius.circular(8.0),
-                    //           ),
-                    //           onPressed: () {
-                    //             Navigator.of(context).pop();
-                    //             _durationController.clear();
-                    //             _item = null;
-                    //           },
-                    //           child: methods.textOnly(
-                    //               "Cancel",
-                    //               "Leoscar",
-                    //               18.0,
-                    //               Color(0XFF9866B3),
-                    //               FontWeight.bold,
-                    //               null,
-                    //               null),
-                    //         ),
-                    //         MaterialButton(
-                    //           highlightColor: Colors.transparent,
-                    //           splashColor: Color(0XFFE7BAFF),
-                    //           color: Color(0XFF9866B3),
-                    //           shape: RoundedRectangleBorder(
-                    //             borderRadius: BorderRadius.circular(8.0),
-                    //           ),
-                    //           onPressed: () {
-                    //             if (widget.user.getWeight() == "0.0") {
-                    //               Navigator.of(context).pop();
-                    //               func2(3);
-                    //               methods.snackbarMessage(
-                    //                 context,
-                    //                 Duration(
-                    //                   seconds: 1,
-                    //                 ),
-                    //                 Colors.red[400],
-                    //                 methods.textOnly(
-                    //                     "Please add your weight!",
-                    //                     "Leoscar",
-                    //                     18.0,
-                    //                     Colors.white,
-                    //                     null,
-                    //                     null,
-                    //                     TextAlign.center),
-                    //               );
-                    //               // Flushbar(
-                    //               //   duration: Duration(milliseconds: 1500),
-                    //               //   backgroundColor: Colors.red[400],
-                    //               //   messageText: methods.textOnly(
-                    //               //       "Please add your weight!",
-                    //               //       "Leoscar",
-                    //               //       18.0,
-                    //               //       Colors.white,
-                    //               //       null,
-                    //               //       null,
-                    //               //       TextAlign.center),
-                    //               // )..show(context);
-                    //             } else {
-                    //               DateFormat dateFormat =
-                    //                   DateFormat("yyyy-MM-dd HH:mm:ss");
-                    //               Navigator.of(context).pop();
-                    //               setState(() {
-                    //                 // widget.user.setExerciseList(Exercise(
-                    //                 //     _item,
-                    //                 //     _durationController.text,
-                    //                 //     widget.user.getWeight(),
-                    //                 //     dateFormat
-                    //                 //         .format(DateTime.now())
-                    //                 //         .toString()));
-                    //                 _durationController.clear();
-                    //                 _item = null;
-                    //               });
-                    //             }
-                    //           },
-                    //           child: methods.textOnly("Add", "Leoscar", 18.0,
-                    //               Colors.white, FontWeight.bold, null, null),
-                    //         ),
-                    //       ],
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.all(
-                    //           Radius.circular(8.0),
-                    //         ),
-                    //       ),
-                    //     );
-                    //   }),
-                    // );
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        child: AddItem(
+                          option: "exercise",
+                          dbList: widget.exerciseList,
+                          user: widget.user,
+                        ),
+                        type: PageTransitionType.fade,
+                      ),
+                    );
                   }),
             ),
           ),

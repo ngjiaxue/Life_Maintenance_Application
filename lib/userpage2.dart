@@ -40,7 +40,7 @@ class _UserPage2State extends State<UserPage2>
                   padding: EdgeInsets.zero,
                   itemCount: widget.userFoodList.length,
                   itemBuilder: (context, index) {
-                    int _count = (widget.userFoodList.length - 1) - index;
+                    // int _count = (widget.userFoodList.length - 1) - index;
                     return Container(
                       height: _screenHeight / 2.5,
                       child: Stack(
@@ -87,7 +87,7 @@ class _UserPage2State extends State<UserPage2>
                                                 CrossAxisAlignment.start,
                                             children: [
                                               methods.textOnly(
-                                                  widget.userFoodList[_count]
+                                                  widget.userFoodList[index]
                                                       ["name"],
                                                   "Leoscar",
                                                   32.0,
@@ -101,7 +101,7 @@ class _UserPage2State extends State<UserPage2>
                                                   right: 15.0,
                                                 ),
                                                 child: methods.textOnly(
-                                                    "${widget.userFoodList[_count]["calories"]} calories (per 100 grams)",
+                                                    "${widget.userFoodList[index]["calories"]} calories (per 100 grams)",
                                                     "Leoscar",
                                                     18.0,
                                                     Colors.black,
@@ -111,7 +111,7 @@ class _UserPage2State extends State<UserPage2>
                                               ),
                                               Spacer(),
                                               methods.textOnly(
-                                                  "Amount taken: ${double.parse(widget.userFoodList[_count]["amount"]).toStringAsFixed(1)}",
+                                                  "Amount taken: ${double.parse(widget.userFoodList[index]["amount"]).toStringAsFixed(1)}",
                                                   "Leoscar",
                                                   18.0,
                                                   Colors.black,
@@ -125,7 +125,7 @@ class _UserPage2State extends State<UserPage2>
                                         Container(
                                           // color: Colors.green,
                                           child: methods.textOnly(
-                                              "Total calories: ${(double.parse(widget.userFoodList[_count]["calories"]) / 100 * double.parse(widget.userFoodList[_count]["amount"])).toStringAsFixed(1)} calories",
+                                              "Total calories: ${(double.parse(widget.userFoodList[index]["calories"]) / 100 * double.parse(widget.userFoodList[index]["amount"])).toStringAsFixed(1)} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,
@@ -137,7 +137,7 @@ class _UserPage2State extends State<UserPage2>
                                         Align(
                                           alignment: Alignment.bottomRight,
                                           child: methods.textOnly(
-                                              "Date added: ${widget.userFoodList[_count]["date"]}",
+                                              "Date added: ${widget.userFoodList[index]["date"]}",
                                               // "Date added: ${widget.user.getFoodList()[_count].getDate()}",
                                               // "Date added: " + _list[_count][3],
                                               // "temp",

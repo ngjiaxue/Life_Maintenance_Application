@@ -14,7 +14,15 @@ class UserPage1 extends StatefulWidget {
   final User user;
   final VoidCallback callback1;
   final Function(int) func1;
-  const UserPage1({Key key, this.user, this.callback1, this.func1})
+  final List userFoodList;
+  final List userExerciseList;
+  const UserPage1(
+      {Key key,
+      this.user,
+      this.userFoodList,
+      this.userExerciseList,
+      this.callback1,
+      this.func1})
       : super(key: key);
   @override
   @override
@@ -154,6 +162,8 @@ class _UserPage1State extends State<UserPage1> {
                   width: double.infinity,
                   child: NestedTabBar(
                     user: widget.user,
+                    userFoodList: widget.userFoodList,
+                    userExerciseList: widget.userExerciseList,
                     screenHeight: _screenHeight,
                   ),
                 ),
@@ -441,7 +451,15 @@ class _UserPage1State extends State<UserPage1> {
 class NestedTabBar extends StatefulWidget {
   final User user;
   final double screenHeight;
-  const NestedTabBar({Key key, this.user, this.screenHeight}) : super(key: key);
+  final List userFoodList;
+  final List userExerciseList;
+  const NestedTabBar(
+      {Key key,
+      this.user,
+      this.userFoodList,
+      this.userExerciseList,
+      this.screenHeight})
+      : super(key: key);
   @override
   _NestedTabBarState createState() => _NestedTabBarState();
 }
@@ -501,7 +519,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                   child: TabBarView(
                     controller: _nestedTabController,
                     children: <Widget>[
-                      widget.user.getFoodList().length == 0
+                      widget.userFoodList.length == 0
                           ? Container(
                               height: _screenHeight / 2,
                               child: Center(
@@ -509,7 +527,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                               ),
                             )
                           : _contentInTabBarView(0),
-                      widget.user.getExerciseList().length == 0
+                      widget.userExerciseList.length == 0
                           ? Container(
                               height: _screenHeight / 2,
                               child: Center(
@@ -530,39 +548,36 @@ class _NestedTabBarState extends State<NestedTabBar>
 
   Widget _contentInTabBarView(int _i) {
     //_i = 0 => food, _i = 1 => exercise
-    var _list;
+    List _list;
     double _highestCalories = 0;
     List<FlSpot> _data = [];
 
     if (_i == 0) {
-      _list = widget.user.getFoodList();
+      _list = widget.userFoodList;
       for (int _i = 0; _i < _list.length; _i++) {
         _data.add(
           FlSpot(
             _i.toDouble(),
-            double.parse(_list[_i].getTotalCalories()) / 100,
+            double.parse(_list[_i]["calories"]) / 100,
           ),
         );
 
-        if ((double.parse(_list[_i].getTotalCalories()) / 100) >
-            _highestCalories) {
-          _highestCalories = (double.parse(_list[_i].getTotalCalories()) / 100);
+        if ((double.parse(_list[_i]["calories"]) / 100) > _highestCalories) {
+          _highestCalories = (double.parse(_list[_i]["calories"]) / 100);
         }
       }
     } else {
-      _list = widget.user.getExerciseList();
+      _list = widget.userExerciseList;
       for (int _i = 0; _i < _list.length; _i++) {
         _data.add(
           FlSpot(
             _i.toDouble(),
-            double.parse(_list[_i].getTotalCaloriesBurned()) / 100,
+            double.parse(_list[_i]["calories"]) / 100,
           ),
         );
 
-        if ((double.parse(_list[_i].getTotalCaloriesBurned()) / 100) >
-            _highestCalories) {
-          _highestCalories =
-              (double.parse(_list[_i].getTotalCaloriesBurned()) / 100);
+        if ((double.parse(_list[_i]["calories"]) / 100) > _highestCalories) {
+          _highestCalories = (double.parse(_list[_i]["calories"]) / 100);
         }
       }
     }
@@ -612,10 +627,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                             (List<LineBarSpot> touchedBarSpots) {
                           return touchedBarSpots.map((barSpot) {
                             return LineTooltipItem(
-                              _i == 0
-                                  ? _list[barSpot.x.toInt()].getTotalCalories()
-                                  : _list[barSpot.x.toInt()]
-                                      .getTotalCaloriesBurned(),
+                              _list[barSpot.x.toInt()]["calories"],
                               const TextStyle(
                                 fontFamily: "Leoscar",
                                 color: Colors.black,
@@ -644,7 +656,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                             fontSize: 10,
                           ),
                           getTitles: (value) {
-                            return _list[value.toInt()].getName();
+                            return _list[value.toInt()]["name"];
                           },
                         ),
                       ),

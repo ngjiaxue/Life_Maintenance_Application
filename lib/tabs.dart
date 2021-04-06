@@ -23,10 +23,10 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   Methods methods = new Methods();
   User user;
   List<bool> _tabSelected = [true, false, false, false];
-  List _foodList;
-  List _exerciseList;
-  List _userFoodList;
-  List _userExerciseList;
+  List _foodList = [];
+  List _exerciseList = [];
+  List _userFoodList = [];
+  List _userExerciseList = [];
   bool _fadeIn = false;
   bool _onDrag = true;
   double _screenHeight;
@@ -123,6 +123,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             });
           },
           user: widget.user,
+          userFoodList: _userFoodList,
+          userExerciseList: _userExerciseList,
         ),
         UserPage2(
           user: widget.user,

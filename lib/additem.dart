@@ -23,7 +23,8 @@ class AddItem extends StatefulWidget {
 class _AddItemState extends State<AddItem> {
   Methods methods = new Methods();
   double _screenHeight;
-  double _tempValue = 0;
+  double _amount = 0.0;
+  int _duration = 0;
   String _oldQuery = "";
   List _searchList = [];
   TextEditingController _searchController = new TextEditingController();
@@ -131,26 +132,44 @@ class _AddItemState extends State<AddItem> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         GestureDetector(
-                                          child: Container(
-                                            child: Icon(
-                                              LineIcons.times,
-                                              color: Colors.white,
+                                            child: Container(
+                                              child: Icon(
+                                                LineIcons.times,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                          onTap: () =>
-                                              ScaffoldMessenger.of(context)
-                                                  .hideCurrentSnackBar(),
-                                        ),
-                                        DecimalNumberPicker(
-                                            minValue: 0,
-                                            maxValue: 10000,
-                                            decimalPlaces: 1,
-                                            value: _tempValue,
-                                            onChanged: (value) {
-                                              newSetState(() {
-                                                _tempValue = value;
+                                            onTap: () {
+                                              setState(() {
+                                                _amount = 0.0;
+                                                _duration = 0;
                                               });
+                                              ScaffoldMessenger.of(context)
+                                                  .hideCurrentSnackBar();
                                             }),
+                                        Container(
+                                          color: Colors.black,
+                                          height: 100,
+                                          child: widget.option == "food"
+                                              ? DecimalNumberPicker(
+                                                  minValue: 0,
+                                                  maxValue: 10000,
+                                                  decimalPlaces: 1,
+                                                  value: _amount,
+                                                  onChanged: (value) {
+                                                    newSetState(() {
+                                                      _amount = value;
+                                                    });
+                                                  })
+                                              : NumberPicker(
+                                                  minValue: 0,
+                                                  maxValue: 200,
+                                                  value: _duration,
+                                                  onChanged: (value) {
+                                                    newSetState(() {
+                                                      _duration = value;
+                                                    });
+                                                  }),
+                                        ),
                                         GestureDetector(
                                           child: Container(
                                             child: Icon(
@@ -163,113 +182,21 @@ class _AddItemState extends State<AddItem> {
                                                 _searchList.isNotEmpty
                                                     ? _searchList[index]
                                                     : widget.dbList[index],
-                                                _tempValue.toString());
+                                                _amount.toString());
                                             SchedulerBinding.instance
                                                 .addPostFrameCallback((_) {
                                               ScaffoldMessenger.of(context)
                                                   .hideCurrentSnackBar();
-                                              // setState(() {});
+                                              setState(() {
+                                                _amount = 0.0;
+                                                _duration = 0;
+                                              });
                                             });
                                           },
                                         ),
                                       ],
                                     );
                                   }),
-                                  // Row(
-                                  //   mainAxisAlignment:
-                                  //       MainAxisAlignment.spaceBetween,
-                                  //   children: [
-                                  //     GestureDetector(
-                                  //       child: Container(
-                                  //         child: Icon(
-                                  //           LineIcons.times,
-                                  //           color: Colors.white,
-                                  //         ),
-                                  //       ),
-                                  //       onTap: () =>
-                                  //           ScaffoldMessenger.of(context)
-                                  //               .hideCurrentSnackBar(),
-                                  //     ),
-                                  //     // NumberPickerDialog.decimal(
-                                  //     //   minValue: 0,
-                                  //     //   maxValue: 10000,
-                                  //     //   title: methods.textOnly(
-                                  //     //       "Insert amount",
-                                  //     //       "Leoscar",
-                                  //     //       26.0,
-                                  //     //       Color(0XFF7100AD),
-                                  //     //       FontWeight.bold,
-                                  //     //       FontStyle.normal,
-                                  //     //       TextAlign.start),
-                                  //     //   initialDoubleValue: 0.0,
-                                  //     //   textStyle: TextStyle(
-                                  //     //     fontFamily: "Leoscar",
-                                  //     //     fontSize: 20.0,
-                                  //     //     letterSpacing: 1.0,
-                                  //     //     color: Colors.grey,
-                                  //     //   ),
-                                  //     //   selectedTextStyle: TextStyle(
-                                  //     //     fontFamily: "Leoscar",
-                                  //     //     fontSize: 22.0,
-                                  //     //     letterSpacing: 1.0,
-                                  //     //     color: Color(0XFF7100AD),
-                                  //     //   ),
-                                  //     //   confirmWidget: SizedBox.shrink(),
-                                  //     //   cancelWidget: SizedBox.shrink(),
-                                  //     // ),
-                                  //     // Expanded(
-                                  //     //   child: TextField(
-                                  //     //     style: TextStyle(
-                                  //     //       fontFamily: "Leoscar",
-                                  //     //       fontSize: 17.0,
-                                  //     //       letterSpacing: 1.0,
-                                  //     //     ),
-                                  //     //     controller: _amountController,
-                                  //     //     textInputAction: TextInputAction.done,
-                                  //     //     keyboardType: TextInputType.number,
-                                  //     //     cursorColor: Color(0XFF9866B3),
-                                  //     //     decoration: InputDecoration(
-                                  //     //       contentPadding:
-                                  //     //           EdgeInsets.all(20.0),
-                                  //     //       focusedBorder:
-                                  //     //           const UnderlineInputBorder(
-                                  //     //         borderSide: const BorderSide(
-                                  //     //           color: Color(0XFF9866B3),
-                                  //     //           width: 1.5,
-                                  //     //         ),
-                                  //     //         borderRadius: BorderRadius.all(
-                                  //     //           Radius.circular(8.0),
-                                  //     //         ),
-                                  //     //       ),
-                                  //     //       hintText: "Amount taken (grams)",
-                                  //     //       hintStyle: TextStyle(
-                                  //     //         fontFamily: "Leoscar",
-                                  //     //         fontSize: 17.0,
-                                  //     //         color: Colors.white,
-                                  //     //         letterSpacing: 1.0,
-                                  //     //       ),
-                                  //     //     ),
-                                  //     //   ),
-                                  //     // ),
-                                  //     GestureDetector(
-                                  //       child: Container(
-                                  //         child: Icon(
-                                  //           LineIcons.check,
-                                  //           color: Colors.white,
-                                  //         ),
-                                  //       ),
-                                  //       onTap: () {
-                                  //         ScaffoldMessenger.of(context)
-                                  //             .hideCurrentSnackBar();
-                                  //         _addToList(
-                                  //             _searchList.isNotEmpty
-                                  //                 ? _searchList[index]
-                                  //                 : widget.dbList[index],
-                                  //             _amountController.text);
-                                  //       },
-                                  //     ),
-                                  //   ],
-                                  // ),
                                 );
                               },
                             );
@@ -297,10 +224,10 @@ class _AddItemState extends State<AddItem> {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        // ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        // Future.delayed(Duration(milliseconds: 300), () {
-                        Navigator.of(context).pop();
-                        // });
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          Navigator.of(context).pop();
+                        });
                       },
                     ),
                     true,

@@ -4,9 +4,6 @@ import 'exercise.dart';
 class User {
   String _name, _dob, _gender, _email, _phone, _height, _weight;
 
-  List<Food> _foodList = [];
-  List<Exercise> _exerciseList = [];
-
   User(String name, String dob, String gender, String email, String phone,
       String height, String weight) {
     this._name = name;
@@ -46,14 +43,6 @@ class User {
     return this._weight;
   }
 
-  List<Food> getFoodList() {
-    return this._foodList;
-  }
-
-  List<Exercise> getExerciseList() {
-    return this._exerciseList;
-  }
-
   void setName(String name) {
     this._name = name;
   }
@@ -80,13 +69,5 @@ class User {
 
   void setWeight(String weight) {
     this._weight = weight;
-  }
-
-  void setFoodList(Food food) {
-    this._foodList.add(food);
-  }
-
-  void setExerciseList(Exercise exercise) {
-    this._exerciseList.add(exercise);
   }
 }
