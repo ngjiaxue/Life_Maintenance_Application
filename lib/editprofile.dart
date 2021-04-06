@@ -1,14 +1,13 @@
 import 'dart:math';
-import 'package:page_transition/page_transition.dart';
-
-import 'loginscreen.dart';
 import 'user.dart';
 import 'methods.dart';
+import 'loginscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:line_icons/line_icons.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:simple_animations/simple_animations.dart';
 
 class EditProfile extends StatefulWidget {

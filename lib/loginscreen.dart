@@ -342,21 +342,24 @@ class _LoginScreenState extends State<LoginScreen> {
                               future: Future.delayed(
                                 Duration(milliseconds: 1500),
                               ),
-                              builder: (c, s) =>
-                                  s.connectionState == ConnectionState.done
-                                      ? TypewriterAnimatedTextKit(
-                                          text: [
-                                            "YOUR HEALTH\nIS OUR DUTY",
-                                          ],
+                              builder: (c, s) => s.connectionState ==
+                                      ConnectionState.done
+                                  ? AnimatedTextKit(
+                                      // displayFullTextOnTap: true,
+                                      isRepeatingAnimation: false,
+                                      animatedTexts: [
+                                        TypewriterAnimatedText(
+                                          "YOUR HEALTH\nIS OUR DUTY",
                                           textStyle: TextStyle(
                                             fontFamily: "Kultur",
                                             fontSize: 35.0,
                                             color: Color(0XFF3E005E),
                                           ),
                                           speed: Duration(milliseconds: 100),
-                                          isRepeatingAnimation: false,
                                         )
-                                      : Text(" "),
+                                      ],
+                                    )
+                                  : Text(" "),
                             )
                           : methods.textOnly(
                               "YOUR HEALTH\nIS OUR DUTY",
@@ -459,9 +462,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               unselectedWidgetColor: Colors.grey[400],
                             ),
                             child: Checkbox(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
+                              // shape: RoundedRectangleBorder(
+                              //   borderRadius: BorderRadius.circular(4.0),
+                              // ),
                               value: _isChecked,
                               activeColor: Color(0XFF933FBF),
                               onChanged: (bool value) {
@@ -947,9 +950,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 unselectedWidgetColor: Colors.grey[400],
                               ),
                               child: Checkbox(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
+                                // shape: RoundedRectangleBorder(
+                                //   borderRadius: BorderRadius.circular(4.0),
+                                // ),
                                 value: _isChecked1,
                                 activeColor: Color(0XFF933FBF),
                                 onChanged: (bool value) {

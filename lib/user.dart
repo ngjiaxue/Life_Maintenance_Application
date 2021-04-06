@@ -1,6 +1,3 @@
-import 'food.dart';
-import 'exercise.dart';
-
 class User {
   String _name, _dob, _gender, _email, _phone, _height, _weight;
 

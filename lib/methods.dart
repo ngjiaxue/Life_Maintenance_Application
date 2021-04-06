@@ -347,9 +347,19 @@ class Methods {
           style: TextStyle(fontFamily: "Oxanium Regular", fontSize: 18.0),
         ),
         actions: <Widget>[
-          new FlatButton(
+          new TextButton(
+            style: ButtonStyle(
+              overlayColor: MaterialStateColor.resolveWith(
+                (states) => Color(0XFFE7BAFF),
+              ),
+              shape: MaterialStateProperty.resolveWith(
+                (states) => RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
             child: textOnly("Login", "Oxanium Regular", 18.0, Colors.orange,
-                FontWeight.bold, null, null),
+                FontWeight.bold, FontStyle.normal, TextAlign.center),
             onPressed: () {
               Navigator.push(
                 context,
@@ -359,9 +369,22 @@ class Methods {
               );
             },
           ),
-          new FlatButton(
+          new TextButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateColor.resolveWith(
+                (states) => Color(0XFF9866B3),
+              ),
+              overlayColor: MaterialStateColor.resolveWith(
+                (states) => Color(0XFFE7BAFF),
+              ),
+              shape: MaterialStateProperty.resolveWith(
+                (states) => RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
             child: textOnly("Sign Up", "Oxanium Regular", 18.0, Colors.orange,
-                FontWeight.bold, null, null),
+                FontWeight.bold, FontStyle.normal, TextAlign.center),
             onPressed: () {
               Navigator.push(
                 context,
