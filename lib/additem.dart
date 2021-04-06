@@ -1,13 +1,10 @@
-import 'dart:convert';
-
-import 'package:flutter/scheduler.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:numberpicker/numberpicker.dart';
-
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
+import 'package:line_icons/line_icons.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
 class AddItem extends StatefulWidget {
@@ -28,7 +25,6 @@ class _AddItemState extends State<AddItem> {
   String _oldQuery = "";
   List _searchList = [];
   TextEditingController _searchController = new TextEditingController();
-  TextEditingController _amountController = new TextEditingController();
   Map<int, Color> _swatch = {
     50: Color.fromRGBO(152, 102, 187, .1),
     100: Color.fromRGBO(152, 102, 187, .2),
@@ -146,30 +142,26 @@ class _AddItemState extends State<AddItem> {
                                               ScaffoldMessenger.of(context)
                                                   .hideCurrentSnackBar();
                                             }),
-                                        Container(
-                                          color: Colors.black,
-                                          height: 100,
-                                          child: widget.option == "food"
-                                              ? DecimalNumberPicker(
-                                                  minValue: 0,
-                                                  maxValue: 10000,
-                                                  decimalPlaces: 1,
-                                                  value: _amount,
-                                                  onChanged: (value) {
-                                                    newSetState(() {
-                                                      _amount = value;
-                                                    });
-                                                  })
-                                              : NumberPicker(
-                                                  minValue: 0,
-                                                  maxValue: 200,
-                                                  value: _duration,
-                                                  onChanged: (value) {
-                                                    newSetState(() {
-                                                      _duration = value;
-                                                    });
-                                                  }),
-                                        ),
+                                        widget.option == "food"
+                                            ? DecimalNumberPicker(
+                                                minValue: 0,
+                                                maxValue: 10000,
+                                                decimalPlaces: 1,
+                                                value: _amount,
+                                                onChanged: (value) {
+                                                  newSetState(() {
+                                                    _amount = value;
+                                                  });
+                                                })
+                                            : NumberPicker(
+                                                minValue: 0,
+                                                maxValue: 200,
+                                                value: _duration,
+                                                onChanged: (value) {
+                                                  newSetState(() {
+                                                    _duration = value;
+                                                  });
+                                                }),
                                         GestureDetector(
                                           child: Container(
                                             child: Icon(
