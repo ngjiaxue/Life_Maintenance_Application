@@ -1,15 +1,22 @@
 import 'user.dart';
 import 'methods.dart';
-import 'exercise.dart';
 import "package:intl/intl.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
 class UserPage3 extends StatefulWidget {
   final User user;
+  final List exerciseList;
+  final List userExerciseList;
   final VoidCallback callback1;
   final Function(int) func1;
-  const UserPage3({Key key, this.callback1, this.func1, this.user})
+  const UserPage3(
+      {Key key,
+      this.callback1,
+      this.exerciseList,
+      this.userExerciseList,
+      this.func1,
+      this.user})
       : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -199,203 +206,196 @@ class _UserPage3State extends State<UserPage3>
                     borderRadius: BorderRadius.circular(50),
                     side: BorderSide(color: Colors.black12),
                   ),
-                  child: ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: methods.color(),
-                        tileMode: TileMode.clamp,
-                      ).createShader(bounds);
-                    },
-                    child: Icon(
+                  child: methods.shaderMask(
+                    Icon(
                       FlutterIcons.addfile_ant,
                       size: 30.0,
                       color: Colors.white,
                     ),
+                    true,
                   ),
                   heroTag: 2,
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) =>
-                          StatefulBuilder(builder: (context, newSetState) {
-                        return AlertDialog(
-                          title: methods.textOnly(
-                              "Add New Exercise?",
-                              "Leoscar",
-                              26.0,
-                              Color(0XFF7100AD),
-                              FontWeight.bold,
-                              null,
-                              null),
-                          content: Container(
-                            height: _screenHeight / 7,
-                            child: Column(
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      hint: methods.textOnly(
-                                          "Select Exercise",
-                                          "Leoscar",
-                                          18.0,
-                                          null,
-                                          FontWeight.normal,
-                                          FontStyle.normal,
-                                          TextAlign.start),
-                                      value: _item,
-                                      items: [
-                                        "Jogging",
-                                        "Cycling",
-                                        "Swimming",
-                                        "Badminton",
-                                        "Tennis",
-                                      ]
-                                          .map((label) => DropdownMenuItem(
-                                                child: Text(
-                                                  label,
-                                                  style: TextStyle(
-                                                    fontFamily: "Leoscar",
-                                                    fontSize: 17.0,
-                                                    letterSpacing: 1.0,
-                                                  ),
-                                                ),
-                                                value: label,
-                                              ))
-                                          .toList(),
-                                      onChanged: (String _value) {
-                                        newSetState(() {
-                                          _item = _value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(),
-                                  child: TextField(
-                                    style: TextStyle(
-                                      fontFamily: "Leoscar",
-                                      fontSize: 17.0,
-                                      letterSpacing: 1.0,
-                                    ),
-                                    controller: _durationController,
-                                    textInputAction: TextInputAction.done,
-                                    keyboardType: TextInputType.number,
-                                    cursorColor: Color(0XFF9866B3),
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.all(20.0),
-                                      focusedBorder: const UnderlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0XFF9866B3),
-                                          width: 1.5,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0),
-                                        ),
-                                      ),
-                                      hintText: "Exercise duration (minutes)",
-                                      hintStyle: TextStyle(
-                                        fontFamily: "Leoscar",
-                                        fontSize: 17.0,
-                                        letterSpacing: 1.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            MaterialButton(
-                              highlightColor: Colors.transparent,
-                              splashColor: Color(0XFFE7BAFF),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                _durationController.clear();
-                                _item = null;
-                              },
-                              child: methods.textOnly(
-                                  "Cancel",
-                                  "Leoscar",
-                                  18.0,
-                                  Color(0XFF9866B3),
-                                  FontWeight.bold,
-                                  null,
-                                  null),
-                            ),
-                            MaterialButton(
-                              highlightColor: Colors.transparent,
-                              splashColor: Color(0XFFE7BAFF),
-                              color: Color(0XFF9866B3),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              onPressed: () {
-                                if (widget.user.getWeight() == "0.0") {
-                                  Navigator.of(context).pop();
-                                  func2(3);
-                                  methods.snackbarMessage(
-                                    context,
-                                    Duration(
-                                      seconds: 1,
-                                    ),
-                                    Colors.red[400],
-                                    methods.textOnly(
-                                        "Please add your weight!",
-                                        "Leoscar",
-                                        18.0,
-                                        Colors.white,
-                                        null,
-                                        null,
-                                        TextAlign.center),
-                                  );
-                                  // Flushbar(
-                                  //   duration: Duration(milliseconds: 1500),
-                                  //   backgroundColor: Colors.red[400],
-                                  //   messageText: methods.textOnly(
-                                  //       "Please add your weight!",
-                                  //       "Leoscar",
-                                  //       18.0,
-                                  //       Colors.white,
-                                  //       null,
-                                  //       null,
-                                  //       TextAlign.center),
-                                  // )..show(context);
-                                } else {
-                                  DateFormat dateFormat =
-                                      DateFormat("yyyy-MM-dd HH:mm:ss");
-                                  Navigator.of(context).pop();
-                                  setState(() {
-                                    widget.user.setExerciseList(Exercise(
-                                        _item,
-                                        _durationController.text,
-                                        widget.user.getWeight(),
-                                        dateFormat
-                                            .format(DateTime.now())
-                                            .toString()));
-                                    _durationController.clear();
-                                    _item = null;
-                                  });
-                                }
-                              },
-                              child: methods.textOnly("Add", "Leoscar", 18.0,
-                                  Colors.white, FontWeight.bold, null, null),
-                            ),
-                          ],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(8.0),
-                            ),
-                          ),
-                        );
-                      }),
-                    );
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (context) =>
+                    //       StatefulBuilder(builder: (context, newSetState) {
+                    //     return AlertDialog(
+                    //       title: methods.textOnly(
+                    //           "Add New Exercise?",
+                    //           "Leoscar",
+                    //           26.0,
+                    //           Color(0XFF7100AD),
+                    //           FontWeight.bold,
+                    //           null,
+                    //           null),
+                    //       content: Container(
+                    //         height: _screenHeight / 7,
+                    //         child: Column(
+                    //           children: [
+                    //             Container(
+                    //               width: double.infinity,
+                    //               child: DropdownButtonHideUnderline(
+                    //                 child: DropdownButton<String>(
+                    //                   hint: methods.textOnly(
+                    //                       "Select Exercise",
+                    //                       "Leoscar",
+                    //                       18.0,
+                    //                       null,
+                    //                       FontWeight.normal,
+                    //                       FontStyle.normal,
+                    //                       TextAlign.start),
+                    //                   value: _item,
+                    //                   items: [
+                    //                     "Jogging",
+                    //                     "Cycling",
+                    //                     "Swimming",
+                    //                     "Badminton",
+                    //                     "Tennis",
+                    //                   ]
+                    //                       .map((label) => DropdownMenuItem(
+                    //                             child: Text(
+                    //                               label,
+                    //                               style: TextStyle(
+                    //                                 fontFamily: "Leoscar",
+                    //                                 fontSize: 17.0,
+                    //                                 letterSpacing: 1.0,
+                    //                               ),
+                    //                             ),
+                    //                             value: label,
+                    //                           ))
+                    //                       .toList(),
+                    //                   onChanged: (String _value) {
+                    //                     newSetState(() {
+                    //                       _item = _value;
+                    //                     });
+                    //                   },
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             Padding(
+                    //               padding: const EdgeInsets.only(),
+                    //               child: TextField(
+                    //                 style: TextStyle(
+                    //                   fontFamily: "Leoscar",
+                    //                   fontSize: 17.0,
+                    //                   letterSpacing: 1.0,
+                    //                 ),
+                    //                 controller: _durationController,
+                    //                 textInputAction: TextInputAction.done,
+                    //                 keyboardType: TextInputType.number,
+                    //                 cursorColor: Color(0XFF9866B3),
+                    //                 decoration: InputDecoration(
+                    //                   contentPadding: EdgeInsets.all(20.0),
+                    //                   focusedBorder: const UnderlineInputBorder(
+                    //                     borderSide: const BorderSide(
+                    //                       color: Color(0XFF9866B3),
+                    //                       width: 1.5,
+                    //                     ),
+                    //                     borderRadius: BorderRadius.all(
+                    //                       Radius.circular(8.0),
+                    //                     ),
+                    //                   ),
+                    //                   hintText: "Exercise duration (minutes)",
+                    //                   hintStyle: TextStyle(
+                    //                     fontFamily: "Leoscar",
+                    //                     fontSize: 17.0,
+                    //                     letterSpacing: 1.0,
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       actions: <Widget>[
+                    //         MaterialButton(
+                    //           highlightColor: Colors.transparent,
+                    //           splashColor: Color(0XFFE7BAFF),
+                    //           shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(8.0),
+                    //           ),
+                    //           onPressed: () {
+                    //             Navigator.of(context).pop();
+                    //             _durationController.clear();
+                    //             _item = null;
+                    //           },
+                    //           child: methods.textOnly(
+                    //               "Cancel",
+                    //               "Leoscar",
+                    //               18.0,
+                    //               Color(0XFF9866B3),
+                    //               FontWeight.bold,
+                    //               null,
+                    //               null),
+                    //         ),
+                    //         MaterialButton(
+                    //           highlightColor: Colors.transparent,
+                    //           splashColor: Color(0XFFE7BAFF),
+                    //           color: Color(0XFF9866B3),
+                    //           shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(8.0),
+                    //           ),
+                    //           onPressed: () {
+                    //             if (widget.user.getWeight() == "0.0") {
+                    //               Navigator.of(context).pop();
+                    //               func2(3);
+                    //               methods.snackbarMessage(
+                    //                 context,
+                    //                 Duration(
+                    //                   seconds: 1,
+                    //                 ),
+                    //                 Colors.red[400],
+                    //                 methods.textOnly(
+                    //                     "Please add your weight!",
+                    //                     "Leoscar",
+                    //                     18.0,
+                    //                     Colors.white,
+                    //                     null,
+                    //                     null,
+                    //                     TextAlign.center),
+                    //               );
+                    //               // Flushbar(
+                    //               //   duration: Duration(milliseconds: 1500),
+                    //               //   backgroundColor: Colors.red[400],
+                    //               //   messageText: methods.textOnly(
+                    //               //       "Please add your weight!",
+                    //               //       "Leoscar",
+                    //               //       18.0,
+                    //               //       Colors.white,
+                    //               //       null,
+                    //               //       null,
+                    //               //       TextAlign.center),
+                    //               // )..show(context);
+                    //             } else {
+                    //               DateFormat dateFormat =
+                    //                   DateFormat("yyyy-MM-dd HH:mm:ss");
+                    //               Navigator.of(context).pop();
+                    //               setState(() {
+                    //                 // widget.user.setExerciseList(Exercise(
+                    //                 //     _item,
+                    //                 //     _durationController.text,
+                    //                 //     widget.user.getWeight(),
+                    //                 //     dateFormat
+                    //                 //         .format(DateTime.now())
+                    //                 //         .toString()));
+                    //                 _durationController.clear();
+                    //                 _item = null;
+                    //               });
+                    //             }
+                    //           },
+                    //           child: methods.textOnly("Add", "Leoscar", 18.0,
+                    //               Colors.white, FontWeight.bold, null, null),
+                    //         ),
+                    //       ],
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.all(
+                    //           Radius.circular(8.0),
+                    //         ),
+                    //       ),
+                    //     );
+                    //   }),
+                    // );
                   }),
             ),
           ),
