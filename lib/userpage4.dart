@@ -1,6 +1,4 @@
 import 'dart:ui';
-import 'package:flutter/scheduler.dart';
-
 import 'user.dart';
 import 'methods.dart';
 import 'loginscreen.dart';
@@ -9,9 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/scheduler.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:slider_button/slider_button.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
@@ -248,6 +248,7 @@ class _UserPage4State extends State<UserPage4>
                                               milliseconds: 1500,
                                             ),
                                             Color(0XFFB563E0),
+                                            true,
                                             methods.textOnly(
                                                 "Profile updated successfully",
                                                 "Leoscar",
@@ -306,6 +307,7 @@ class _UserPage4State extends State<UserPage4>
                                               seconds: 1,
                                             ),
                                             Colors.red[400],
+                                            true,
                                             methods.textOnly(
                                                 "Fail to update profile...Please try again",
                                                 "Leoscar",
@@ -446,7 +448,7 @@ class _UserPage4State extends State<UserPage4>
       );
     } else if (_index == 6) {
       _icon = Icon(
-        FlutterIcons.logout_sli,
+        FlutterIcons.logout_variant_mco,
         color: _color,
       );
     } else if (_index == 7) {
@@ -687,25 +689,39 @@ class _UserPage4State extends State<UserPage4>
       splashColor: _index != 10 ? _color.withOpacity(0.3) : Colors.red[200],
       onTap: () {
         if (_index == 6) {
-          _showSnackbar(
-              Color(0XFFB563E0),
-              () {
+          methods.snackbarMessage(
+            context,
+            Duration(days: 365),
+            Color(0XFFB563E0),
+            true,
+            SliderButton(
+              label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
+                  Colors.white, null, null, TextAlign.center),
+              icon: Icon(
+                FlutterIcons.logout_variant_mco,
+                color: Colors.white,
+              ),
+              width: _screenWidth / 1.15,
+              radius: 8,
+              buttonColor: Color(0XFFB563E0),
+              backgroundColor: Colors.white,
+              highlightedColor: Colors.white,
+              baseColor: Color(0XFFB563E0),
+              action: () {},
+              onDismissed: (dir) {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                Future.delayed(Duration(milliseconds: 300), () {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      child: LoginScreen(2),
+                      type: PageTransitionType.fade,
+                    ),
+                  );
+                });
               },
-              "Do you want to Logout?",
-              () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    child: LoginScreen(2),
-                    type: PageTransitionType.fade,
-                  ),
-                );
-                // Future.delayed(Duration(milliseconds: 300), () {
-                //   Navigator.of(context).pop();
-                // });
-              });
+            ),
+          );
         } else if (_index == 7) {
           Navigator.push(
             context,
@@ -773,6 +789,7 @@ class _UserPage4State extends State<UserPage4>
       context,
       Duration(days: 365),
       color,
+      false,
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -817,6 +834,7 @@ class _UserPage4State extends State<UserPage4>
       context,
       Duration(days: 365),
       Color(0XFFB563E0),
+      false,
       StatefulBuilder(builder: (context, newSetState) {
         return Container(
           height: _screenHeight / 4.5,

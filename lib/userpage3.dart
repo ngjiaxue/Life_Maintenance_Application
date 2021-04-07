@@ -7,15 +7,15 @@ import 'package:page_transition/page_transition.dart';
 
 class UserPage3 extends StatefulWidget {
   final User user;
-  final List exerciseList;
-  final List userExerciseList;
+  // final List exerciseList;
+  // final List userExerciseList;
   final VoidCallback callback1;
   final Function(int) func1;
   const UserPage3(
       {Key key,
       this.callback1,
-      this.exerciseList,
-      this.userExerciseList,
+      // this.exerciseList,
+      // this.userExerciseList,
       this.func1,
       this.user})
       : super(key: key);
@@ -49,13 +49,15 @@ class _UserPage3State extends State<UserPage3>
     return Container(
       child: Stack(
         children: [
-          widget.userExerciseList.length == 0
+          // widget.userExerciseList.length == 0
+          widget.user.getUserExerciseList().length == 0
               ? Center(
                   child: methods.noRecordFound(5, 24.0),
                 )
               : ListView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: widget.userExerciseList.length,
+                  // itemCount: widget.userExerciseList.length,
+                  itemCount: widget.user.getUserExerciseList().length,
                   itemBuilder: (context, index) {
                     // int _count =
                     //     (widget.user.getExerciseList().length - 1) - index;
@@ -106,8 +108,9 @@ class _UserPage3State extends State<UserPage3>
                                                 CrossAxisAlignment.start,
                                             children: [
                                               methods.textOnly(
-                                                  widget.userExerciseList[index]
-                                                      ["name"],
+                                                  widget.user
+                                                          .getUserExerciseList()[
+                                                      index]["name"],
                                                   "Leoscar",
                                                   32.0,
                                                   Colors.black,
@@ -116,7 +119,7 @@ class _UserPage3State extends State<UserPage3>
                                                   TextAlign.start),
                                               Spacer(),
                                               methods.textOnly(
-                                                  "${widget.userExerciseList[index]["calories"]} calories burned (per 30 minutes)",
+                                                  "${widget.user.getUserExerciseList()[index]["calories"]} calories burned (per 30 minutes)",
                                                   "Leoscar",
                                                   18.0,
                                                   Colors.black,
@@ -125,7 +128,7 @@ class _UserPage3State extends State<UserPage3>
                                                   TextAlign.start),
                                               Spacer(),
                                               methods.textOnly(
-                                                  "Exercise duration: ${widget.userExerciseList[index]["amount"]} minutes",
+                                                  "Exercise duration: ${widget.user.getUserExerciseList()[index]["amount"]} minutes",
                                                   "Leoscar",
                                                   18.0,
                                                   Colors.black,
@@ -139,7 +142,7 @@ class _UserPage3State extends State<UserPage3>
                                         Container(
                                           // color: Colors.green,
                                           child: methods.textOnly(
-                                              "Total calories burned: ${(double.parse(widget.userExerciseList[index]["calories"]) / 30 / 125 * (double.parse(widget.user.getWeight()) * 2.2046) * double.parse(widget.userExerciseList[index]["amount"])).toStringAsFixed(1)} calories",
+                                              "Total calories burned: ${(double.parse(widget.user.getUserExerciseList()[index]["calories"]) / 30 / 125 * (double.parse(widget.user.getWeight()) * 2.2046) * double.parse(widget.user.getUserExerciseList()[index]["amount"])).toStringAsFixed(1)} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,
@@ -151,7 +154,7 @@ class _UserPage3State extends State<UserPage3>
                                         Align(
                                           alignment: Alignment.bottomRight,
                                           child: methods.textOnly(
-                                              "Date added: ${widget.userExerciseList[index]["date"]}",
+                                              "Date added: ${widget.user.getUserExerciseList()[index]["date"]}",
                                               "Leoscar",
                                               12.0,
                                               Colors.black,
@@ -216,7 +219,8 @@ class _UserPage3State extends State<UserPage3>
                       PageTransition(
                         child: AddItem(
                           option: "exercise",
-                          dbList: widget.exerciseList,
+                          // dbList: widget.exerciseList,
+                          dbList: widget.user.getExerciseList(),
                           user: widget.user,
                         ),
                         type: PageTransitionType.fade,

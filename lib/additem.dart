@@ -1,5 +1,6 @@
 import 'user.dart';
 import 'methods.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +22,7 @@ class _AddItemState extends State<AddItem> {
   Methods methods = new Methods();
   double _screenHeight;
   double _amount = 0.0;
+  bool _backPressed = false;
   int _duration = 0;
   String _oldQuery = "";
   List _searchList = [];
@@ -45,332 +47,399 @@ class _AddItemState extends State<AddItem> {
   @override
   Widget build(BuildContext context) {
     _screenHeight = MediaQuery.of(context).size.height;
+    AssetImage _gif = AssetImage(
+      "assets/images/logowithtext.gif",
+    );
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          _searchList.isNotEmpty && _searchList[0] == "no data"
-              ? Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    height: 60.0,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        methods.textOnly(
-                            "No data found...",
-                            "Leoscar",
-                            22.0,
-                            Colors.black,
-                            FontWeight.bold,
-                            FontStyle.normal,
-                            TextAlign.center),
-                        methods.shaderMask(
-                          Text(
-                            "Add a new " + widget.option + "?",
-                            style: TextStyle(
-                              fontFamily: "Leoscar",
-                              fontSize: 16.0,
-                              color: Colors.white,
-                              fontStyle: FontStyle.italic,
-                              letterSpacing: 1.0,
-                              decoration: TextDecoration.underline,
+      body: WillPopScope(
+        onWillPop: () async {
+          setState(() {
+            _backPressed = true;
+          });
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          await _loadList("food");
+          await _loadList("exercise");
+          await _loadUserList("food");
+          await _loadUserList("exercise");
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            _gif.evict();
+            Navigator.of(context).pop();
+          });
+          return;
+        },
+        child: _backPressed == false
+            ? Stack(
+                children: [
+                  _searchList.isNotEmpty && _searchList[0] == "no data"
+                      ? Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            height: 60.0,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                methods.textOnly(
+                                    "No data found...",
+                                    "Leoscar",
+                                    22.0,
+                                    Colors.black,
+                                    FontWeight.bold,
+                                    FontStyle.normal,
+                                    TextAlign.center),
+                                methods.shaderMask(
+                                  Text(
+                                    "Add a new " + widget.option + "?",
+                                    style: TextStyle(
+                                      fontFamily: "Leoscar",
+                                      fontSize: 16.0,
+                                      color: Colors.white,
+                                      fontStyle: FontStyle.italic,
+                                      letterSpacing: 1.0,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                  false,
+                                ),
+                              ],
                             ),
                           ),
-                          false,
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 70.0,
-                      left: 10.0,
-                      right: 10.0,
-                    ),
-                    child: Container(
-                      height: _screenHeight / 1.2,
-                      child: Scaffold(
-                        body: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          itemCount: _searchList.isNotEmpty
-                              ? _searchList.length
-                              : widget.dbList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return ListTile(
-                              title: methods.textOnly(
-                                  _searchList.isNotEmpty
-                                      ? _searchList[index]["name"]
-                                      : widget.dbList[index]["name"],
-                                  "Leoscar",
-                                  17.0,
-                                  Colors.black,
-                                  FontWeight.normal,
-                                  FontStyle.normal,
-                                  TextAlign.left),
-                              trailing: Icon(
-                                FlutterIcons.keyboard_arrow_right_mdi,
-                              ),
-                              onTap: () {
-                                bool _loading = false;
-                                FocusScope.of(context).unfocus();
-                                methods.snackbarMessage(
-                                  context,
-                                  Duration(days: 365),
-                                  Color(0XFFB563E0),
-                                  StatefulBuilder(
-                                      builder: (context, newSetState) {
-                                    return _loading == false
-                                        ? Container(
-                                            height: _screenHeight / 4.5,
-                                            child: Column(
-                                              children: [
-                                                methods.textOnly(
-                                                    "Please insert " +
-                                                        (widget.option == "food"
-                                                            ? "amount (grams)"
-                                                            : "duration (minutes)"),
-                                                    "Leoscar",
-                                                    18.0,
-                                                    Colors.white,
-                                                    null,
-                                                    null,
-                                                    TextAlign.center),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    GestureDetector(
-                                                        child: Container(
-                                                          child: Icon(
-                                                            LineIcons.times,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        onTap: () {
-                                                          setState(() {
-                                                            _amount = 0.0;
-                                                            _duration = 0;
-                                                          });
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .hideCurrentSnackBar();
-                                                        }),
-                                                    widget.option == "food"
-                                                        ? DecimalNumberPicker(
-                                                            minValue: 0,
-                                                            maxValue: 10000,
-                                                            decimalPlaces: 1,
-                                                            value: _amount,
-                                                            onChanged: (value) {
-                                                              newSetState(() {
-                                                                _amount = value;
-                                                              });
-                                                            })
-                                                        : NumberPicker(
-                                                            minValue: 0,
-                                                            maxValue: 200,
-                                                            value: _duration,
-                                                            onChanged: (value) {
-                                                              newSetState(() {
-                                                                _duration =
-                                                                    value;
-                                                              });
-                                                            }),
-                                                    GestureDetector(
-                                                      child: Container(
-                                                        child: Icon(
-                                                          LineIcons.check,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                      onTap: () async {
-                                                        newSetState(() {
-                                                          _loading = true;
-                                                        });
-                                                        await _addToList(
-                                                            _searchList
-                                                                    .isNotEmpty
-                                                                ? _searchList[
-                                                                    index]
-                                                                : widget.dbList[
-                                                                    index],
+                        )
+                      : Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 70.0,
+                              left: 10.0,
+                              right: 10.0,
+                            ),
+                            child: Container(
+                              height: _screenHeight / 1.2,
+                              child: Scaffold(
+                                body: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  itemCount: _searchList.isNotEmpty
+                                      ? _searchList.length
+                                      : widget.dbList.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return ListTile(
+                                      title: methods.textOnly(
+                                          _searchList.isNotEmpty
+                                              ? _searchList[index]["name"]
+                                              : widget.dbList[index]["name"],
+                                          "Leoscar",
+                                          17.0,
+                                          Colors.black,
+                                          FontWeight.normal,
+                                          FontStyle.normal,
+                                          TextAlign.left),
+                                      trailing: Icon(
+                                        FlutterIcons.keyboard_arrow_right_mdi,
+                                      ),
+                                      onTap: () {
+                                        bool _loading = false;
+                                        FocusScope.of(context).unfocus();
+                                        methods.snackbarMessage(
+                                          context,
+                                          Duration(days: 365),
+                                          Color(0XFFB563E0),
+                                          false,
+                                          StatefulBuilder(
+                                              builder: (context, newSetState) {
+                                            return _loading == false
+                                                ? Container(
+                                                    height: _screenHeight / 4.5,
+                                                    child: Column(
+                                                      children: [
+                                                        methods.textOnly(
+                                                            "Please insert " +
+                                                                (widget.option ==
+                                                                        "food"
+                                                                    ? "amount (grams)"
+                                                                    : "duration (minutes)"),
+                                                            "Leoscar",
+                                                            18.0,
+                                                            Colors.white,
+                                                            null,
+                                                            null,
+                                                            TextAlign.center),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            GestureDetector(
+                                                                child:
+                                                                    Container(
+                                                                  child: Icon(
+                                                                    LineIcons
+                                                                        .times,
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ),
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    _amount =
+                                                                        0.0;
+                                                                    _duration =
+                                                                        0;
+                                                                  });
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .hideCurrentSnackBar();
+                                                                }),
                                                             widget.option ==
                                                                     "food"
-                                                                ? _amount
-                                                                    .toString()
-                                                                : _duration
-                                                                    .toString());
-                                                        SchedulerBinding
-                                                            .instance
-                                                            .addPostFrameCallback(
-                                                                (_) {
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .hideCurrentSnackBar();
-                                                          setState(() {
-                                                            _amount = 0.0;
-                                                            _duration = 0;
-                                                          });
-                                                        });
-                                                      },
+                                                                ? DecimalNumberPicker(
+                                                                    minValue: 0,
+                                                                    maxValue:
+                                                                        10000,
+                                                                    decimalPlaces:
+                                                                        1,
+                                                                    value:
+                                                                        _amount,
+                                                                    onChanged:
+                                                                        (value) {
+                                                                      newSetState(
+                                                                          () {
+                                                                        _amount =
+                                                                            value;
+                                                                      });
+                                                                    })
+                                                                : NumberPicker(
+                                                                    minValue: 0,
+                                                                    maxValue:
+                                                                        200,
+                                                                    value:
+                                                                        _duration,
+                                                                    onChanged:
+                                                                        (value) {
+                                                                      newSetState(
+                                                                          () {
+                                                                        _duration =
+                                                                            value;
+                                                                      });
+                                                                    }),
+                                                            GestureDetector(
+                                                              child: Container(
+                                                                child: Icon(
+                                                                  LineIcons
+                                                                      .check,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                              onTap: () async {
+                                                                newSetState(() {
+                                                                  _loading =
+                                                                      true;
+                                                                });
+                                                                await _addToList(
+                                                                    _searchList
+                                                                            .isNotEmpty
+                                                                        ? _searchList[
+                                                                            index]
+                                                                        : widget.dbList[
+                                                                            index],
+                                                                    widget.option ==
+                                                                            "food"
+                                                                        ? _amount
+                                                                            .toString()
+                                                                        : _duration
+                                                                            .toString());
+                                                                SchedulerBinding
+                                                                    .instance
+                                                                    .addPostFrameCallback(
+                                                                        (_) {
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .hideCurrentSnackBar();
+                                                                  setState(() {
+                                                                    _amount =
+                                                                        0.0;
+                                                                    _duration =
+                                                                        0;
+                                                                  });
+                                                                });
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : methods.textOnly(
-                                            "Loading......",
-                                            "Leoscar",
-                                            20.0,
-                                            Colors.white,
-                                            FontWeight.normal,
-                                            FontStyle.normal,
-                                            TextAlign.center);
-                                  }),
-                                );
+                                                  )
+                                                : methods.textOnly(
+                                                    "Loading......",
+                                                    "Leoscar",
+                                                    20.0,
+                                                    Colors.white,
+                                                    FontWeight.normal,
+                                                    FontStyle.normal,
+                                                    TextAlign.center);
+                                          }),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 20.0,
+                        left: 10.0,
+                      ),
+                      child: Row(
+                        children: [
+                          methods.shaderMask(
+                            IconButton(
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              icon: Icon(
+                                FlutterIcons.md_arrow_round_back_ion,
+                                color: Colors.white,
+                              ),
+                              onPressed: () async {
+                                setState(() {
+                                  _backPressed = true;
+                                });
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                                await _loadList("food");
+                                await _loadList("exercise");
+                                await _loadUserList("food");
+                                await _loadUserList("exercise");
+                                SchedulerBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  _gif.evict();
+                                  Navigator.of(context).pop();
+                                });
                               },
-                            );
+                            ),
+                            true,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 10.0,
+                              top: 7.0,
+                            ),
+                            child: methods.shaderMask(
+                              methods.textOnly(
+                                  "Add new " + widget.option,
+                                  "Leoscar",
+                                  22.0,
+                                  Colors.white,
+                                  FontWeight.bold,
+                                  FontStyle.normal,
+                                  TextAlign.center),
+                              true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 70.0,
+                        left: 20.0,
+                        right: 20.0,
+                      ),
+                      child: Theme(
+                        data: ThemeData(
+                          primarySwatch: MaterialColor(0XFF9866B3, _swatch),
+                          textSelectionTheme: TextSelectionThemeData(
+                            cursorColor: Color(0XFF9866B3),
+                          ),
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (String _query) {
+                            bool _atLeastOneData = false;
+                            if (_oldQuery.length != _query.length) {
+                              setState(() {
+                                _searchList.clear();
+                              });
+                            }
+                            if (_query.isNotEmpty) {
+                              for (int _i = 0;
+                                  _i < widget.dbList.length;
+                                  _i++) {
+                                if (widget.dbList[_i]["name"]
+                                    .toLowerCase()
+                                    .contains(_query.toLowerCase())) {
+                                  setState(() {
+                                    _searchList.add(widget.dbList[_i]);
+                                    _atLeastOneData = true;
+                                  });
+                                }
+                              }
+                            } else {
+                              setState(() {
+                                _searchList.clear();
+                              });
+                            }
+                            if (_query.isNotEmpty && _atLeastOneData == false) {
+                              _searchList.add("no data");
+                            }
+                            _oldQuery = _query;
                           },
+                          style: TextStyle(
+                            fontFamily: "Leoscar",
+                            fontSize: 17.0,
+                            letterSpacing: 1.0,
+                          ),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            prefixIcon: Icon(
+                              FlutterIcons.search1_ant,
+                              size: 20.0,
+                            ),
+                            suffixIcon: Visibility(
+                              visible: _searchController.text.isNotEmpty,
+                              child: IconButton(
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                icon: Icon(
+                                  FlutterIcons.close_circle_outline_mco,
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchList.clear();
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 20.0,
-                left: 10.0,
-              ),
-              child: Row(
-                children: [
-                  methods.shaderMask(
-                    IconButton(
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      icon: Icon(
-                        FlutterIcons.md_arrow_round_back_ion,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        Future.delayed(Duration(milliseconds: 300), () {
-                          Navigator.of(context).pop();
-                        });
-                      },
-                    ),
-                    true,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 10.0,
-                      top: 7.0,
-                    ),
-                    child: methods.shaderMask(
-                      methods.textOnly(
-                          "Add new " + widget.option,
-                          "Leoscar",
-                          22.0,
-                          Colors.white,
-                          FontWeight.bold,
-                          FontStyle.normal,
-                          TextAlign.center),
-                      true,
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 70.0,
-                left: 20.0,
-                right: 20.0,
-              ),
-              child: Theme(
-                data: ThemeData(
-                  primarySwatch: MaterialColor(0XFF9866B3, _swatch),
-                  textSelectionTheme: TextSelectionThemeData(
-                    cursorColor: Color(0XFF9866B3),
-                  ),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (String _query) {
-                    bool _atLeastOneData = false;
-                    if (_oldQuery.length != _query.length) {
-                      setState(() {
-                        _searchList.clear();
-                      });
-                    }
-                    if (_query.isNotEmpty) {
-                      for (int _i = 0; _i < widget.dbList.length; _i++) {
-                        if (widget.dbList[_i]["name"]
-                            .toLowerCase()
-                            .contains(_query.toLowerCase())) {
-                          setState(() {
-                            _searchList.add(widget.dbList[_i]);
-                            _atLeastOneData = true;
-                          });
-                        }
-                      }
-                    } else {
-                      setState(() {
-                        _searchList.clear();
-                      });
-                    }
-                    if (_query.isNotEmpty && _atLeastOneData == false) {
-                      _searchList.add("no data");
-                    }
-                    _oldQuery = _query;
-                  },
-                  style: TextStyle(
-                    fontFamily: "Leoscar",
-                    fontSize: 17.0,
-                    letterSpacing: 1.0,
-                  ),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    prefixIcon: Icon(
-                      FlutterIcons.search1_ant,
-                      size: 20.0,
-                    ),
-                    suffixIcon: Visibility(
-                      visible: _searchController.text.isNotEmpty,
-                      child: IconButton(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        icon: Icon(
-                          FlutterIcons.close_circle_outline_mco,
-                        ),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchList.clear();
-                          });
-                        },
-                      ),
+              )
+            : Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: _gif,
+                      scale: 1.5,
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -392,6 +461,7 @@ class _AddItemState extends State<AddItem> {
             milliseconds: 1500,
           ),
           Color(0XFFB563E0),
+          true,
           methods.textOnly("Added successfully", "Leoscar", 18.0, Colors.white,
               null, null, TextAlign.center),
         );
@@ -402,7 +472,76 @@ class _AddItemState extends State<AddItem> {
             seconds: 1,
           ),
           Colors.red[400],
+          true,
           methods.textOnly("Fail to add...Please try again", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
+
+  Future<void> _loadList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
+        body: {
+          "option": option,
+        }).then((res) {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          if (option == "food") {
+            // _foodList = _extractData;
+            widget.user.setFoodList(_extractData);
+          } else {
+            // _exerciseList = _extractData;
+            widget.user.setExerciseList(_extractData);
+          }
+        });
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
+
+  Future<void> _loadUserList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
+        body: {
+          "email": widget.user.getEmail(),
+          "option": option,
+        }).then((res) {
+      if (res.body != "no data" && res.body != "connected but no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          if (option == "food") {
+            // _userFoodList = _extractData;
+            widget.user.setUserFoodList(_extractData);
+          } else {
+            // _userExerciseList = _extractData;
+            widget.user.setUserExerciseList(_extractData);
+          }
+        });
+      } else if (res.body == "connected but no data") {
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
       }

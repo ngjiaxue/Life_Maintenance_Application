@@ -13,13 +13,13 @@ class UserPage1 extends StatefulWidget {
   final User user;
   final VoidCallback callback1;
   final Function(int) func1;
-  final List userFoodList;
-  final List userExerciseList;
+  // final List userFoodList;
+  // final List userExerciseList;
   const UserPage1(
       {Key key,
       this.user,
-      this.userFoodList,
-      this.userExerciseList,
+      // this.userFoodList,
+      // this.userExerciseList,
       this.callback1,
       this.func1})
       : super(key: key);
@@ -161,8 +161,8 @@ class _UserPage1State extends State<UserPage1> {
                   width: double.infinity,
                   child: NestedTabBar(
                     user: widget.user,
-                    userFoodList: widget.userFoodList,
-                    userExerciseList: widget.userExerciseList,
+                    // userFoodList: widget.userFoodList,
+                    // userExerciseList: widget.userExerciseList,
                     screenHeight: _screenHeight,
                   ),
                 ),
@@ -354,6 +354,7 @@ class _UserPage1State extends State<UserPage1> {
       context,
       Duration(days: 365),
       Color(0XFFB563E0),
+      false,
       StatefulBuilder(builder: (context, newSetState) {
         return _loading == false
             ? Container(
@@ -424,6 +425,7 @@ class _UserPage1State extends State<UserPage1> {
                                       milliseconds: 1500,
                                     ),
                                     Color(0XFFB563E0),
+                                    true,
                                     methods.textOnly(
                                         (_index == 0 ? "Height" : "Weight") +
                                             " updated successfully",
@@ -443,6 +445,7 @@ class _UserPage1State extends State<UserPage1> {
                                       seconds: 1,
                                     ),
                                     Colors.red[400],
+                                    true,
                                     methods.textOnly(
                                         "Fail to update...Please try again",
                                         "Leoscar",
@@ -477,13 +480,13 @@ class _UserPage1State extends State<UserPage1> {
 class NestedTabBar extends StatefulWidget {
   final User user;
   final double screenHeight;
-  final List userFoodList;
-  final List userExerciseList;
+  // final List userFoodList;
+  // final List userExerciseList;
   const NestedTabBar(
       {Key key,
       this.user,
-      this.userFoodList,
-      this.userExerciseList,
+      // this.userFoodList,
+      // this.userExerciseList,
       this.screenHeight})
       : super(key: key);
   @override
@@ -494,7 +497,7 @@ class _NestedTabBarState extends State<NestedTabBar>
     with TickerProviderStateMixin {
   Methods methods = new Methods();
   TabController _nestedTabController;
-  int touchedIndex;
+  String _chartFilter = "Day";
   @override
   void initState() {
     super.initState();
@@ -509,13 +512,13 @@ class _NestedTabBarState extends State<NestedTabBar>
 
   @override
   Widget build(BuildContext context) {
-    double _screenHeight = MediaQuery.of(context).size.height;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Container(
           height: 40.0,
           child: TabBar(
+            physics: NeverScrollableScrollPhysics(),
             controller: _nestedTabController,
             indicatorColor: Colors.cyan[200],
             labelColor: Colors.white,
@@ -537,35 +540,34 @@ class _NestedTabBarState extends State<NestedTabBar>
           ),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  height: _screenHeight / 1.9,
-                  child: TabBarView(
-                    controller: _nestedTabController,
-                    children: <Widget>[
-                      widget.userFoodList.length == 0
-                          ? Container(
-                              height: _screenHeight / 2,
-                              child: Center(
-                                child: methods.noRecordFound(7, 20.0),
-                              ),
-                            )
-                          : _contentInTabBarView(0),
-                      widget.userExerciseList.length == 0
-                          ? Container(
-                              height: _screenHeight / 2,
-                              child: Center(
-                                child: methods.noRecordFound(7, 20.0),
-                              ),
-                            )
-                          : _contentInTabBarView(1),
-                    ],
-                  ),
+          child: Column(
+            children: [
+              Container(
+                height: widget.screenHeight / 1.95,
+                child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
+                  controller: _nestedTabController,
+                  children: <Widget>[
+                    widget.user.getUserFoodList().length == 0
+                        ? Container(
+                            height: widget.screenHeight / 2,
+                            child: Center(
+                              child: methods.noRecordFound(7, 20.0),
+                            ),
+                          )
+                        : _contentInTabBarView(0),
+                    widget.user.getUserExerciseList().length == 0
+                        ? Container(
+                            height: widget.screenHeight / 2,
+                            child: Center(
+                              child: methods.noRecordFound(7, 20.0),
+                            ),
+                          )
+                        : _contentInTabBarView(1),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         )
       ],
@@ -574,12 +576,15 @@ class _NestedTabBarState extends State<NestedTabBar>
 
   Widget _contentInTabBarView(int _i) {
     //_i = 0 => food, _i = 1 => exercise
-    List _list;
+    List _list = [];
     double _highestCalories = 0;
     List<FlSpot> _data = [];
 
     if (_i == 0) {
-      _list = widget.userFoodList;
+      // _list = widget.userFoodList;
+      setState(() {
+        _list = widget.user.getUserFoodList();
+      });
       for (int _i = 0; _i < _list.length; _i++) {
         _data.add(
           FlSpot(
@@ -593,7 +598,10 @@ class _NestedTabBarState extends State<NestedTabBar>
         }
       }
     } else {
-      _list = widget.userExerciseList;
+      // _list = widget.userExerciseList;
+      setState(() {
+        _list = widget.user.getUserExerciseList();
+      });
       for (int _i = 0; _i < _list.length; _i++) {
         _data.add(
           FlSpot(
@@ -608,126 +616,167 @@ class _NestedTabBarState extends State<NestedTabBar>
       }
     }
 
-    return Container(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.only(
-              left: 15.0,
-              top: 20.0,
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.only(
               right: 30.0,
-              bottom: 15.0,
             ),
-            height: widget.screenHeight / 1.95,
-            width: double.infinity,
-            child: _list.toString() != "[]"
-                ? LineChart(
-                    LineChartData(
-                      clipData: FlClipData.all(),
-                      minX: 0,
-                      maxX: _list.length.toDouble() - 1,
-                      minY: 0,
-                      maxY: _highestCalories + 1,
-                      lineTouchData: LineTouchData(
-                        getTouchedSpotIndicator:
-                            (LineChartBarData barData, List<int> spotIndexes) {
-                          return spotIndexes.map((spotIndex) {
-                            return TouchedSpotIndicatorData(
-                              FlLine(
-                                color: Colors.black12,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _chartFilter,
+                items: ["Day", "Week", "Month", "Year"]
+                    .map((label) => DropdownMenuItem(
+                          child: Text(
+                            label,
+                            style: TextStyle(
+                              fontFamily: "Leoscar",
+                              fontSize: 17.0,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          value: label,
+                        ))
+                    .toList(),
+                onChanged: (chartFilter) {
+                  setState(() {
+                    _chartFilter = chartFilter;
+                  });
+                },
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                  left: 15.0,
+                  top: 50.0,
+                  right: 30.0,
+                  bottom: 15.0,
+                ),
+                height: widget.screenHeight / 1.95,
+                width: double.infinity,
+                child: _list.isNotEmpty
+                    ? LineChart(
+                        LineChartData(
+                          clipData: FlClipData.all(),
+                          minX: 0,
+                          maxX: _list.length.toDouble() - 1,
+                          minY: 0,
+                          maxY: _highestCalories + 1,
+                          lineTouchData: LineTouchData(
+                            getTouchedSpotIndicator: (LineChartBarData barData,
+                                List<int> spotIndexes) {
+                              return spotIndexes.map((spotIndex) {
+                                return TouchedSpotIndicatorData(
+                                  FlLine(
+                                    color: Colors.black12,
+                                  ),
+                                  FlDotData(
+                                    getDotPainter:
+                                        (spot, percent, barData, index) {
+                                      return FlDotCirclePainter(
+                                        radius: 6,
+                                        color: Colors.white,
+                                        strokeWidth: 3,
+                                        strokeColor: Colors.black,
+                                      );
+                                    },
+                                  ),
+                                );
+                              }).toList();
+                            },
+                            touchTooltipData: LineTouchTooltipData(
+                                getTooltipItems:
+                                    (List<LineBarSpot> touchedBarSpots) {
+                              return touchedBarSpots.map((barSpot) {
+                                return LineTooltipItem(
+                                  _list[barSpot.x.toInt()]["name"] +
+                                      "\n" +
+                                      _list[barSpot.x.toInt()]["calories"],
+                                  const TextStyle(
+                                    fontFamily: "Leoscar",
+                                    color: Colors.black,
+                                  ),
+                                );
+                              }).toList();
+                            }),
+                          ),
+                          titlesData: FlTitlesData(
+                            leftTitles: SideTitles(
+                                showTitles: true,
+                                getTextStyles: (value) => const TextStyle(
+                                      fontFamily: "Leoscar",
+                                      color: Colors.black,
+                                      fontSize: 11,
+                                    ),
+                                getTitles: (value) {
+                                  return (value * 100).toStringAsFixed(0);
+                                }),
+                            bottomTitles: SideTitles(
+                              rotateAngle: 330,
+                              // showTitles: true,
+                              showTitles: false,
+                              getTextStyles: (value) => const TextStyle(
+                                fontFamily: "Leoscar",
+                                color: Colors.black,
+                                fontSize: 10,
                               ),
-                              FlDotData(
+                              getTitles: (value) {
+                                return _list[value.toInt()]["name"];
+                              },
+                            ),
+                          ),
+                          // gridData: FlGridData(
+                          //   drawVerticalLine: true,
+                          // ),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: _data,
+                              dotData: FlDotData(
+                                show: false,
                                 getDotPainter: (spot, percent, barData, index) {
                                   return FlDotCirclePainter(
-                                    radius: 6,
+                                    radius: 4,
                                     color: Colors.white,
-                                    strokeWidth: 3,
-                                    strokeColor: Colors.black,
+                                    strokeWidth: 2,
+                                    strokeColor: Colors.black38,
                                   );
                                 },
                               ),
-                            );
-                          }).toList();
-                        },
-                        touchTooltipData: LineTouchTooltipData(getTooltipItems:
-                            (List<LineBarSpot> touchedBarSpots) {
-                          return touchedBarSpots.map((barSpot) {
-                            return LineTooltipItem(
-                              _list[barSpot.x.toInt()]["calories"],
-                              const TextStyle(
-                                fontFamily: "Leoscar",
-                                color: Colors.black,
+                              isCurved: true,
+                              // preventCurveOverShooting: true,
+                              colors: methods.color(),
+                              gradientFrom: Offset.fromDirection(1),
+                              gradientTo: Offset.fromDirection(0),
+                              barWidth: 5,
+                              belowBarData: BarAreaData(
+                                show: true,
+                                colors: methods
+                                    .color()
+                                    .map(
+                                      (color) => color.withOpacity(0.4),
+                                    )
+                                    .toList(),
+                                gradientFrom: Offset.fromDirection(1),
+                                gradientTo: Offset.fromDirection(0),
                               ),
-                            );
-                          }).toList();
-                        }),
-                      ),
-                      titlesData: FlTitlesData(
-                        leftTitles: SideTitles(
-                            showTitles: true,
-                            getTextStyles: (value) => const TextStyle(
-                                  fontFamily: "Leoscar",
-                                  color: Colors.black,
-                                  fontSize: 11,
-                                ),
-                            getTitles: (value) {
-                              return (value * 100).toStringAsFixed(0);
-                            }),
-                        bottomTitles: SideTitles(
-                          rotateAngle: 330,
-                          showTitles: true,
-                          getTextStyles: (value) => const TextStyle(
-                            fontFamily: "Leoscar",
-                            color: Colors.black,
-                            fontSize: 10,
-                          ),
-                          getTitles: (value) {
-                            return _list[value.toInt()]["name"];
-                          },
+                            ),
+                          ],
                         ),
-                      ),
-                      gridData: FlGridData(
-                        drawVerticalLine: true,
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: _data,
-                          dotData: FlDotData(
-                            // show: false,
-                            getDotPainter: (spot, percent, barData, index) {
-                              return FlDotCirclePainter(
-                                radius: 4,
-                                color: Colors.white,
-                                strokeWidth: 2,
-                                strokeColor: Colors.black38,
-                              );
-                            },
-                          ),
-                          isCurved: true,
-                          // preventCurveOverShooting: true,
-                          colors: methods.color(),
-                          gradientFrom: Offset.fromDirection(1),
-                          gradientTo: Offset.fromDirection(0),
-                          barWidth: 5,
-                          belowBarData: BarAreaData(
-                            show: true,
-                            colors: methods
-                                .color()
-                                .map(
-                                  (color) => color.withOpacity(0.4),
-                                )
-                                .toList(),
-                            gradientFrom: Offset.fromDirection(1),
-                            gradientTo: Offset.fromDirection(0),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : SizedBox.shrink(),
+                      )
+                    : SizedBox.shrink(),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

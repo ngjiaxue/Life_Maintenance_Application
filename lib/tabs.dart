@@ -23,10 +23,10 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   Methods methods = new Methods();
   User user;
   List<bool> _tabSelected = [true, false, false, false];
-  List _foodList = [];
-  List _exerciseList = [];
-  List _userFoodList = [];
-  List _userExerciseList = [];
+  // List _foodList = [];
+  // List _exerciseList = [];
+  // List _userFoodList = [];
+  // List _userExerciseList = [];
   bool _fadeIn = false;
   bool _onDrag = true;
   double _screenHeight;
@@ -58,6 +58,10 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
     return PageView(
       onPageChanged: (index) {
         _getBadgeCount(0);
+        _loadList("food");
+        _loadList("exercise");
+        _loadUserList("food");
+        _loadUserList("exercise");
         setState(() {
           if (_onDrag) {
             if (index == 0) {
@@ -123,13 +127,13 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             });
           },
           user: widget.user,
-          userFoodList: _userFoodList,
-          userExerciseList: _userExerciseList,
+          // userFoodList: _userFoodList,
+          // userExerciseList: _userExerciseList,
         ),
         UserPage2(
           user: widget.user,
-          foodList: _foodList,
-          userFoodList: _userFoodList,
+          // foodList: _foodList,
+          // userFoodList: _userFoodList,
         ),
         UserPage3(
           callback1: () {
@@ -148,8 +152,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             });
           },
           user: widget.user,
-          exerciseList: _exerciseList,
-          userExerciseList: _userExerciseList,
+          // exerciseList: _exerciseList,
+          // userExerciseList: _userExerciseList,
         ),
         UserPage4(
           user: widget.user,
@@ -264,9 +268,11 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         var _extractData = json.decode(res.body);
         setState(() {
           if (option == "food") {
-            _foodList = _extractData;
+            // _foodList = _extractData;
+            widget.user.setFoodList(_extractData);
           } else {
-            _exerciseList = _extractData;
+            // _exerciseList = _extractData;
+            widget.user.setExerciseList(_extractData);
           }
         });
       } else {
@@ -276,6 +282,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             seconds: 1,
           ),
           Colors.red[400],
+          true,
           methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
@@ -295,9 +302,11 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         var _extractData = json.decode(res.body);
         setState(() {
           if (option == "food") {
-            _userFoodList = _extractData;
+            // _userFoodList = _extractData;
+            widget.user.setUserFoodList(_extractData);
           } else {
-            _userExerciseList = _extractData;
+            // _userExerciseList = _extractData;
+            widget.user.setUserExerciseList(_extractData);
           }
         });
       } else if (res.body == "connected but no data") {
@@ -308,6 +317,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             seconds: 1,
           ),
           Colors.red[400],
+          true,
           methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );

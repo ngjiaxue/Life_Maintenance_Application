@@ -1067,6 +1067,7 @@ class _LoginScreenState extends State<LoginScreen> {
               milliseconds: 500,
             ),
             Color(0XFFB563E0),
+            true,
             methods.textOnly("Email & password saved", "Leoscar", 18.0,
                 Colors.white, null, null, TextAlign.center),
           );
@@ -1077,6 +1078,7 @@ class _LoginScreenState extends State<LoginScreen> {
               milliseconds: 500,
             ),
             Color(0XFFB563E0),
+            true,
             methods.textOnly("Email & password removed", "Leoscar", 18.0,
                 Colors.white, null, null, TextAlign.center),
           );
@@ -1089,6 +1091,7 @@ class _LoginScreenState extends State<LoginScreen> {
             seconds: 1,
           ),
           Colors.red[400],
+          true,
           methods.textOnly("Please fill in all the blank(s)", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
@@ -1293,6 +1296,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               seconds: 1,
                             ),
                             Colors.red[400],
+                            true,
                             methods.textOnly(
                                 "Please insert a valid email format",
                                 "Leoscar",
@@ -1310,6 +1314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               seconds: 1,
                             ),
                             Color(0XFFB563E0),
+                            true,
                             methods.textOnly(
                                 "Please check your email to reset password",
                                 "Leoscar",
@@ -1357,6 +1362,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               seconds: 1,
                             ),
                             Colors.red[400],
+                            true,
                             methods.textOnly(
                                 "Password not match",
                                 "Leoscar",
@@ -1374,6 +1380,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             seconds: 1,
                           ),
                           Colors.red[400],
+                          true,
                           methods.textOnly(
                               "Please fill in all the blank(s)",
                               "Leoscar",
@@ -1496,6 +1503,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               seconds: 3,
                             ),
                             Color(0XFFB563E0),
+                            true,
                             methods.textOnly(
                                 "Verification email resend, please check your email",
                                 "Leoscar",
@@ -1513,6 +1521,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               seconds: 1,
                             ),
                             Colors.red[400],
+                            true,
                             methods.textOnly(
                                 "Unable to resend verification email...Please try again",
                                 "Leoscar",
@@ -1547,6 +1556,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           seconds: 1,
                         ),
                         Colors.red[400],
+                        true,
                         methods.textOnly(
                             "Please insert a valid email format",
                             "Leoscar",
@@ -1563,6 +1573,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           seconds: 1,
                         ),
                         Colors.red[400],
+                        true,
                         methods.textOnly("Please insert your email", "Leoscar",
                             18.0, Colors.white, null, null, TextAlign.center),
                       );
@@ -1617,6 +1628,7 @@ class _LoginScreenState extends State<LoginScreen> {
               seconds: 1,
             ),
             Color(0XFFB563E0),
+            true,
             methods.textOnly("Login successful...Welcome ${user.getName()}",
                 "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
           );
@@ -1643,6 +1655,7 @@ class _LoginScreenState extends State<LoginScreen> {
               seconds: 1,
             ),
             Color(0XFFB563E0),
+            true,
             methods.textOnly("Login successful...Welcome ${user.getName()}",
                 "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
           );
@@ -1653,6 +1666,7 @@ class _LoginScreenState extends State<LoginScreen> {
               seconds: 1,
             ),
             Colors.red[400],
+            true,
             methods.textOnly("Incorrect password...Please try again", "Leoscar",
                 18.0, Colors.white, null, null, TextAlign.center),
           );
@@ -1663,6 +1677,7 @@ class _LoginScreenState extends State<LoginScreen> {
               seconds: 1,
             ),
             Colors.red[400],
+            true,
             methods.textOnly("Please check your email to activate this account",
                 "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
           );
@@ -1673,6 +1688,7 @@ class _LoginScreenState extends State<LoginScreen> {
               seconds: 1,
             ),
             Colors.red[400],
+            true,
             methods.textOnly("Incorrect email/password...Please try again",
                 "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
           );
@@ -1685,6 +1701,7 @@ class _LoginScreenState extends State<LoginScreen> {
           seconds: 1,
         ),
         Colors.red[400],
+        true,
         methods.textOnly("Please fill in all the blank(s)", "Leoscar", 18.0,
             Colors.white, null, null, TextAlign.center),
       );
@@ -1874,6 +1891,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 seconds: 3,
               ),
               Color(0XFFB563E0),
+              true,
               methods.textOnly(
                   "Registration success, please check your email to verify your account",
                   "Leoscar",
@@ -1890,6 +1908,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 seconds: 3,
               ),
               Colors.red[400],
+              true,
               methods.textOnly("Registration failed", "Leoscar", 18.0,
                   Colors.white, null, null, TextAlign.center),
             );
@@ -1910,6 +1929,7 @@ class _LoginScreenState extends State<LoginScreen> {
             seconds: 1,
           ),
           Colors.red[400],
+          true,
           methods.textOnly("Please amend the error(s)", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
@@ -1922,6 +1942,7 @@ class _LoginScreenState extends State<LoginScreen> {
             seconds: 1,
           ),
           Colors.red[400],
+          true,
           methods.textOnly("Please accept the License Agreement", "Leoscar",
               18.0, Colors.white, null, null, TextAlign.center),
         );
@@ -1937,6 +1958,7 @@ class _LoginScreenState extends State<LoginScreen> {
           seconds: 1,
         ),
         Colors.red[400],
+        true,
         methods.textOnly("Please fill in all the blank(s)", "Leoscar", 18.0,
             Colors.white, null, null, TextAlign.center),
       );

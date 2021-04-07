@@ -1,6 +1,11 @@
 class User {
   String _name, _dob, _gender, _email, _phone, _height, _weight;
 
+  List _foodList = [];
+  List _exerciseList = [];
+  List _userFoodList = [];
+  List _userExerciseList = [];
+
   User(String name, String dob, String gender, String email, String phone,
       String height, String weight) {
     this._name = name;
@@ -40,6 +45,22 @@ class User {
     return this._weight;
   }
 
+  List getFoodList() {
+    return this._foodList;
+  }
+
+  List getExerciseList() {
+    return this._exerciseList;
+  }
+
+  List getUserFoodList() {
+    return this._userFoodList;
+  }
+
+  List getUserExerciseList() {
+    return this._userExerciseList;
+  }
+
   void setName(String name) {
     this._name = name;
   }
@@ -66,5 +87,21 @@ class User {
 
   void setWeight(String weight) {
     this._weight = weight;
+  }
+
+  void setFoodList(List foodList) {
+    this._foodList = foodList;
+  }
+
+  void setExerciseList(List exerciseList) {
+    this._exerciseList = exerciseList;
+  }
+
+  void setUserFoodList(List userFoodList) {
+    this._userFoodList = userFoodList;
+  }
+
+  void setUserExerciseList(List userExerciseList) {
+    this._userExerciseList = userExerciseList;
   }
 }

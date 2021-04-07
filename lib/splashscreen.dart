@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'tabs.dart';
 import 'user.dart';
@@ -79,6 +79,7 @@ class _SplashScreenState extends State<SplashScreen>
                 seconds: 1,
               ),
               Color(0XFFB563E0),
+              true,
               methods.textOnly("Login successful...Welcome ${user.getName()}",
                   "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
             );
@@ -109,17 +110,28 @@ class _SplashScreenState extends State<SplashScreen>
       color: Colors.white,
       child: Stack(
         children: [
-          FadeAnimation(
-            0.5,
-            true,
-            Hero(
-              tag: "background",
-              child: Image.asset(
-                "assets/images/splashbg.jpg",
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          FutureBuilder(
+              future: Future.delayed(Duration(milliseconds: 500)),
+              builder: (context, builder) {
+                return Hero(
+                  tag: "background",
+                  child: Image.asset(
+                    "assets/images/splashbg.jpg",
+                    fit: BoxFit.cover,
+                  ),
+                );
+              }),
+          // FadeAnimation(
+          //   0.5,
+          //   true,
+          //   Hero(
+          //     tag: "background",
+          //     child: Image.asset(
+          //       "assets/images/splashbg.jpg",
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          // ),
           FadeAnimation(
             1.5,
             true,
@@ -130,7 +142,8 @@ class _SplashScreenState extends State<SplashScreen>
                   Hero(
                     tag: "logo",
                     child: Image.asset(
-                      "assets/images/logo.png",
+                      // "assets/images/logo.png",
+                      "assets/images/logo.gif",
                       scale: 3,
                     ),
                   ),

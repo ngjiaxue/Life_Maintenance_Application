@@ -215,6 +215,7 @@ class _EditProfileState extends State<EditProfile> {
                 context,
                 Duration(seconds: 1),
                 Color(0XFFB563E0),
+                true,
                 methods.textOnly("Feedback submitted", "Leoscar", 18.0,
                     Colors.white, null, null, TextAlign.center),
               );
@@ -330,6 +331,7 @@ class _EditProfileState extends State<EditProfile> {
                     milliseconds: 1500,
                   ),
                   Colors.red[400],
+                  true,
                   methods.textOnly(
                       "Wrong password...Please try again",
                       "Leoscar",
@@ -466,6 +468,7 @@ class _EditProfileState extends State<EditProfile> {
                         context,
                         Duration(seconds: 1),
                         Colors.red[400],
+                        true,
                         methods.textOnly(
                             "Please insert a valid email format",
                             "Leoscar",
@@ -497,6 +500,7 @@ class _EditProfileState extends State<EditProfile> {
                             context,
                             Duration(seconds: 3),
                             Color(0XFFB563E0),
+                            true,
                             methods.textOnly(
                                 "Email changed successfully, please check your NEW email to verify your account",
                                 "Leoscar",
@@ -513,6 +517,7 @@ class _EditProfileState extends State<EditProfile> {
                             context,
                             Duration(seconds: 1),
                             Colors.red[400],
+                            true,
                             methods.textOnly(
                                 "Email can't be changed...Please try again",
                                 "Leoscar",
@@ -765,6 +770,7 @@ class _EditProfileState extends State<EditProfile> {
                             context,
                             Duration(seconds: 2),
                             Color(0XFFB563E0),
+                            true,
                             methods.textOnly(
                                 "Please insert your NEW password to login",
                                 "Leoscar",
@@ -781,6 +787,7 @@ class _EditProfileState extends State<EditProfile> {
                             context,
                             Duration(seconds: 1),
                             Colors.red[400],
+                            true,
                             methods.textOnly(
                                 "Password can't be changed...Please try again",
                                 "Leoscar",
@@ -874,6 +881,7 @@ class _EditProfileState extends State<EditProfile> {
                       context,
                       Duration(seconds: 2),
                       Color(0XFFB563E0),
+                      true,
                       methods.textOnly(
                           "Account deleted...You are no longer available to login with the deleted email",
                           "Leoscar",
@@ -891,6 +899,7 @@ class _EditProfileState extends State<EditProfile> {
                       milliseconds: 1500,
                     ),
                     Colors.red[400],
+                    true,
                     methods.textOnly(
                         "Account can't be deleted...Please try again",
                         "Leoscar",

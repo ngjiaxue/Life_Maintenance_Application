@@ -132,16 +132,16 @@ class Methods {
     );
   }
 
-  Future<Null> snackbarMessage(
-      BuildContext context, Duration duration, Color color, Widget widget) {
+  Future<Null> snackbarMessage(BuildContext context, Duration duration,
+      Color color, bool dismissable, Widget widget) {
     return ScaffoldMessenger.of(context)
         .showSnackBar(
           new SnackBar(
             duration: duration,
             // shape: RoundedRectangleBorder(
             //   borderRadius: BorderRadius.only(
-            //     topLeft: Radius.circular(5.0),
-            //     topRight: Radius.circular(5.0),
+            //     topLeft: Radius.circular(8.0),
+            //     topRight: Radius.circular(8.0),
             //   ),
             // ),
             backgroundColor: color,
@@ -150,8 +150,8 @@ class Methods {
         )
         .closed
         .then((reason) {
-      if (reason == SnackBarClosedReason.swipe) {
-        snackbarMessage(context, duration, color, widget);
+      if (reason == SnackBarClosedReason.swipe && dismissable == false) {
+        snackbarMessage(context, duration, color, false, widget);
       }
     });
     // ScaffoldMessenger.of(context)
