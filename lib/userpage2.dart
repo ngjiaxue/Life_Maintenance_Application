@@ -129,7 +129,7 @@ class _UserPage2State extends State<UserPage2>
                                         ),
                                         Container(
                                           child: methods.textOnly(
-                                              "Total calories: ${(double.parse(widget.user.getUserFoodList()[index]["calories"]) / 100 * double.parse(widget.user.getUserFoodList()[index]["amount"])).toStringAsFixed(1)} calories",
+                                              "Total calories: ${widget.user.getUserFoodList()[index]["totalcalories"]} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,

@@ -268,10 +268,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         var _extractData = json.decode(res.body);
         setState(() {
           if (option == "food") {
-            // _foodList = _extractData;
             widget.user.setFoodList(_extractData);
           } else {
-            // _exerciseList = _extractData;
             widget.user.setExerciseList(_extractData);
           }
         });
@@ -296,16 +294,16 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
         body: {
           "email": widget.user.getEmail(),
+          "weight": widget.user.getWeight(),
           "option": option,
         }).then((res) {
       if (res.body != "no data" && res.body != "connected but no data") {
         var _extractData = json.decode(res.body);
+        // print("$option: $_extractData");
         setState(() {
           if (option == "food") {
-            // _userFoodList = _extractData;
             widget.user.setUserFoodList(_extractData);
           } else {
-            // _userExerciseList = _extractData;
             widget.user.setUserExerciseList(_extractData);
           }
         });

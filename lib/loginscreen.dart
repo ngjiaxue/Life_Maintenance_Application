@@ -1002,7 +1002,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end sign up card
 
   //start _savePref method
-  void _savePref(int value) async {
+  Future<void> _savePref(int value) async {
     String email = _emailController.text;
     String password = _passwordController.text;
     SharedPreferences prefs = await SharedPreferences.getInstance();

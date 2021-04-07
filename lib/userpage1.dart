@@ -1,9 +1,13 @@
+import 'dart:ui';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:http/http.dart' as http;
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -497,10 +501,11 @@ class _NestedTabBarState extends State<NestedTabBar>
     with TickerProviderStateMixin {
   Methods methods = new Methods();
   TabController _nestedTabController;
-  String _chartFilter = "Day";
+  String _chartFilter;
   @override
   void initState() {
     super.initState();
+    _loadPref();
     _nestedTabController = new TabController(length: 2, vsync: this);
   }
 
@@ -576,42 +581,263 @@ class _NestedTabBarState extends State<NestedTabBar>
 
   Widget _contentInTabBarView(int _i) {
     //_i = 0 => food, _i = 1 => exercise
-    List _list = [];
+    List _unfilteredList = [];
+    List _filteredList = [];
     double _highestCalories = 0;
     List<FlSpot> _data = [];
+    final intl.DateFormat _formatter = intl.DateFormat('yyyy-MM-dd');
+    final _now = DateTime.now();
+    final _today = DateTime(_now.year, _now.month, _now.day);
+    final _week = _now.subtract(Duration(days: 7));
+    final _month = new DateTime(_now.year, _now.month - 1, _now.day);
+    final _year = new DateTime(_now.year - 1, _now.month, _now.day);
 
     if (_i == 0) {
-      // _list = widget.userFoodList;
       setState(() {
-        _list = widget.user.getUserFoodList();
+        _unfilteredList = widget.user.getUserFoodList();
       });
-      for (int _i = 0; _i < _list.length; _i++) {
+    } else {
+      setState(() {
+        _unfilteredList = widget.user.getUserExerciseList();
+      });
+    }
+
+    if (_i == 0) {
+      if (_chartFilter == "Day") {
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_today)) {
+            setState(() {
+              _filteredList.add(_unfilteredList[_i]);
+            });
+          }
+        }
+      } else if (_chartFilter == "Week") {
+        //name = date (etc today 8/4 then 2/4, 3/4...8/4)
+        //totalcalories = total calories on that particular date
+        List _tempList = [
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 6))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 5))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 4))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 3))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 2))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 1))),
+            "totalcalories": "0"
+          },
+          {"name": _formatter.format(_today), "totalcalories": "0"}
+        ];
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_week)) {
+            if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_today)) {
+              _tempList[6]["totalcalories"] =
+                  (double.parse(_tempList[6]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 1)))) {
+              _tempList[5]["totalcalories"] =
+                  (double.parse(_tempList[5]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 2)))) {
+              _tempList[4]["totalcalories"] =
+                  (double.parse(_tempList[4]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 3)))) {
+              _tempList[3]["totalcalories"] =
+                  (double.parse(_tempList[3]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 4)))) {
+              _tempList[2]["totalcalories"] =
+                  (double.parse(_tempList[2]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 5)))) {
+              _tempList[1]["totalcalories"] =
+                  (double.parse(_tempList[1]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 6)))) {
+              _tempList[0]["totalcalories"] =
+                  (double.parse(_tempList[0]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            }
+          }
+        }
+        setState(() {
+          _filteredList = _tempList;
+        });
+      } else if (_chartFilter == "Month") {
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_month)) {
+            setState(() {
+              _filteredList.add(_unfilteredList[_i]);
+            });
+          }
+        }
+      } else {
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_year)) {
+            setState(() {
+              _filteredList.add(_unfilteredList[_i]);
+            });
+          }
+        }
+      }
+      for (int _i = 0; _i < _filteredList.length; _i++) {
         _data.add(
           FlSpot(
             _i.toDouble(),
-            double.parse(_list[_i]["calories"]) / 100,
+            double.parse(_filteredList[_i]["totalcalories"]) / 100,
           ),
         );
 
-        if ((double.parse(_list[_i]["calories"]) / 100) > _highestCalories) {
-          _highestCalories = (double.parse(_list[_i]["calories"]) / 100);
+        if ((double.parse(_filteredList[_i]["totalcalories"]) / 100) >
+            _highestCalories) {
+          _highestCalories =
+              (double.parse(_filteredList[_i]["totalcalories"]) / 100);
         }
       }
     } else {
-      // _list = widget.userExerciseList;
-      setState(() {
-        _list = widget.user.getUserExerciseList();
-      });
-      for (int _i = 0; _i < _list.length; _i++) {
+      if (_chartFilter == "Day") {
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_today)) {
+            setState(() {
+              _filteredList.add(_unfilteredList[_i]);
+            });
+          }
+        }
+      } else if (_chartFilter == "Week") {
+        //name = date (etc today 8/4 then 2/4, 3/4...8/4)
+        //totalcalories = total calories on that particular date
+        List _tempList = [
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 6))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 5))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 4))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 3))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 2))),
+            "totalcalories": "0"
+          },
+          {
+            "name": _formatter.format(_now.subtract(Duration(days: 1))),
+            "totalcalories": "0"
+          },
+          {"name": _formatter.format(_today), "totalcalories": "0"}
+        ];
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_week)) {
+            if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_today)) {
+              _tempList[6]["totalcalories"] =
+                  (double.parse(_tempList[6]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 1)))) {
+              _tempList[5]["totalcalories"] =
+                  (double.parse(_tempList[5]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 2)))) {
+              _tempList[4]["totalcalories"] =
+                  (double.parse(_tempList[4]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 3)))) {
+              _tempList[3]["totalcalories"] =
+                  (double.parse(_tempList[3]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 4)))) {
+              _tempList[2]["totalcalories"] =
+                  (double.parse(_tempList[2]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 5)))) {
+              _tempList[1]["totalcalories"] =
+                  (double.parse(_tempList[1]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            } else if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: 6)))) {
+              _tempList[0]["totalcalories"] =
+                  (double.parse(_tempList[0]["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+            }
+          }
+        }
+        setState(() {
+          _filteredList = _tempList;
+        });
+      } else if (_chartFilter == "Month") {
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_month)) {
+            setState(() {
+              _filteredList.add(_unfilteredList[_i]);
+            });
+          }
+        }
+      } else {
+        for (int _i = 0; _i < _unfilteredList.length; _i++) {
+          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_year)) {
+            setState(() {
+              _filteredList.add(_unfilteredList[_i]);
+            });
+          }
+        }
+      }
+      for (int _i = 0; _i < _filteredList.length; _i++) {
         _data.add(
           FlSpot(
             _i.toDouble(),
-            double.parse(_list[_i]["calories"]) / 100,
+            double.parse(_filteredList[_i]["totalcalories"]) / 100,
           ),
         );
 
-        if ((double.parse(_list[_i]["calories"]) / 100) > _highestCalories) {
-          _highestCalories = (double.parse(_list[_i]["calories"]) / 100);
+        if ((double.parse(_filteredList[_i]["totalcalories"]) / 100) >
+            _highestCalories) {
+          _highestCalories =
+              (double.parse(_filteredList[_i]["totalcalories"]) / 100);
         }
       }
     }
@@ -641,6 +867,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                         ))
                     .toList(),
                 onChanged: (chartFilter) {
+                  _savePref(chartFilter);
                   setState(() {
                     _chartFilter = chartFilter;
                   });
@@ -662,12 +889,12 @@ class _NestedTabBarState extends State<NestedTabBar>
                 ),
                 height: widget.screenHeight / 1.95,
                 width: double.infinity,
-                child: _list.isNotEmpty
+                child: _filteredList.isNotEmpty
                     ? LineChart(
                         LineChartData(
                           clipData: FlClipData.all(),
                           minX: 0,
-                          maxX: _list.length.toDouble() - 1,
+                          maxX: _filteredList.length.toDouble() - 1,
                           minY: 0,
                           maxY: _highestCalories + 1,
                           lineTouchData: LineTouchData(
@@ -697,9 +924,10 @@ class _NestedTabBarState extends State<NestedTabBar>
                                     (List<LineBarSpot> touchedBarSpots) {
                               return touchedBarSpots.map((barSpot) {
                                 return LineTooltipItem(
-                                  _list[barSpot.x.toInt()]["name"] +
+                                  _filteredList[barSpot.x.toInt()]["name"] +
                                       "\n" +
-                                      _list[barSpot.x.toInt()]["calories"],
+                                      _filteredList[barSpot.x.toInt()]
+                                          ["totalcalories"],
                                   const TextStyle(
                                     fontFamily: "Leoscar",
                                     color: Colors.black,
@@ -729,7 +957,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                                 fontSize: 10,
                               ),
                               getTitles: (value) {
-                                return _list[value.toInt()]["name"];
+                                return _filteredList[value.toInt()]["name"];
                               },
                             ),
                           ),
@@ -779,6 +1007,18 @@ class _NestedTabBarState extends State<NestedTabBar>
       ],
     );
   }
+
+  Future<void> _savePref(String chartFilter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('chartFilter', chartFilter);
+  }
+
+  Future<void> _loadPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _chartFilter = prefs.getString('chartFilter') ?? "Day";
+    });
+  }
 }
 
 class TooltipShapeBorder extends ShapeBorder {
@@ -798,10 +1038,10 @@ class TooltipShapeBorder extends ShapeBorder {
   EdgeInsetsGeometry get dimensions => EdgeInsets.only(bottom: arrowHeight);
 
   @override
-  Path getInnerPath(Rect rect, {TextDirection textDirection}) => null;
+  Path getInnerPath(Rect rect, {TextDirection /*2*/ textDirection}) => null;
 
   @override
-  Path getOuterPath(Rect rect, {TextDirection textDirection}) {
+  Path getOuterPath(Rect rect, {TextDirection /*2*/ textDirection}) {
     rect = Rect.fromPoints(
         rect.topLeft, rect.bottomRight - Offset(0, arrowHeight));
     double x = arrowWidth, y = arrowHeight, r = 1 - arrowArc;

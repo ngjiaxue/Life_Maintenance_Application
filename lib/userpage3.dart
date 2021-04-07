@@ -142,7 +142,7 @@ class _UserPage3State extends State<UserPage3>
                                         Container(
                                           // color: Colors.green,
                                           child: methods.textOnly(
-                                              "Total calories burned: ${(double.parse(widget.user.getUserExerciseList()[index]["calories"]) / 30 / 125 * (double.parse(widget.user.getWeight()) * 2.2046) * double.parse(widget.user.getUserExerciseList()[index]["amount"])).toStringAsFixed(1)} calories",
+                                              "Total calories burned: ${widget.user.getUserExerciseList()[index]["totalcalories"]} calories",
                                               "Leoscar",
                                               18.0,
                                               Colors.black,
