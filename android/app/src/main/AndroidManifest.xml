@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ngjiaxue.life_maintenance_application">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
    <application android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:label="life_maintenance_application"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -38,5 +40,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 </manifest>

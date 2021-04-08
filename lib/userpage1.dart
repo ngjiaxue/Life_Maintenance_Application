@@ -498,7 +498,7 @@ class NestedTabBar extends StatefulWidget {
 }
 
 class _NestedTabBarState extends State<NestedTabBar>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   Methods methods = new Methods();
   TabController _nestedTabController;
   String _chartFilter;
@@ -517,6 +517,7 @@ class _NestedTabBarState extends State<NestedTabBar>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -612,100 +613,20 @@ class _NestedTabBarState extends State<NestedTabBar>
           }
         }
       } else if (_chartFilter == "Week") {
-        //name = date (etc today 8/4 then 2/4, 3/4...8/4)
-        //totalcalories = total calories on that particular date
-        List _tempList = [
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 6))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 5))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 4))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 3))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 2))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 1))),
-            "totalcalories": "0"
-          },
-          {"name": _formatter.format(_today), "totalcalories": "0"}
-        ];
-        for (int _i = 0; _i < _unfilteredList.length; _i++) {
-          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_week)) {
-            if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_today)) {
-              _tempList[6]["totalcalories"] =
-                  (double.parse(_tempList[6]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 1)))) {
-              _tempList[5]["totalcalories"] =
-                  (double.parse(_tempList[5]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 2)))) {
-              _tempList[4]["totalcalories"] =
-                  (double.parse(_tempList[4]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 3)))) {
-              _tempList[3]["totalcalories"] =
-                  (double.parse(_tempList[3]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 4)))) {
-              _tempList[2]["totalcalories"] =
-                  (double.parse(_tempList[2]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 5)))) {
-              _tempList[1]["totalcalories"] =
-                  (double.parse(_tempList[1]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 6)))) {
-              _tempList[0]["totalcalories"] =
-                  (double.parse(_tempList[0]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            }
-          }
-        }
         setState(() {
-          _filteredList = _tempList;
+          _filteredList = _chartFilterBy(
+              _unfilteredList, _chartFilter, _formatter, _today, _week);
         });
       } else if (_chartFilter == "Month") {
-        for (int _i = 0; _i < _unfilteredList.length; _i++) {
-          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_month)) {
-            setState(() {
-              _filteredList.add(_unfilteredList[_i]);
-            });
-          }
-        }
+        setState(() {
+          _filteredList = _chartFilterBy(
+              _unfilteredList, _chartFilter, _formatter, _today, _month);
+        });
       } else {
-        for (int _i = 0; _i < _unfilteredList.length; _i++) {
-          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_year)) {
-            setState(() {
-              _filteredList.add(_unfilteredList[_i]);
-            });
-          }
-        }
+        setState(() {
+          _filteredList = _chartFilterBy(_unfilteredList, _chartFilter,
+              intl.DateFormat('yMMM'), _today, _year);
+        });
       }
       for (int _i = 0; _i < _filteredList.length; _i++) {
         _data.add(
@@ -731,100 +652,20 @@ class _NestedTabBarState extends State<NestedTabBar>
           }
         }
       } else if (_chartFilter == "Week") {
-        //name = date (etc today 8/4 then 2/4, 3/4...8/4)
-        //totalcalories = total calories on that particular date
-        List _tempList = [
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 6))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 5))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 4))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 3))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 2))),
-            "totalcalories": "0"
-          },
-          {
-            "name": _formatter.format(_now.subtract(Duration(days: 1))),
-            "totalcalories": "0"
-          },
-          {"name": _formatter.format(_today), "totalcalories": "0"}
-        ];
-        for (int _i = 0; _i < _unfilteredList.length; _i++) {
-          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_week)) {
-            if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_today)) {
-              _tempList[6]["totalcalories"] =
-                  (double.parse(_tempList[6]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 1)))) {
-              _tempList[5]["totalcalories"] =
-                  (double.parse(_tempList[5]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 2)))) {
-              _tempList[4]["totalcalories"] =
-                  (double.parse(_tempList[4]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 3)))) {
-              _tempList[3]["totalcalories"] =
-                  (double.parse(_tempList[3]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 4)))) {
-              _tempList[2]["totalcalories"] =
-                  (double.parse(_tempList[2]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 5)))) {
-              _tempList[1]["totalcalories"] =
-                  (double.parse(_tempList[1]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            } else if (DateTime.parse(_unfilteredList[_i]["date"])
-                .isAfter(_today.subtract(Duration(days: 6)))) {
-              _tempList[0]["totalcalories"] =
-                  (double.parse(_tempList[0]["totalcalories"]) +
-                          double.parse(_unfilteredList[_i]["totalcalories"]))
-                      .toStringAsFixed(1);
-            }
-          }
-        }
         setState(() {
-          _filteredList = _tempList;
+          _filteredList = _chartFilterBy(
+              _unfilteredList, _chartFilter, _formatter, _today, _week);
         });
       } else if (_chartFilter == "Month") {
-        for (int _i = 0; _i < _unfilteredList.length; _i++) {
-          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_month)) {
-            setState(() {
-              _filteredList.add(_unfilteredList[_i]);
-            });
-          }
-        }
+        setState(() {
+          _filteredList = _chartFilterBy(
+              _unfilteredList, _chartFilter, _formatter, _today, _month);
+        });
       } else {
-        for (int _i = 0; _i < _unfilteredList.length; _i++) {
-          if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_year)) {
-            setState(() {
-              _filteredList.add(_unfilteredList[_i]);
-            });
-          }
-        }
+        setState(() {
+          _filteredList = _chartFilterBy(_unfilteredList, _chartFilter,
+              intl.DateFormat('yMMM'), _today, _year);
+        });
       }
       for (int _i = 0; _i < _filteredList.length; _i++) {
         _data.add(
@@ -1018,6 +859,57 @@ class _NestedTabBarState extends State<NestedTabBar>
     setState(() {
       _chartFilter = prefs.getString('chartFilter') ?? "Day";
     });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  List _chartFilterBy(List _unfilteredList, String _chartFilter,
+      intl.DateFormat _formatter, DateTime _today, DateTime _filter) {
+    //name = date (etc today 8/4 then 2/4, 3/4...8/4)
+    //totalcalories = total calories on that particular date
+
+    List _tempList = _chartFilter == "Week"
+        ? new List.filled(7, "")
+        : _chartFilter == "Month"
+            ? new List.filled(30, "")
+            : new List.filled(12, "");
+    for (int _j = 0; _j < _tempList.length; _j++) {
+      String _tempDay = _chartFilter != "Year"
+          ? _formatter.format(
+              _today.subtract(Duration(days: (_tempList.length - (_j + 1)))))
+          : _formatter.format(DateTime(
+              _today.year, _today.month - (_tempList.length - (_j + 1))));
+      _tempList[_j] = {"name": _tempDay, "totalcalories": "0"};
+    }
+    for (int _i = 0; _i < _unfilteredList.length; _i++) {
+      if (DateTime.parse(_unfilteredList[_i]["date"]).isAfter(_filter)) {
+        for (int _j = 0; _j < _tempList.length; _j++) {
+          if (_chartFilter != "Year") {
+            if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(_today.subtract(Duration(days: _j)))) {
+              _tempList[_tempList.length - 1 - _j]["totalcalories"] =
+                  (double.parse(_tempList[_tempList.length - 1 - _j]
+                              ["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+              break;
+            }
+          } else {
+            if (DateTime.parse(_unfilteredList[_i]["date"])
+                .isAfter(DateTime(_today.year, _today.month - _j))) {
+              _tempList[_tempList.length - 1 - _j]["totalcalories"] =
+                  (double.parse(_tempList[_tempList.length - 1 - _j]
+                              ["totalcalories"]) +
+                          double.parse(_unfilteredList[_i]["totalcalories"]))
+                      .toStringAsFixed(1);
+              break;
+            }
+          }
+        }
+      }
+    }
+    return _tempList;
   }
 }
 

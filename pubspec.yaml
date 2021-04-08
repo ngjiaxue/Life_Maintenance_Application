@@ -31,6 +31,8 @@ dependencies:
   line_icons: ^2.0.1
   supercharged: ^2.0.0
   numberpicker: ^2.0.1
+  image_picker: ^0.7.4
+  image_cropper: ^1.4.0
   flutter_icons: ^1.1.0
   slider_button: ^0.6.0
   page_transition: ^1.1.7+5
@@ -38,6 +40,7 @@ dependencies:
   animated_text_kit: ^4.0.0
   shared_preferences: ^2.0.5
   keyboard_visibility: ^0.5.6
+  flutter_cache_manager: ^3.0.1
   flutter_datetime_picker: ^1.4.0
 
 

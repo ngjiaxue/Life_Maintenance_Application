@@ -154,18 +154,6 @@ class Methods {
         snackbarMessage(context, duration, color, false, widget);
       }
     });
-    // ScaffoldMessenger.of(context)
-    //     .showSnackBar(SnackBar(
-    //       content: Text("I am here"),
-    //       backgroundColor: Colors.blue,
-    //     ))
-    //     .closed
-    //     .then((reason) {
-    //   print(reason);
-    //   if (reason == SnackBarClosedReason.swipe) {
-    //     snackbarMessage(context, duration, color, widget);
-    //   }
-    // });
   }
 
   Future<bool> backPressed(BuildContext context, FocusNode focusNode) {

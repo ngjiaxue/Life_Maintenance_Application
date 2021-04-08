@@ -1,4 +1,9 @@
+import 'dart:io';
 import 'dart:ui';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'user.dart';
 import 'methods.dart';
 import 'loginscreen.dart';
@@ -31,6 +36,9 @@ class _UserPage4State extends State<UserPage4>
   double _weight = 0.0;
   bool _isEditing = false;
   bool _confirmationMessage = false;
+  bool _isCropping = false;
+  PickedFile _pickedFile;
+  File _image;
   // Flushbar flushbar;
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _dobController = new TextEditingController();
@@ -64,8 +72,8 @@ class _UserPage4State extends State<UserPage4>
                   ClipPath(
                     clipper: ClippingClass(),
                     child: Image.asset(
-                      // "assets/images/defaultprofilepic.png",
-                      "assets/images/profile.jpg",
+                      "assets/images/defaultprofile.png",
+                      // "assets/images/profile.jpg",
                       fit: BoxFit.cover,
                       height: _screenWidth,
                       width: _screenWidth,
@@ -137,7 +145,45 @@ class _UserPage4State extends State<UserPage4>
                         child: FloatingActionButton(
                           onPressed: () {
                             if (!_isEditing) {
-                              //TODO: camera function
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        InkWell(
+                                          child: ListTile(
+                                            title: Center(
+                                              child: methods.textOnly(
+                                                  "Select from gallery",
+                                                  "Leoscar",
+                                                  17.0,
+                                                  null,
+                                                  null,
+                                                  null,
+                                                  null),
+                                            ),
+                                            onTap: () => _getImage(false),
+                                          ),
+                                        ),
+                                        InkWell(
+                                          child: ListTile(
+                                            title: Center(
+                                              child: methods.textOnly(
+                                                  "Take photo",
+                                                  "Leoscar",
+                                                  17.0,
+                                                  null,
+                                                  null,
+                                                  null,
+                                                  null),
+                                            ),
+                                            onTap: () => _getImage(true),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  });
                             } else {
                               setState(() {
                                 _confirmationMessage = true;
@@ -689,39 +735,73 @@ class _UserPage4State extends State<UserPage4>
       splashColor: _index != 10 ? _color.withOpacity(0.3) : Colors.red[200],
       onTap: () {
         if (_index == 6) {
-          methods.snackbarMessage(
-            context,
-            Duration(days: 365),
-            Color(0XFFB563E0),
-            true,
-            SliderButton(
-              label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
-                  Colors.white, null, null, TextAlign.center),
-              icon: Icon(
-                FlutterIcons.logout_variant_mco,
-                color: Colors.white,
-              ),
-              width: _screenWidth / 1.15,
-              radius: 8,
-              buttonColor: Color(0XFFB563E0),
-              backgroundColor: Colors.white,
-              highlightedColor: Colors.white,
-              baseColor: Color(0XFFB563E0),
-              action: () {},
-              onDismissed: (dir) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                Future.delayed(Duration(milliseconds: 300), () {
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      child: LoginScreen(2),
-                      type: PageTransitionType.fade,
-                    ),
-                  );
-                });
-              },
-            ),
-          );
+          return showModalBottomSheet(
+              context: context,
+              builder: (BuildContext context) {
+                return SliderButton(
+                  label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
+                      Colors.white, null, null, TextAlign.center),
+                  icon: Icon(
+                    FlutterIcons.logout_variant_mco,
+                    color: Colors.white,
+                  ),
+                  width: _screenWidth,
+                  radius: 8,
+                  buttonColor: Color(0XFFB563E0),
+                  backgroundColor: Colors.white,
+                  highlightedColor: Colors.white,
+                  baseColor: Color(0XFFB563E0),
+                  dismissThresholds: 0.9,
+                  action: () {},
+                  onDismissed: (dir) {
+                    Navigator.pop(context);
+                    // Future.delayed(Duration(milliseconds: 300), () {
+                    SchedulerBinding.instance.addPostFrameCallback((_) {
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          child: LoginScreen(2),
+                          type: PageTransitionType.fade,
+                        ),
+                      );
+                      // });
+                    });
+                  },
+                );
+              });
+          // methods.snackbarMessage(
+          //   context,
+          //   Duration(days: 365),
+          //   Color(0XFFB563E0),
+          //   true,
+          //   SliderButton(
+          //     label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
+          //         Colors.white, null, null, TextAlign.center),
+          //     icon: Icon(
+          //       FlutterIcons.logout_variant_mco,
+          //       color: Colors.white,
+          //     ),
+          //     width: _screenWidth / 1.15,
+          //     radius: 8,
+          //     buttonColor: Color(0XFFB563E0),
+          //     backgroundColor: Colors.white,
+          //     highlightedColor: Colors.white,
+          //     baseColor: Color(0XFFB563E0),
+          //     action: () {},
+          //     onDismissed: (dir) {
+          //       ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //       Future.delayed(Duration(milliseconds: 300), () {
+          //         Navigator.push(
+          //           context,
+          //           PageTransition(
+          //             child: LoginScreen(2),
+          //             type: PageTransitionType.fade,
+          //           ),
+          //         );
+          //       });
+          //     },
+          //   ),
+          // );
         } else if (_index == 7) {
           Navigator.push(
             context,
@@ -905,6 +985,90 @@ class _UserPage4State extends State<UserPage4>
 
   @override
   bool get wantKeepAlive => true;
+
+  Future<void> _getImage(bool isCamera) async {
+    if (widget.user.getEmail() != 'Unregistered') {
+      setState(() {
+        _isCropping = true;
+      });
+      if (isCamera) {
+        _pickedFile = (await ImagePicker().getImage(
+            source: ImageSource.camera, maxHeight: 500.0, maxWidth: 500.0));
+      } else {
+        _pickedFile = (await ImagePicker().getImage(
+            source: ImageSource.gallery, maxHeight: 500.0, maxWidth: 500.0));
+      }
+      setState(() {
+        _image = File(_pickedFile.path);
+      });
+      if (_image == null) {
+        setState(() {
+          _isCropping = false;
+        });
+        return;
+      } else {
+        File _croppedFile = await ImageCropper.cropImage(
+          sourcePath: _image.path,
+          aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+          maxHeight: 500,
+          maxWidth: 500,
+          compressFormat: ImageCompressFormat.jpg,
+          androidUiSettings: AndroidUiSettings(
+              toolbarTitle: 'Image Cropper',
+              toolbarColor: Color(0XFFB563E0),
+              toolbarWidgetColor: Colors.white,
+              activeControlsWidgetColor: Color(0XFFB563E0),
+              hideBottomControls: true,
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true),
+        );
+        if (_croppedFile == null) {
+          setState(() {
+            _isCropping = false;
+          });
+          return;
+        } else {
+          print("hi");
+          Navigator.pop(context);
+          setState(() {
+            DefaultCacheManager manager = new DefaultCacheManager();
+            manager.emptyCache();
+            _image = _croppedFile;
+          });
+
+          // String base64Image = base64Encode(_image.readAsBytesSync());
+          // http.post(urlUpdateProfilePic, body: {
+          //   "email": widget.user.getEmail(),
+          //   "encoded_string": base64Image,
+          // }).then((res) {
+          //   print(res.body);
+          //   if (res.body == "success") {
+          //     setState(() {
+          //       _isCropping = false;
+          //       Navigator.pop(context);
+          //     });
+          //   } else {
+          //     methods.showMessage(
+          //         "Upload failed, please try again or contact admin",
+          //         Toast.LENGTH_LONG,
+          //         ToastGravity.CENTER,
+          //         Colors.orange[900],
+          //         Colors.white,
+          //         16.0);
+          //     setState(() {
+          //       _isCropping = false;
+          //     });
+          //   }
+          // }).catchError((err) {
+          //   print(err);
+          // });
+        }
+      }
+    }
+    // else {
+    //   methods.showUnregisteredDialog(context);
+    // }
+  }
 }
 
 class ClippingClass extends CustomClipper<Path> {
