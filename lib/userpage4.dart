@@ -25,13 +25,22 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class UserPage4 extends StatefulWidget {
   final User user;
-  const UserPage4({Key key, this.user}) : super(key: key);
+  final VoidCallback callback1;
+  const UserPage4({Key key, this.user, this.callback1}) : super(key: key);
   @override
-  _UserPage4State createState() => _UserPage4State();
+  _UserPage4State createState() {
+    return _UserPage4State(
+      callback2: () {
+        callback1();
+      },
+    );
+  }
 }
 
 class _UserPage4State extends State<UserPage4>
     with AutomaticKeepAliveClientMixin {
+  VoidCallback callback2;
+  _UserPage4State({this.callback2});
   Methods methods = new Methods();
   double _screenWidth;
   double _screenHeight;
@@ -973,6 +982,9 @@ class _UserPage4State extends State<UserPage4>
                     Navigator.pop(context);
                     SchedulerBinding.instance.addPostFrameCallback((_) {
                       _savePref();
+                      SchedulerBinding.instance.addPostFrameCallback((_) {
+                        callback2();
+                      });
                     });
                   },
                 );
@@ -1236,10 +1248,11 @@ class _UserPage4State extends State<UserPage4>
 
   Future<void> _savePref() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool darkMode = prefs.getBool('darkmode') ?? false;
+    bool darkMode = prefs.getBool('darkmode');
     await prefs.setBool('darkmode', !darkMode);
+    print("darkModepage4: ${prefs.getBool('darkmode')}");
     setState(() {
-      widget.user.setDarkMode(darkMode);
+      widget.user.setDarkMode(!darkMode);
     });
   }
 

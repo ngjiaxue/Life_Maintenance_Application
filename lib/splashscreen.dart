@@ -46,6 +46,11 @@ class _MyAppState extends State<MyApp> {
         body: SplashScreen(
           loggedIn: _loggedIn,
           user: user,
+          callback1: () async {
+            if (this.mounted) {
+              await _loadPrefDarkMode();
+            }
+          },
         ),
       ),
     );
@@ -106,6 +111,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _loadPrefDarkMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool darkMode = (prefs.getBool('darkmode')) ?? false;
+    print("darkmodeMyApp: $darkMode");
     setState(() {
       _darkMode = darkMode;
     });
@@ -115,13 +121,23 @@ class _MyAppState extends State<MyApp> {
 class SplashScreen extends StatefulWidget {
   final int loggedIn;
   final User user;
-  const SplashScreen({Key key, this.loggedIn, this.user}) : super(key: key);
+  final VoidCallback callback1;
+  const SplashScreen({Key key, this.loggedIn, this.user, this.callback1})
+      : super(key: key);
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _SplashScreenState createState() {
+    return _SplashScreenState(
+      callback2: () {
+        callback1();
+      },
+    );
+  }
 }
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+  VoidCallback callback2;
+  _SplashScreenState({this.callback2});
   AnimationController controller;
   Animation<double> animation;
   Methods methods = new Methods();
@@ -133,24 +149,40 @@ class _SplashScreenState extends State<SplashScreen>
     controller = AnimationController(
         duration: const Duration(milliseconds: 2200), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
-      ..addListener(() {
+      ..addListener(() async {
         setState(() {
           run = true;
         });
         if (animation.value > 0.99) {
           if (widget.loggedIn == 0) {
-            Navigator.push(
+            await Navigator.push(
               context,
               PageTransition(
-                child: LoginScreen(userLogout: 1),
+                child: LoginScreen(
+                  userLogout: 1,
+                  callback1: () {
+                    if (this.mounted) {
+                      print("##########backtosplash#######1");
+                      callback2();
+                    }
+                  },
+                ),
                 type: PageTransitionType.fade,
               ),
             );
           } else if (widget.loggedIn == 1) {
-            Navigator.push(
+            await Navigator.push(
               context,
               PageTransition(
-                child: LoginScreen(userLogout: 2),
+                child: LoginScreen(
+                  userLogout: 2,
+                  callback1: () {
+                    if (this.mounted) {
+                      print("##########backtosplash#######2");
+                      callback2();
+                    }
+                  },
+                ),
                 type: PageTransitionType.fade,
               ),
             );
@@ -171,11 +203,17 @@ class _SplashScreenState extends State<SplashScreen>
                   null,
                   TextAlign.center),
             );
-            Navigator.push(
+            await Navigator.push(
               context,
               PageTransition(
                 child: Tabs(
                   user: widget.user,
+                  callback1: () {
+                    if (this.mounted) {
+                      print("##########backtosplash#######3");
+                      callback2();
+                    }
+                  },
                 ),
                 type: PageTransitionType.fade,
               ),

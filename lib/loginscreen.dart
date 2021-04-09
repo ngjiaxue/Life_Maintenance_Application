@@ -18,12 +18,22 @@ void main() => runApp(LoginScreen(userLogout: 1));
 
 class LoginScreen extends StatefulWidget {
   final int userLogout; //1 = do ntg, 2 = clear password & remember me
-  const LoginScreen({Key key, this.userLogout}) : super(key: key);
+  final VoidCallback callback1;
+  const LoginScreen({Key key, this.userLogout, this.callback1})
+      : super(key: key);
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginScreenState createState() {
+    return _LoginScreenState(
+      callback2: () {
+        callback1();
+      },
+    );
+  }
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  VoidCallback callback2;
+  _LoginScreenState({this.callback2});
   Map<int, Color> _swatch = {
     50: Color.fromRGBO(152, 102, 187, .1),
     100: Color.fromRGBO(152, 102, 187, .2),
@@ -1631,6 +1641,12 @@ class _LoginScreenState extends State<LoginScreen> {
             PageTransition(
               child: Tabs(
                 user: user,
+                callback1: () {
+                  if (this.mounted) {
+                    print("######backTOLOGIN##########1");
+                    callback2();
+                  }
+                },
               ),
               type: PageTransitionType.fade,
             ),
@@ -1664,6 +1680,12 @@ class _LoginScreenState extends State<LoginScreen> {
             context,
             PageTransition(
               child: Tabs(
+                callback1: () {
+                  if (this.mounted) {
+                    print("######backTOLOGIN##########2");
+                    callback2();
+                  }
+                },
                 user: user,
               ),
               type: PageTransitionType.fade,

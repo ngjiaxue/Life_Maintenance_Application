@@ -13,12 +13,21 @@ import 'package:flutter_icons/flutter_icons.dart';
 
 class Tabs extends StatefulWidget {
   final User user;
-  const Tabs({Key key, this.user}) : super(key: key);
+  final VoidCallback callback1;
+  const Tabs({Key key, this.user, this.callback1}) : super(key: key);
   @override
-  _TabsState createState() => _TabsState();
+  _TabsState createState() {
+    return _TabsState(
+      callback2: () {
+        callback1();
+      },
+    );
+  }
 }
 
 class _TabsState extends State<Tabs> with TickerProviderStateMixin {
+  VoidCallback callback2;
+  _TabsState({this.callback2});
   Methods methods = new Methods();
   User user;
   List<bool> _tabSelected = [true, false, false, false];
@@ -155,6 +164,12 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
           // userExerciseList: _userExerciseList,
         ),
         UserPage4(
+          callback1: () {
+            if (this.mounted) {
+              print("#######backtoTabs########");
+              callback2();
+            }
+          },
           user: widget.user,
         ),
       ],
