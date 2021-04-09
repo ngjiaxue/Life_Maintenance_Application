@@ -1,11 +1,8 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
-
 import 'user.dart';
 import 'methods.dart';
+import 'dart:convert';
 import 'loginscreen.dart';
 import 'editprofile.dart';
 import 'package:intl/intl.dart';
@@ -15,9 +12,13 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/scheduler.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:slider_button/slider_button.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class UserPage4 extends StatefulWidget {
@@ -34,11 +35,12 @@ class _UserPage4State extends State<UserPage4>
   double _screenHeight;
   double _height = 0.0;
   double _weight = 0.0;
+  bool _isCropping = false;
   bool _isEditing = false;
   bool _confirmationMessage = false;
-  bool _isCropping = false;
   PickedFile _pickedFile;
   File _image;
+  AssetImage _gif;
   // Flushbar flushbar;
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _dobController = new TextEditingController();
@@ -57,394 +59,520 @@ class _UserPage4State extends State<UserPage4>
     super.build(context);
     _screenWidth = MediaQuery.of(context).size.width;
     _screenHeight = MediaQuery.of(context).size.height;
-    return Container(
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            leading: SizedBox.shrink(),
-            backgroundColor: Colors.transparent,
-            expandedHeight: _screenWidth,
-            flexibleSpace: Container(
-              height: _screenWidth,
-              width: _screenWidth,
-              child: Stack(
-                children: [
-                  ClipPath(
-                    clipper: ClippingClass(),
-                    child: Image.asset(
-                      "assets/images/defaultprofile.png",
-                      // "assets/images/profile.jpg",
-                      fit: BoxFit.cover,
-                      height: _screenWidth,
-                      width: _screenWidth,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: 50,
-                    ),
-                    child: ClipPath(
-                      clipper: ClippingClass(),
-                      child: Container(
-                        width: _screenWidth,
-                        height: _screenWidth,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white.withOpacity(0),
-                              Colors.white.withOpacity(0.1),
-                              Colors.white.withOpacity(0.2),
-                              Colors.white.withOpacity(0.3),
-                              Colors.white.withOpacity(0.4),
-                              Colors.white.withOpacity(0.5),
-                              Colors.white.withOpacity(0.6),
-                              Colors.white.withOpacity(0.7),
-                              Colors.white.withOpacity(0.8),
-                              Colors.white.withOpacity(0.9),
-                              Colors.white.withOpacity(1),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
+    _gif = AssetImage("assets/images/logowithtext.gif");
+    return _isCropping == false
+        ? Container(
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverAppBar(
+                  leading: SizedBox.shrink(),
+                  backgroundColor: Colors.transparent,
+                  expandedHeight: _screenWidth,
+                  flexibleSpace: Container(
+                    height: _screenWidth,
+                    width: _screenWidth,
+                    child: Stack(
+                      children: [
+                        ClipPath(
+                          clipper: ClippingClass(),
+                          child: CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            height: _screenWidth,
+                            width: _screenWidth,
+                            imageUrl:
+                                "https://lifemaintenanceapplication.000webhostapp.com/images/${widget.user.getEmail()}.jpg",
+                            placeholder: (context, url) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: _gif,
+                                  scale: 5,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                Image.asset("assets/images/defaultprofile.png"),
                           ),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0),
+                          // Image.asset(
+                          //   "assets/images/defaultprofile.png",
+                          //   fit: BoxFit.cover,
+                          //   height: _screenWidth,
+                          //   width: _screenWidth,
+                          // ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: 50,
+                          ),
+                          child: ClipPath(
+                            clipper: ClippingClass(),
+                            child: Container(
+                              width: _screenWidth,
+                              height: _screenWidth,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withOpacity(0),
+                                    Colors.white.withOpacity(0.1),
+                                    Colors.white.withOpacity(0.2),
+                                    Colors.white.withOpacity(0.3),
+                                    Colors.white.withOpacity(0.4),
+                                    Colors.white.withOpacity(0.5),
+                                    Colors.white.withOpacity(0.6),
+                                    Colors.white.withOpacity(0.7),
+                                    Colors.white.withOpacity(0.8),
+                                    Colors.white.withOpacity(0.9),
+                                    Colors.white.withOpacity(1),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 30.0,
-                      ),
-                      child: methods.shaderMask(
-                        Text(
-                          "Profile",
-                          style: TextStyle(
-                            fontFamily: "Leoscar",
-                            fontSize: 36.0,
-                            color: Colors.white,
-                            letterSpacing: 1.0,
-                            fontWeight: FontWeight.bold,
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              left: 30.0,
+                            ),
+                            child: methods.shaderMask(
+                              Text(
+                                "Profile",
+                                style: TextStyle(
+                                  fontFamily: "Leoscar",
+                                  fontSize: 36.0,
+                                  color: Colors.white,
+                                  letterSpacing: 1.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              true,
+                            ),
                           ),
                         ),
-                        true,
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        right: 74.0,
-                      ),
-                      child: Visibility(
-                        visible: !_confirmationMessage,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            if (!_isEditing) {
-                              showModalBottomSheet(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        InkWell(
-                                          child: ListTile(
-                                            title: Center(
-                                              child: methods.textOnly(
-                                                  "Select from gallery",
-                                                  "Leoscar",
-                                                  17.0,
-                                                  null,
-                                                  null,
-                                                  null,
-                                                  null),
-                                            ),
-                                            onTap: () => _getImage(false),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              right: 74.0,
+                            ),
+                            child: Visibility(
+                              visible: !_confirmationMessage,
+                              child: FloatingActionButton(
+                                onPressed: () {
+                                  if (!_isEditing) {
+                                    showModalBottomSheet(
+                                        backgroundColor: Colors.transparent,
+                                        context: context,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10.0),
+                                            topRight: Radius.circular(10.0),
                                           ),
                                         ),
-                                        InkWell(
-                                          child: ListTile(
-                                            title: Center(
-                                              child: methods.textOnly(
-                                                  "Take photo",
-                                                  "Leoscar",
-                                                  17.0,
-                                                  null,
-                                                  null,
-                                                  null,
-                                                  null),
-                                            ),
-                                            onTap: () => _getImage(true),
+                                        builder: (BuildContext context) {
+                                          return _isCropping == false
+                                              ? Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: <Widget>[
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                        ),
+                                                      ),
+                                                      child: InkWell(
+                                                        child: ListTile(
+                                                          title: Center(
+                                                            child: methods.shaderMask(
+                                                                methods.textOnly(
+                                                                    "Select from gallery",
+                                                                    "Leoscar",
+                                                                    17.0,
+                                                                    Colors
+                                                                        .white,
+                                                                    null,
+                                                                    null,
+                                                                    null),
+                                                                true),
+                                                          ),
+                                                          onTap: () =>
+                                                              _getImage(false),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      height: 1.0,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                    InkWell(
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            bottomLeft:
+                                                                Radius.circular(
+                                                                    10.0),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    10.0),
+                                                          ),
+                                                        ),
+                                                        child: ListTile(
+                                                          title: Center(
+                                                            child: methods.shaderMask(
+                                                                methods.textOnly(
+                                                                    "Take photo",
+                                                                    "Leoscar",
+                                                                    17.0,
+                                                                    Colors
+                                                                        .white,
+                                                                    null,
+                                                                    null,
+                                                                    null),
+                                                                true),
+                                                          ),
+                                                          onTap: () =>
+                                                              _getImage(true),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      color: Colors.transparent,
+                                                      height: 10.0,
+                                                    ),
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                        ),
+                                                      ),
+                                                      child: InkWell(
+                                                        child: ListTile(
+                                                          title: Center(
+                                                            child: methods.shaderMask(
+                                                                methods.textOnly(
+                                                                    "Cancel",
+                                                                    "Leoscar",
+                                                                    17.0,
+                                                                    Colors
+                                                                        .white,
+                                                                    null,
+                                                                    null,
+                                                                    null),
+                                                                true),
+                                                          ),
+                                                          onTap: () =>
+                                                              Navigator.pop(
+                                                                  context),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : Container(
+                                                  color: Colors.transparent,
+                                                );
+                                        });
+                                  } else {
+                                    setState(() {
+                                      _confirmationMessage = true;
+                                      FocusScope.of(context).unfocus();
+                                    });
+                                    _showSnackbar(
+                                        Colors.red[400],
+                                        () {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          setState(() {
+                                            _confirmationMessage = false;
+                                          });
+                                        },
+                                        "Discard the change(s)",
+                                        () {
+                                          setState(() {
+                                            ScaffoldMessenger.of(context)
+                                                .hideCurrentSnackBar();
+                                            _nameController.clear();
+                                            _dobController.clear();
+                                            _genderController.clear();
+                                            _emailController.clear();
+                                            _phoneController.clear();
+                                            _heightController.clear();
+                                            _weightController.clear();
+                                            _confirmationMessage = false;
+                                            _isEditing = false;
+                                          });
+                                        });
+                                  }
+                                },
+                                heroTag: 3,
+                                mini: true,
+                                elevation: 10.0,
+                                backgroundColor:
+                                    !_isEditing ? Colors.white : Colors.red,
+                                child: !_isEditing
+                                    ? methods.shaderMask(
+                                        Icon(
+                                          LineIcons.camera,
+                                          color: Colors.white,
+                                        ),
+                                        true,
+                                      )
+                                    : Icon(
+                                        FlutterIcons.cancel_mco,
+                                        color: Colors.white,
+                                      ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                  side: BorderSide(color: Colors.black12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              right: 24.0,
+                            ),
+                            child: Visibility(
+                              visible: !_confirmationMessage,
+                              child: FloatingActionButton(
+                                onPressed: () {
+                                  if (!_isEditing) {
+                                    setState(() {
+                                      _isEditing = true;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _confirmationMessage = true;
+                                      FocusScope.of(context).unfocus();
+                                    });
+                                    _showSnackbar(
+                                        Colors.green,
+                                        () {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          setState(() {
+                                            _confirmationMessage = false;
+                                          });
+                                        },
+                                        "Apply the change(s)?",
+                                        () async {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                          await http.post(
+                                              Uri.parse(
+                                                  "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                                              body: {
+                                                "name": _nameController.text,
+                                                "dob": _dobController.text,
+                                                "gender":
+                                                    _genderController.text,
+                                                "phone": _phoneController.text,
+                                                "height":
+                                                    _heightController.text,
+                                                "weight":
+                                                    _weightController.text,
+                                                "email": widget.user.getEmail(),
+                                              }).then((res) {
+                                            if (res.body == "success") {
+                                              Future.delayed(
+                                                  Duration(milliseconds: 500),
+                                                  () {
+                                                methods.snackbarMessage(
+                                                  context,
+                                                  Duration(
+                                                    milliseconds: 1500,
+                                                  ),
+                                                  Color(0XFFB563E0),
+                                                  true,
+                                                  methods.textOnly(
+                                                      "Profile updated successfully",
+                                                      "Leoscar",
+                                                      18.0,
+                                                      Colors.white,
+                                                      null,
+                                                      null,
+                                                      TextAlign.center),
+                                                );
+                                              });
+                                              setState(() {
+                                                if (_nameController
+                                                    .text.isNotEmpty) {
+                                                  widget.user.setName(
+                                                      _nameController.text);
+                                                }
+                                                if (_dobController
+                                                    .text.isNotEmpty) {
+                                                  widget.user.setDob(
+                                                      _dobController.text);
+                                                }
+                                                if (_genderController
+                                                    .text.isNotEmpty) {
+                                                  widget.user.setGender(
+                                                      _genderController.text);
+                                                }
+                                                if (_phoneController
+                                                    .text.isNotEmpty) {
+                                                  widget.user.setPhone(
+                                                      _phoneController.text);
+                                                }
+                                                if (_heightController
+                                                    .text.isNotEmpty) {
+                                                  widget.user.setHeight(
+                                                      _heightController.text);
+                                                }
+                                                if (_weightController
+                                                    .text.isNotEmpty) {
+                                                  widget.user.setWeight(
+                                                      _weightController.text);
+                                                }
+                                                _nameController.clear();
+                                                _dobController.clear();
+                                                _genderController.clear();
+                                                _emailController.clear();
+                                                _phoneController.clear();
+                                                _heightController.clear();
+                                                _weightController.clear();
+                                                _confirmationMessage = false;
+                                                _isEditing = false;
+                                              });
+                                            } else {
+                                              Future.delayed(
+                                                  Duration(milliseconds: 500),
+                                                  () {
+                                                methods.snackbarMessage(
+                                                  context,
+                                                  Duration(
+                                                    seconds: 1,
+                                                  ),
+                                                  Colors.red[400],
+                                                  true,
+                                                  methods.textOnly(
+                                                      "Fail to update profile...Please try again",
+                                                      "Leoscar",
+                                                      18.0,
+                                                      Colors.white,
+                                                      null,
+                                                      null,
+                                                      TextAlign.center),
+                                                );
+                                              });
+                                              setState(() {
+                                                _confirmationMessage = false;
+                                                _isEditing = true;
+                                              });
+                                            }
+                                          });
+                                        });
+                                  }
+                                },
+                                heroTag: 4,
+                                mini: true,
+                                elevation: 10.0,
+                                backgroundColor:
+                                    !_isEditing ? Colors.white : Colors.green,
+                                child: !_isEditing
+                                    ? methods.shaderMask(
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 4.0,
+                                          ),
+                                          child: Icon(
+                                            FlutterIcons.edit_faw,
+                                            color: Colors.white,
                                           ),
                                         ),
-                                      ],
-                                    );
-                                  });
-                            } else {
-                              setState(() {
-                                _confirmationMessage = true;
-                                FocusScope.of(context).unfocus();
-                              });
-                              _showSnackbar(
-                                  Colors.red[400],
-                                  () {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    setState(() {
-                                      _confirmationMessage = false;
-                                    });
-                                  },
-                                  "Discard the change(s)",
-                                  () {
-                                    setState(() {
-                                      ScaffoldMessenger.of(context)
-                                          .hideCurrentSnackBar();
-                                      _nameController.clear();
-                                      _dobController.clear();
-                                      _genderController.clear();
-                                      _emailController.clear();
-                                      _phoneController.clear();
-                                      _heightController.clear();
-                                      _weightController.clear();
-                                      _confirmationMessage = false;
-                                      _isEditing = false;
-                                    });
-                                  });
-                            }
-                          },
-                          heroTag: 3,
-                          mini: true,
-                          elevation: 10.0,
-                          backgroundColor:
-                              !_isEditing ? Colors.white : Colors.red,
-                          child: !_isEditing
-                              ? methods.shaderMask(
-                                  Icon(
-                                    LineIcons.camera,
-                                    color: Colors.white,
-                                  ),
-                                  true,
-                                )
-                              : Icon(
-                                  FlutterIcons.cancel_mco,
-                                  color: Colors.white,
+                                        true,
+                                      )
+                                    : Icon(
+                                        FlutterIcons.save_faw,
+                                        color: Colors.white,
+                                      ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                  side: BorderSide(color: Colors.black12),
                                 ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50),
-                            side: BorderSide(color: Colors.black12),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        right: 24.0,
-                      ),
-                      child: Visibility(
-                        visible: !_confirmationMessage,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            if (!_isEditing) {
-                              setState(() {
-                                _isEditing = true;
-                              });
-                            } else {
-                              setState(() {
-                                _confirmationMessage = true;
-                                FocusScope.of(context).unfocus();
-                              });
-                              _showSnackbar(
-                                  Colors.green,
-                                  () {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    setState(() {
-                                      _confirmationMessage = false;
-                                    });
-                                  },
-                                  "Apply the change(s)?",
-                                  () async {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                    await http.post(
-                                        Uri.parse(
-                                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
-                                        body: {
-                                          "name": _nameController.text,
-                                          "dob": _dobController.text,
-                                          "gender": _genderController.text,
-                                          "phone": _phoneController.text,
-                                          "height": _heightController.text,
-                                          "weight": _weightController.text,
-                                          "email": widget.user.getEmail(),
-                                        }).then((res) {
-                                      if (res.body == "success") {
-                                        Future.delayed(
-                                            Duration(milliseconds: 500), () {
-                                          methods.snackbarMessage(
-                                            context,
-                                            Duration(
-                                              milliseconds: 1500,
-                                            ),
-                                            Color(0XFFB563E0),
-                                            true,
-                                            methods.textOnly(
-                                                "Profile updated successfully",
-                                                "Leoscar",
-                                                18.0,
-                                                Colors.white,
-                                                null,
-                                                null,
-                                                TextAlign.center),
-                                          );
-                                        });
-                                        setState(() {
-                                          if (_nameController.text.isNotEmpty) {
-                                            widget.user
-                                                .setName(_nameController.text);
-                                          }
-                                          if (_dobController.text.isNotEmpty) {
-                                            widget.user
-                                                .setDob(_dobController.text);
-                                          }
-                                          if (_genderController
-                                              .text.isNotEmpty) {
-                                            widget.user.setGender(
-                                                _genderController.text);
-                                          }
-                                          if (_phoneController
-                                              .text.isNotEmpty) {
-                                            widget.user.setPhone(
-                                                _phoneController.text);
-                                          }
-                                          if (_heightController
-                                              .text.isNotEmpty) {
-                                            widget.user.setHeight(
-                                                _heightController.text);
-                                          }
-                                          if (_weightController
-                                              .text.isNotEmpty) {
-                                            widget.user.setWeight(
-                                                _weightController.text);
-                                          }
-                                          _nameController.clear();
-                                          _dobController.clear();
-                                          _genderController.clear();
-                                          _emailController.clear();
-                                          _phoneController.clear();
-                                          _heightController.clear();
-                                          _weightController.clear();
-                                          _confirmationMessage = false;
-                                          _isEditing = false;
-                                        });
-                                      } else {
-                                        Future.delayed(
-                                            Duration(milliseconds: 500), () {
-                                          methods.snackbarMessage(
-                                            context,
-                                            Duration(
-                                              seconds: 1,
-                                            ),
-                                            Colors.red[400],
-                                            true,
-                                            methods.textOnly(
-                                                "Fail to update profile...Please try again",
-                                                "Leoscar",
-                                                18.0,
-                                                Colors.white,
-                                                null,
-                                                null,
-                                                TextAlign.center),
-                                          );
-                                        });
-                                        setState(() {
-                                          _confirmationMessage = false;
-                                          _isEditing = true;
-                                        });
-                                      }
-                                    });
-                                  });
-                            }
-                          },
-                          heroTag: 4,
-                          mini: true,
-                          elevation: 10.0,
-                          backgroundColor:
-                              !_isEditing ? Colors.white : Colors.green,
-                          child: !_isEditing
-                              ? methods.shaderMask(
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 4.0,
-                                    ),
-                                    child: Icon(
-                                      FlutterIcons.edit_faw,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  true,
-                                )
-                              : Icon(
-                                  FlutterIcons.save_faw,
-                                  color: Colors.white,
-                                ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50),
-                            side: BorderSide(color: Colors.black12),
-                          ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    <Widget>[
+                      _information(
+                          "Name", widget.user.getName(), 0, _nameController),
+                      _information("Date of Birth", widget.user.getDob(), 1,
+                          _dobController),
+                      _information("Gender", widget.user.getGender(), 2,
+                          _genderController),
+                      _information(
+                          "Phone", widget.user.getPhone(), 3, _phoneController),
+                      _information("Height", widget.user.getHeight() + " cm", 4,
+                          _heightController),
+                      _information("Weight", widget.user.getWeight() + " kg", 5,
+                          _weightController),
+                      Visibility(
+                        visible: !_isEditing,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 30.0,
+                            ),
+                            _information("Logout", "", 6, null),
+                            _information("Feedback", "", 7, null),
+                            SizedBox(
+                              height: 30.0,
+                            ),
+                            _information(
+                                "Change Email", "", 8, _emailController),
+                            _information("Change Password", "", 9, null),
+                            _information("Delete Account", "", 10, null),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              <Widget>[
-                _information("Name", widget.user.getName(), 0, _nameController),
-                _information(
-                    "Date of Birth", widget.user.getDob(), 1, _dobController),
-                _information(
-                    "Gender", widget.user.getGender(), 2, _genderController),
-                _information(
-                    "Phone", widget.user.getPhone(), 3, _phoneController),
-                _information("Height", widget.user.getHeight() + " cm", 4,
-                    _heightController),
-                _information("Weight", widget.user.getWeight() + " kg", 5,
-                    _weightController),
-                Visibility(
-                  visible: !_isEditing,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _information("Logout", "", 6, null),
-                      _information("Feedback", "", 7, null),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _information("Change Email", "", 8, _emailController),
-                      _information("Change Password", "", 9, null),
-                      _information("Delete Account", "", 10, null),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          )
+        : Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: _gif,
+                scale: 2,
+              ),
+            ),
+          );
   }
 
   Widget _information(String _leading, String _content, int _index,
@@ -737,6 +865,12 @@ class _UserPage4State extends State<UserPage4>
         if (_index == 6) {
           return showModalBottomSheet(
               context: context,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10.0),
+                  topRight: Radius.circular(10.0),
+                ),
+              ),
               builder: (BuildContext context) {
                 return SliderButton(
                   label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
@@ -755,7 +889,6 @@ class _UserPage4State extends State<UserPage4>
                   action: () {},
                   onDismissed: (dir) {
                     Navigator.pop(context);
-                    // Future.delayed(Duration(milliseconds: 300), () {
                     SchedulerBinding.instance.addPostFrameCallback((_) {
                       Navigator.push(
                         context,
@@ -764,44 +897,10 @@ class _UserPage4State extends State<UserPage4>
                           type: PageTransitionType.fade,
                         ),
                       );
-                      // });
                     });
                   },
                 );
               });
-          // methods.snackbarMessage(
-          //   context,
-          //   Duration(days: 365),
-          //   Color(0XFFB563E0),
-          //   true,
-          //   SliderButton(
-          //     label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
-          //         Colors.white, null, null, TextAlign.center),
-          //     icon: Icon(
-          //       FlutterIcons.logout_variant_mco,
-          //       color: Colors.white,
-          //     ),
-          //     width: _screenWidth / 1.15,
-          //     radius: 8,
-          //     buttonColor: Color(0XFFB563E0),
-          //     backgroundColor: Colors.white,
-          //     highlightedColor: Colors.white,
-          //     baseColor: Color(0XFFB563E0),
-          //     action: () {},
-          //     onDismissed: (dir) {
-          //       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //       Future.delayed(Duration(milliseconds: 300), () {
-          //         Navigator.push(
-          //           context,
-          //           PageTransition(
-          //             child: LoginScreen(2),
-          //             type: PageTransitionType.fade,
-          //           ),
-          //         );
-          //       });
-          //     },
-          //   ),
-          // );
         } else if (_index == 7) {
           Navigator.push(
             context,
@@ -998,15 +1097,16 @@ class _UserPage4State extends State<UserPage4>
         _pickedFile = (await ImagePicker().getImage(
             source: ImageSource.gallery, maxHeight: 500.0, maxWidth: 500.0));
       }
-      setState(() {
-        _image = File(_pickedFile.path);
-      });
-      if (_image == null) {
+
+      if (_pickedFile == null) {
         setState(() {
           _isCropping = false;
         });
         return;
       } else {
+        setState(() {
+          _image = File(_pickedFile.path);
+        });
         File _croppedFile = await ImageCropper.cropImage(
           sourcePath: _image.path,
           aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
@@ -1028,46 +1128,70 @@ class _UserPage4State extends State<UserPage4>
           });
           return;
         } else {
-          print("hi");
-          Navigator.pop(context);
           setState(() {
-            DefaultCacheManager manager = new DefaultCacheManager();
-            manager.emptyCache();
             _image = _croppedFile;
           });
 
-          // String base64Image = base64Encode(_image.readAsBytesSync());
-          // http.post(urlUpdateProfilePic, body: {
-          //   "email": widget.user.getEmail(),
-          //   "encoded_string": base64Image,
-          // }).then((res) {
-          //   print(res.body);
-          //   if (res.body == "success") {
-          //     setState(() {
-          //       _isCropping = false;
-          //       Navigator.pop(context);
-          //     });
-          //   } else {
-          //     methods.showMessage(
-          //         "Upload failed, please try again or contact admin",
-          //         Toast.LENGTH_LONG,
-          //         ToastGravity.CENTER,
-          //         Colors.orange[900],
-          //         Colors.white,
-          //         16.0);
-          //     setState(() {
-          //       _isCropping = false;
-          //     });
-          //   }
-          // }).catchError((err) {
-          //   print(err);
-          // });
+          String base64Image = base64Encode(_image.readAsBytesSync());
+          await http.post(
+              Uri.parse(
+                  "https://lifemaintenanceapplication.000webhostapp.com/php/updateprofilepic.php"),
+              body: {
+                "email": widget.user.getEmail(),
+                "encoded_string": base64Image,
+              }).then((res) {
+            if (res.body == "success") {
+              setState(() {
+                DefaultCacheManager manager = new DefaultCacheManager();
+                manager.removeFile(
+                    "https://lifemaintenanceapplication.000webhostapp.com/images/${widget.user.getEmail()}.jpg");
+                imageCache.clear();
+              });
+              Navigator.pop(context);
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                methods.snackbarMessage(
+                  context,
+                  Duration(
+                    milliseconds: 1500,
+                  ),
+                  Color(0XFFB563E0),
+                  true,
+                  methods.textOnly("Profile updated successfully", "Leoscar",
+                      18.0, Colors.white, null, null, TextAlign.center),
+                );
+              });
+            } else {
+              Navigator.pop(context);
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                methods.snackbarMessage(
+                  context,
+                  Duration(
+                    seconds: 1,
+                  ),
+                  Colors.red[400],
+                  true,
+                  methods.textOnly(
+                      "Fail to update profile...Please try again",
+                      "Leoscar",
+                      18.0,
+                      Colors.white,
+                      null,
+                      null,
+                      TextAlign.center),
+                );
+              });
+            }
+          }).catchError((err) {
+            print(err);
+          });
         }
       }
+    } else {
+      methods.showUnregisteredDialog(context);
     }
-    // else {
-    //   methods.showUnregisteredDialog(context);
-    // }
+    setState(() {
+      _isCropping = false;
+    });
   }
 }
 

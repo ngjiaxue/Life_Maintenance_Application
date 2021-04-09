@@ -285,147 +285,165 @@ class _AddItemState extends State<AddItem> {
                                         showModalBottomSheet(
                                             context: context,
                                             isDismissible: false,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(10.0),
+                                                topRight: Radius.circular(10.0),
+                                              ),
+                                            ),
                                             builder: (BuildContext context) {
                                               return StatefulBuilder(builder:
                                                   (context, newSetState) {
                                                 return _loading == false
-                                                    ? Container(
-                                                        height:
-                                                            _screenHeight / 4.5,
-                                                        child: Column(
-                                                          children: [
-                                                            methods.textOnly(
-                                                                "Please insert " +
-                                                                    (widget.option ==
-                                                                            "food"
-                                                                        ? "amount (grams)"
-                                                                        : "duration (minutes)"),
-                                                                "Leoscar",
-                                                                18.0,
-                                                                Colors.black,
-                                                                null,
-                                                                null,
-                                                                TextAlign
-                                                                    .center),
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: [
-                                                                GestureDetector(
-                                                                    child:
-                                                                        Container(
-                                                                      child:
-                                                                          Icon(
-                                                                        LineIcons
-                                                                            .times,
-                                                                        color: Colors
-                                                                            .black,
-                                                                      ),
-                                                                    ),
-                                                                    onTap: () {
-                                                                      setState(
-                                                                          () {
-                                                                        _amount =
-                                                                            0.0;
-                                                                        _duration =
-                                                                            0;
-                                                                      });
-                                                                      ScaffoldMessenger.of(
-                                                                              context)
-                                                                          .hideCurrentSnackBar();
-                                                                    }),
-                                                                widget.option ==
-                                                                        "food"
-                                                                    ? DecimalNumberPicker(
-                                                                        minValue:
-                                                                            0,
-                                                                        maxValue:
-                                                                            10000,
-                                                                        decimalPlaces:
-                                                                            1,
-                                                                        value:
-                                                                            _amount,
-                                                                        onChanged:
-                                                                            (value) {
-                                                                          newSetState(
+                                                    ? methods.shaderMask(
+                                                        Container(
+                                                          height:
+                                                              _screenHeight /
+                                                                  4.3,
+                                                          child: Column(
+                                                            children: [
+                                                              Spacer(),
+                                                              methods.textOnly(
+                                                                  "Please insert " +
+                                                                      (widget.option ==
+                                                                              "food"
+                                                                          ? "amount (grams)"
+                                                                          : "duration (minutes)"),
+                                                                  "Leoscar",
+                                                                  18.0,
+                                                                  Colors.white,
+                                                                  null,
+                                                                  null,
+                                                                  TextAlign
+                                                                      .center),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .symmetric(
+                                                                  horizontal:
+                                                                      30.0,
+                                                                ),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    GestureDetector(
+                                                                        child:
+                                                                            Container(
+                                                                          child:
+                                                                              Icon(
+                                                                            LineIcons.times,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                        onTap:
+                                                                            () {
+                                                                          setState(
                                                                               () {
                                                                             _amount =
-                                                                                value;
-                                                                          });
-                                                                        })
-                                                                    : NumberPicker(
-                                                                        minValue:
-                                                                            0,
-                                                                        maxValue:
-                                                                            200,
-                                                                        value:
-                                                                            _duration,
-                                                                        onChanged:
-                                                                            (value) {
-                                                                          newSetState(
-                                                                              () {
+                                                                                0.0;
                                                                             _duration =
-                                                                                value;
+                                                                                0;
                                                                           });
+                                                                          Navigator.pop(
+                                                                              context);
                                                                         }),
-                                                                GestureDetector(
-                                                                  child:
-                                                                      Container(
-                                                                    child: Icon(
-                                                                      LineIcons
-                                                                          .check,
-                                                                      color: Colors
-                                                                          .black,
+                                                                    widget.option ==
+                                                                            "food"
+                                                                        ? DecimalNumberPicker(
+                                                                            minValue:
+                                                                                0,
+                                                                            maxValue:
+                                                                                10000,
+                                                                            decimalPlaces:
+                                                                                1,
+                                                                            value:
+                                                                                _amount,
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              newSetState(() {
+                                                                                _amount = value;
+                                                                              });
+                                                                            })
+                                                                        : NumberPicker(
+                                                                            minValue:
+                                                                                0,
+                                                                            maxValue:
+                                                                                200,
+                                                                            value:
+                                                                                _duration,
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              newSetState(() {
+                                                                                _duration = value;
+                                                                              });
+                                                                            }),
+                                                                    GestureDetector(
+                                                                      child:
+                                                                          Container(
+                                                                        child:
+                                                                            Icon(
+                                                                          LineIcons
+                                                                              .check,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                      onTap:
+                                                                          () async {
+                                                                        newSetState(
+                                                                            () {
+                                                                          _loading =
+                                                                              true;
+                                                                        });
+                                                                        await _addToList(
+                                                                            _searchList.isNotEmpty
+                                                                                ? _searchList[index]
+                                                                                : widget.dbList[index],
+                                                                            widget.option == "food" ? _amount.toString() : _duration.toString());
+                                                                        SchedulerBinding
+                                                                            .instance
+                                                                            .addPostFrameCallback((_) {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          setState(
+                                                                              () {
+                                                                            _amount =
+                                                                                0.0;
+                                                                            _duration =
+                                                                                0;
+                                                                          });
+                                                                        });
+                                                                      },
                                                                     ),
-                                                                  ),
-                                                                  onTap:
-                                                                      () async {
-                                                                    newSetState(
-                                                                        () {
-                                                                      _loading =
-                                                                          true;
-                                                                    });
-                                                                    await _addToList(
-                                                                        _searchList.isNotEmpty
-                                                                            ? _searchList[
-                                                                                index]
-                                                                            : widget.dbList[
-                                                                                index],
-                                                                        widget.option ==
-                                                                                "food"
-                                                                            ? _amount.toString()
-                                                                            : _duration.toString());
-                                                                    SchedulerBinding
-                                                                        .instance
-                                                                        .addPostFrameCallback(
-                                                                            (_) {
-                                                                      ScaffoldMessenger.of(
-                                                                              context)
-                                                                          .hideCurrentSnackBar();
-                                                                      setState(
-                                                                          () {
-                                                                        _amount =
-                                                                            0.0;
-                                                                        _duration =
-                                                                            0;
-                                                                      });
-                                                                    });
-                                                                  },
+                                                                  ],
                                                                 ),
-                                                              ],
-                                                            ),
-                                                          ],
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
+                                                        true,
                                                       )
-                                                    : methods.textOnly(
-                                                        "Loading......",
-                                                        "Leoscar",
-                                                        20.0,
-                                                        Colors.black,
-                                                        FontWeight.normal,
-                                                        FontStyle.normal,
-                                                        TextAlign.center);
+                                                    : Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
+                                                            image: _gif,
+                                                            scale: 1.5,
+                                                          ),
+                                                        ),
+                                                      );
+                                                // methods.textOnly(
+                                                //     "Loading......",
+                                                //     "Leoscar",
+                                                //     20.0,
+                                                //     Colors.black,
+                                                //     FontWeight.normal,
+                                                //     FontStyle.normal,
+                                                //     TextAlign.center);
                                               });
                                             });
                                       },

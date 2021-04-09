@@ -85,6 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
+    _loadPref(); //call _loadPref method
     super.initState();
     KeyboardVisibilityNotification().addNewListener(
       onShow: () {
@@ -98,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (widget.userLogout == 4) {
       _loginPressed = false;
     }
-    _loadPref(); //call _loadPref method
   }
 
   @override
@@ -1038,6 +1038,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _isChecked = false;
         }
       });
+      await _login();
     } else if (widget.userLogout == 2) {
       setState(() {
         _emailController.text = email;
@@ -1594,7 +1595,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end _resendVerificationEmail method
 
   //start _login method
-  void _login() async {
+  Future<void> _login() async {
     if (_emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
       await http.post(
@@ -1603,7 +1604,7 @@ class _LoginScreenState extends State<LoginScreen> {
           body: {
             'email': _emailController.text,
             'password': _passwordController.text,
-          }).then((res) {
+          }).then((res) async {
         List userDetails = res.body.split("&");
         if (userDetails[0] == "success admin") {
           User user = new User(userDetails[1], userDetails[2], userDetails[3],

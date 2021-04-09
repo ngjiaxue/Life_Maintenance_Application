@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
@@ -22,6 +24,7 @@ class _UserPage2State extends State<UserPage2>
     with AutomaticKeepAliveClientMixin {
   Methods methods = new Methods();
   double _screenHeight;
+  AssetImage _gif;
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class _UserPage2State extends State<UserPage2>
   Widget build(BuildContext context) {
     super.build(context);
     _screenHeight = MediaQuery.of(context).size.height;
+    _gif = AssetImage("assets/images/logowithtext.gif");
     return Container(
       child: Stack(
         children: [
@@ -165,8 +169,26 @@ class _UserPage2State extends State<UserPage2>
                               child: Container(
                                 height: _screenHeight / 4,
                                 width: _screenHeight / 4,
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  height: _screenHeight / 4,
+                                  width: _screenHeight / 4,
+                                  imageUrl:
+                                      "${widget.user.getUserFoodList()[index]["imagesource"]}",
+                                  placeholder: (context, url) => Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: _gif,
+                                        scale: 5,
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
+                                          "assets/images/defaultprofile.png"),
+                                ),
                                 // child: Image.network(
-                                //   widget.userFoodList[_count]["imagesource"],
+                                //   widget.user.getUserFoodList()[index]["imagesource"],
                                 // ),
                               ),
                             ),
