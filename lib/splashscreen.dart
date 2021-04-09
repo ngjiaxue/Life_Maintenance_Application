@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _loadPref();
     controller = AnimationController(
-        duration: const Duration(milliseconds: 2200), vsync: this);
+        duration: const Duration(milliseconds: 2100), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() {
         setState(() {
@@ -179,9 +179,9 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
           AnimatedPositioned(
-            left: run ? MediaQuery.of(context).size.width - 30 : -85,
+            left: run ? MediaQuery.of(context).size.width : -110,
             bottom: 20,
-            duration: Duration(milliseconds: 2850),
+            duration: Duration(milliseconds: 2490),
             child: Image.asset(
               "assets/images/running.gif",
               scale: 5,
