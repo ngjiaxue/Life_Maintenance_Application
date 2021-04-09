@@ -1091,6 +1091,7 @@ class _UserPage4State extends State<UserPage4>
     if (widget.user.getEmail() != 'Unregistered') {
       setState(() {
         _isCropping = true;
+        Navigator.pop(context);
       });
       if (isCamera) {
         _pickedFile = (await ImagePicker().getImage(
@@ -1149,7 +1150,6 @@ class _UserPage4State extends State<UserPage4>
                     "https://lifemaintenanceapplication.000webhostapp.com/images/${widget.user.getEmail()}.jpg");
                 imageCache.clear();
               });
-              Navigator.pop(context);
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 methods.snackbarMessage(
                   context,
@@ -1163,7 +1163,6 @@ class _UserPage4State extends State<UserPage4>
                 );
               });
             } else {
-              Navigator.pop(context);
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 methods.snackbarMessage(
                   context,
