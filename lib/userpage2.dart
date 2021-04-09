@@ -173,8 +173,8 @@ class _UserPage2State extends State<UserPage2>
                                   fit: BoxFit.cover,
                                   height: _screenHeight / 4,
                                   width: _screenHeight / 4,
-                                  imageUrl:
-                                      "${widget.user.getUserFoodList()[index]["imagesource"]}",
+                                  imageUrl: widget.user.getUserFoodList()[index]
+                                      ["imagesource"],
                                   placeholder: (context, url) => Container(
                                     decoration: BoxDecoration(
                                       image: DecorationImage(

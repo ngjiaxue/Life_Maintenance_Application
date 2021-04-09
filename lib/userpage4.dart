@@ -293,6 +293,8 @@ class _UserPage4State extends State<UserPage4>
                                                 )
                                               : Container(
                                                   color: Colors.transparent,
+                                                  height: _screenHeight,
+                                                  width: _screenWidth,
                                                 );
                                         });
                                   } else {

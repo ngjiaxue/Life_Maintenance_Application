@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _loadPref();
     controller = AnimationController(
-        duration: const Duration(milliseconds: 2500), vsync: this);
+        duration: const Duration(milliseconds: 2200), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() {
         setState(() {
