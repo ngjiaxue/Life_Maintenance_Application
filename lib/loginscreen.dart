@@ -14,11 +14,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
-void main() => runApp(LoginScreen(1));
+void main() => runApp(LoginScreen(userLogout: 1));
 
 class LoginScreen extends StatefulWidget {
   final int userLogout; //1 = do ntg, 2 = clear password & remember me
-  LoginScreen(this.userLogout);
+  const LoginScreen({Key key, this.userLogout}) : super(key: key);
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -41,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   int _buttonClicked =
       0; //0 = login, 1 = forget password, 2 = resend verification email, 3 = sign up
   double _screenHeight;
+  bool _darkMode;
   bool _loginPressed = true;
   Methods methods = new Methods();
   var _loginKey = GlobalKey<FormState>();
@@ -85,7 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    _loadPref(); //call _loadPref method
+    _loadPrefUserDetails();
+    _loadPrefDarkMode();
     super.initState();
     KeyboardVisibilityNotification().addNewListener(
       onShow: () {
@@ -1024,7 +1026,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end _savePref method
 
   //start _loadPref method
-  Future<void> _loadPref() async {
+  Future<void> _loadPrefUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String email = (prefs.getString('email')) ?? '';
     String password = (prefs.getString('pass')) ?? '';
@@ -1053,6 +1055,14 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   } //end _loadPref method
+
+  Future<void> _loadPrefDarkMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool darkMode = (prefs.getBool('darkmode')) ?? false;
+    setState(() {
+      _darkMode = darkMode;
+    });
+  }
 
 //start _onTick method
   void _onTick(bool value) {
@@ -1607,8 +1617,15 @@ class _LoginScreenState extends State<LoginScreen> {
           }).then((res) async {
         List userDetails = res.body.split("&");
         if (userDetails[0] == "success admin") {
-          User user = new User(userDetails[1], userDetails[2], userDetails[3],
-              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          User user = new User(
+              userDetails[1],
+              userDetails[2],
+              userDetails[3],
+              userDetails[4],
+              userDetails[5],
+              userDetails[6],
+              userDetails[7],
+              _darkMode);
           Navigator.push(
             context,
             PageTransition(
@@ -1634,8 +1651,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
           );
         } else if (userDetails[0] == "success") {
-          User user = new User(userDetails[1], userDetails[2], userDetails[3],
-              userDetails[4], userDetails[5], userDetails[6], userDetails[7]);
+          User user = new User(
+              userDetails[1],
+              userDetails[2],
+              userDetails[3],
+              userDetails[4],
+              userDetails[5],
+              userDetails[6],
+              userDetails[7],
+              _darkMode);
           Navigator.push(
             context,
             PageTransition(

@@ -10,7 +10,6 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_icons/flutter_icons.dart';
-// import 'package:overlay_support/overlay_support.dart';
 
 class Tabs extends StatefulWidget {
   final User user;
