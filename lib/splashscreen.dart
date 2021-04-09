@@ -179,9 +179,9 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
           AnimatedPositioned(
-            left: run ? MediaQuery.of(context).size.width : -110,
+            left: run ? MediaQuery.of(context).size.width : -100,
             bottom: 20,
-            duration: Duration(milliseconds: 2490),
+            duration: Duration(milliseconds: 2500),
             child: Image.asset(
               "assets/images/running.gif",
               scale: 5,
