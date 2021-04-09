@@ -180,15 +180,16 @@ class _UserPage3State extends State<UserPage3>
                                 top: 10.0,
                               ),
                               child: Container(
-                                height: _screenHeight / 4,
-                                width: _screenHeight / 4,
+                                height: _screenHeight / 4.3,
+                                width: _screenHeight / 4.3,
                                 // color: Colors.pink,
                                 child: CachedNetworkImage(
                                   fit: BoxFit.cover,
-                                  height: _screenHeight / 4,
-                                  width: _screenHeight / 4,
+                                  height: _screenHeight / 4.3,
+                                  width: _screenHeight / 4.3,
                                   imageUrl:
-                                    widget.user.getUserExerciseList()[index]["imagesource"],
+                                      widget.user.getUserExerciseList()[index]
+                                          ["imagesource"],
                                   placeholder: (context, url) => Container(
                                     decoration: BoxDecoration(
                                       image: DecorationImage(

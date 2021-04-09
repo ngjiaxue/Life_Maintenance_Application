@@ -167,12 +167,12 @@ class _UserPage2State extends State<UserPage2>
                                 top: 10.0,
                               ),
                               child: Container(
-                                height: _screenHeight / 4,
-                                width: _screenHeight / 4,
+                                height: _screenHeight / 4.3,
+                                width: _screenHeight / 4.3,
                                 child: CachedNetworkImage(
                                   fit: BoxFit.cover,
-                                  height: _screenHeight / 4,
-                                  width: _screenHeight / 4,
+                                  height: _screenHeight / 4.3,
+                                  width: _screenHeight / 4.3,
                                   imageUrl: widget.user.getUserFoodList()[index]
                                       ["imagesource"],
                                   placeholder: (context, url) => Container(
