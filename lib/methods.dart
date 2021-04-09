@@ -352,7 +352,7 @@ class Methods {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (BuildContext context) => LoginScreen(1),
+                  builder: (BuildContext context) => LoginScreen(userLogout: 1),
                 ),
               );
             },
@@ -377,7 +377,7 @@ class Methods {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (BuildContext context) => LoginScreen(4),
+                  builder: (BuildContext context) => LoginScreen(userLogout: 4),
                 ),
               );
             },

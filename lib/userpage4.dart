@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'user.dart';
 import 'methods.dart';
 import 'dart:convert';
@@ -558,6 +560,7 @@ class _UserPage4State extends State<UserPage4>
                                 "Change Email", "", 8, _emailController),
                             _information("Change Password", "", 9, null),
                             _information("Delete Account", "", 10, null),
+                            _information("Dark Mode", "", 11, null),
                           ],
                         ),
                       ),
@@ -887,7 +890,7 @@ class _UserPage4State extends State<UserPage4>
                   backgroundColor: Colors.white,
                   highlightedColor: Colors.white,
                   baseColor: Color(0XFFB563E0),
-                  dismissThresholds: 0.9,
+                  dismissThresholds: 0.5,
                   action: () {},
                   onDismissed: (dir) {
                     Navigator.pop(context);
@@ -895,7 +898,7 @@ class _UserPage4State extends State<UserPage4>
                       Navigator.push(
                         context,
                         PageTransition(
-                          child: LoginScreen(2),
+                          child: LoginScreen(userLogout: 2),
                           type: PageTransitionType.fade,
                         ),
                       );
@@ -935,6 +938,45 @@ class _UserPage4State extends State<UserPage4>
               type: PageTransitionType.fade,
             ),
           );
+        } else if (_index == 11) {
+          return showModalBottomSheet(
+              context: context,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10.0),
+                  topRight: Radius.circular(10.0),
+                ),
+              ),
+              builder: (BuildContext context) {
+                return SliderButton(
+                  label: methods.textOnly(
+                      "Slide to change to dark mode",
+                      "Leoscar",
+                      18.0,
+                      Colors.white,
+                      null,
+                      null,
+                      TextAlign.center),
+                  icon: Icon(
+                    FlutterIcons.logout_variant_mco,
+                    color: Colors.white,
+                  ),
+                  width: _screenWidth,
+                  radius: 8,
+                  buttonColor: Color(0XFFB563E0),
+                  backgroundColor: Colors.white,
+                  highlightedColor: Colors.white,
+                  baseColor: Color(0XFFB563E0),
+                  dismissThresholds: 0.5,
+                  action: () {},
+                  onDismissed: (dir) {
+                    Navigator.pop(context);
+                    SchedulerBinding.instance.addPostFrameCallback((_) {
+                      _savePref();
+                    });
+                  },
+                );
+              });
         }
       },
       child: Padding(
@@ -1084,9 +1126,6 @@ class _UserPage4State extends State<UserPage4>
     );
   }
 
-  @override
-  bool get wantKeepAlive => true;
-
   Future<void> _getImage(bool isCamera) async {
     if (widget.user.getEmail() != 'Unregistered') {
       setState(() {
@@ -1194,6 +1233,18 @@ class _UserPage4State extends State<UserPage4>
       _isCropping = false;
     });
   }
+
+  Future<void> _savePref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool darkMode = prefs.getBool('darkmode') ?? false;
+    await prefs.setBool('darkmode', !darkMode);
+    setState(() {
+      widget.user.setDarkMode(darkMode);
+    });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ClippingClass extends CustomClipper<Path> {

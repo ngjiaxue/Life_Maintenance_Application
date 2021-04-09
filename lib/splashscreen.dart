@@ -12,7 +12,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  User user;
+  bool _darkMode;
+  int _loggedIn =
+      0; // 0 = navigate to login as unregistered user, 1 = navigate to login with email, 2 = navigate to tabs
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefUserDetails();
+    _loadPrefDarkMode();
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -23,15 +40,82 @@ class MyApp extends StatelessWidget {
     ]);
     return MaterialApp(
       title: "Life Maintenance Application",
-      debugShowCheckedModeBanner: false,
+      // debugShowCheckedModeBanner: false,
+      theme: _darkMode == true ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
-        body: SplashScreen(),
+        body: SplashScreen(
+          loggedIn: _loggedIn,
+          user: user,
+        ),
       ),
     );
+  }
+
+  Future<void> _loadPrefUserDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String _email = (prefs.getString('email') ?? '');
+    String _password = (prefs.getString('pass') ?? '');
+    if (_email.isNotEmpty && _password.isNotEmpty) {
+      await http.post(
+          Uri.parse(
+              "https://lifemaintenanceapplication.000webhostapp.com/php/login.php"),
+          body: {
+            "email": _email,
+            "password": _password,
+          }).then((res) async {
+        List userDetails = res.body.split("&");
+        if (userDetails[0] == "success admin") {
+          setState(() {
+            user = new User(
+              userDetails[1],
+              userDetails[2],
+              userDetails[3],
+              userDetails[4],
+              userDetails[5],
+              userDetails[6],
+              userDetails[7],
+              _darkMode,
+            );
+            _loggedIn = 2;
+          });
+        } else if (userDetails[0] == "success") {
+          setState(() {
+            user = new User(
+              userDetails[1],
+              userDetails[2],
+              userDetails[3],
+              userDetails[4],
+              userDetails[5],
+              userDetails[6],
+              userDetails[7],
+              _darkMode,
+            );
+            _loggedIn = 2;
+          });
+        }
+      }).catchError((err) {
+        print(err);
+      });
+    } else if (_email.isNotEmpty) {
+      setState(() {
+        _loggedIn = 1;
+      });
+    }
+  }
+
+  Future<void> _loadPrefDarkMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool darkMode = (prefs.getBool('darkmode')) ?? false;
+    setState(() {
+      _darkMode = darkMode;
+    });
   }
 }
 
 class SplashScreen extends StatefulWidget {
+  final int loggedIn;
+  final User user;
+  const SplashScreen({Key key, this.loggedIn, this.user}) : super(key: key);
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -41,15 +125,11 @@ class _SplashScreenState extends State<SplashScreen>
   AnimationController controller;
   Animation<double> animation;
   Methods methods = new Methods();
-  User user;
-  int _loggedIn =
-      0; // 0 = navigate to login as unregistered user, 1 = navigate to login with email, 2 = navigate to tabs
   bool run = false;
 
   @override
   void initState() {
     super.initState();
-    _loadPref();
     controller = AnimationController(
         duration: const Duration(milliseconds: 2200), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
@@ -58,19 +138,19 @@ class _SplashScreenState extends State<SplashScreen>
           run = true;
         });
         if (animation.value > 0.99) {
-          if (_loggedIn == 0) {
+          if (widget.loggedIn == 0) {
             Navigator.push(
               context,
               PageTransition(
-                child: LoginScreen(1),
+                child: LoginScreen(userLogout: 1),
                 type: PageTransitionType.fade,
               ),
             );
-          } else if (_loggedIn == 1) {
+          } else if (widget.loggedIn == 1) {
             Navigator.push(
               context,
               PageTransition(
-                child: LoginScreen(2),
+                child: LoginScreen(userLogout: 2),
                 type: PageTransitionType.fade,
               ),
             );
@@ -82,14 +162,20 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               Color(0XFFB563E0),
               true,
-              methods.textOnly("Login successful...Welcome ${user.getName()}",
-                  "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+              methods.textOnly(
+                  "Login successful...Welcome ${widget.user.getName()}",
+                  "Leoscar",
+                  18.0,
+                  Colors.white,
+                  null,
+                  null,
+                  TextAlign.center),
             );
             Navigator.push(
               context,
               PageTransition(
                 child: Tabs(
-                  user: user,
+                  user: widget.user,
                 ),
                 type: PageTransitionType.fade,
               ),
@@ -201,56 +287,5 @@ class _SplashScreenState extends State<SplashScreen>
         ],
       ),
     );
-  }
-
-  Future<void> _loadPref() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String _email = (prefs.getString('email') ?? '');
-    String _password = (prefs.getString('pass') ?? '');
-    if (_email.isNotEmpty && _password.isNotEmpty) {
-      await http.post(
-          Uri.parse(
-              "https://lifemaintenanceapplication.000webhostapp.com/php/login.php"),
-          body: {
-            "email": _email,
-            "password": _password,
-          }).then((res) {
-        List userDetails = res.body.split("&");
-
-        if (userDetails[0] == "success admin") {
-          user = new User(
-            userDetails[1],
-            userDetails[2],
-            userDetails[3],
-            userDetails[4],
-            userDetails[5],
-            userDetails[6],
-            userDetails[7],
-          );
-          setState(() {
-            _loggedIn = 2;
-          });
-        } else if (userDetails[0] == "success") {
-          user = new User(
-            userDetails[1],
-            userDetails[2],
-            userDetails[3],
-            userDetails[4],
-            userDetails[5],
-            userDetails[6],
-            userDetails[7],
-          );
-          setState(() {
-            _loggedIn = 2;
-          });
-        }
-      }).catchError((err) {
-        print(err);
-      });
-    } else if (_email.isNotEmpty) {
-      setState(() {
-        _loggedIn = 1;
-      });
-    }
   }
 }

@@ -491,7 +491,7 @@ class _EditProfileState extends State<EditProfile> {
                         Navigator.push(
                           context,
                           PageTransition(
-                            child: LoginScreen(3),
+                            child: LoginScreen(userLogout: 3),
                             type: PageTransitionType.fade,
                           ),
                         );
@@ -761,7 +761,7 @@ class _EditProfileState extends State<EditProfile> {
                         Navigator.push(
                           context,
                           PageTransition(
-                            child: LoginScreen(2),
+                            child: LoginScreen(userLogout: 2),
                             type: PageTransitionType.fade,
                           ),
                         );
@@ -872,7 +872,7 @@ class _EditProfileState extends State<EditProfile> {
                   Navigator.push(
                     context,
                     PageTransition(
-                      child: LoginScreen(3),
+                      child: LoginScreen(userLogout: 3),
                       type: PageTransitionType.fade,
                     ),
                   );
