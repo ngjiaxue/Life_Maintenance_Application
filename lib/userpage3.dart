@@ -1,7 +1,9 @@
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -201,9 +203,6 @@ class _UserPage3State extends State<UserPage3>
                                       Image.asset(
                                           "assets/images/defaultprofile.png"),
                                 ),
-                                // child: Image.network(
-                                //   widget.userExerciseList[index]["imagesource"],
-                                // ),
                               ),
                             ),
                           ),
@@ -220,7 +219,9 @@ class _UserPage3State extends State<UserPage3>
                 bottom: 20.0,
               ),
               child: FloatingActionButton(
-                  backgroundColor: Colors.white,
+                  backgroundColor: widget.user.getDarkMode()
+                      ? Color(0XFF424242)
+                      : Colors.white,
                   elevation: 10.0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
@@ -241,9 +242,12 @@ class _UserPage3State extends State<UserPage3>
                       PageTransition(
                         child: AddItem(
                           option: "exercise",
-                          // dbList: widget.exerciseList,
                           dbList: widget.user.getExerciseList(),
                           user: widget.user,
+                          callback1: () async {
+                            await _loadList("exercise");
+                            await _loadUserList("exercise");
+                          },
                         ),
                         type: PageTransitionType.fade,
                       ),
@@ -254,6 +258,63 @@ class _UserPage3State extends State<UserPage3>
         ],
       ),
     );
+  }
+
+  Future<void> _loadList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
+        body: {
+          "option": option,
+        }).then((res) async {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          widget.user.setExerciseList(_extractData);
+        });
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
+
+  Future<void> _loadUserList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
+        body: {
+          "email": widget.user.getEmail(),
+          "weight": widget.user.getWeight(),
+          "option": option,
+        }).then((res) async {
+      if (res.body != "no data" && res.body != "connected but no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          widget.user.setUserExerciseList(_extractData);
+        });
+      } else if (res.body == "connected but no data") {
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
   }
 
   @override

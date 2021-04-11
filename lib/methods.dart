@@ -138,12 +138,12 @@ class Methods {
         .showSnackBar(
           new SnackBar(
             duration: duration,
-            // shape: RoundedRectangleBorder(
-            //   borderRadius: BorderRadius.only(
-            //     topLeft: Radius.circular(8.0),
-            //     topRight: Radius.circular(8.0),
-            //   ),
-            // ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8.0),
+                topRight: Radius.circular(8.0),
+              ),
+            ),
             backgroundColor: color,
             content: widget,
           ),

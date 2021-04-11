@@ -1,27 +1,36 @@
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UserPage2 extends StatefulWidget {
   final User user;
-  // final List foodList;
-  // final List userFoodList;
+  final VoidCallback callback1;
   const UserPage2({
     Key key,
     this.user,
-    // this.foodList, this.userFoodList
+    this.callback1,
   }) : super(key: key);
   @override
-  _UserPage2State createState() => _UserPage2State();
+  _UserPage2State createState() {
+    return _UserPage2State(
+      callback2: () {
+        callback1();
+      },
+    );
+  }
 }
 
 class _UserPage2State extends State<UserPage2>
     with AutomaticKeepAliveClientMixin {
+  VoidCallback callback2;
+
+  _UserPage2State({this.callback2});
   Methods methods = new Methods();
   double _screenHeight;
   AssetImage _gif;
@@ -100,7 +109,9 @@ class _UserPage2State extends State<UserPage2>
                                                       index]["name"],
                                                   "Leoscar",
                                                   32.0,
-                                                  Colors.black,
+                                                  widget.user.getDarkMode()
+                                                      ? Colors.white70
+                                                      : Colors.black,
                                                   FontWeight.normal,
                                                   FontStyle.normal,
                                                   TextAlign.start),
@@ -113,7 +124,9 @@ class _UserPage2State extends State<UserPage2>
                                                     "${widget.user.getUserFoodList()[index]["calories"]} calories (per 100 grams)",
                                                     "Leoscar",
                                                     18.0,
-                                                    Colors.black,
+                                                    widget.user.getDarkMode()
+                                                        ? Colors.white70
+                                                        : Colors.black,
                                                     FontWeight.normal,
                                                     FontStyle.normal,
                                                     TextAlign.start),
@@ -123,7 +136,9 @@ class _UserPage2State extends State<UserPage2>
                                                   "Amount taken: ${double.parse(widget.user.getUserFoodList()[index]["amount"]).toStringAsFixed(1)} grams",
                                                   "Leoscar",
                                                   18.0,
-                                                  Colors.black,
+                                                  widget.user.getDarkMode()
+                                                      ? Colors.white70
+                                                      : Colors.black,
                                                   FontWeight.normal,
                                                   FontStyle.normal,
                                                   TextAlign.start),
@@ -136,7 +151,9 @@ class _UserPage2State extends State<UserPage2>
                                               "Total calories: ${widget.user.getUserFoodList()[index]["totalcalories"]} calories",
                                               "Leoscar",
                                               18.0,
-                                              Colors.black,
+                                              widget.user.getDarkMode()
+                                                  ? Colors.white70
+                                                  : Colors.black,
                                               FontWeight.normal,
                                               FontStyle.normal,
                                               TextAlign.start),
@@ -148,7 +165,9 @@ class _UserPage2State extends State<UserPage2>
                                               "Date added: ${widget.user.getUserFoodList()[index]["date"]}",
                                               "Leoscar",
                                               12.0,
-                                              Colors.black,
+                                              widget.user.getDarkMode()
+                                                  ? Colors.white70
+                                                  : Colors.black,
                                               FontWeight.normal,
                                               FontStyle.normal,
                                               TextAlign.end),
@@ -206,7 +225,9 @@ class _UserPage2State extends State<UserPage2>
                 bottom: 20.0,
               ),
               child: FloatingActionButton(
-                  backgroundColor: Colors.white,
+                  backgroundColor: widget.user.getDarkMode()
+                      ? Color(0XFF424242)
+                      : Colors.white,
                   elevation: 10.0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
@@ -230,6 +251,12 @@ class _UserPage2State extends State<UserPage2>
                           // dbList: widget.foodList,
                           dbList: widget.user.getFoodList(),
                           user: widget.user,
+                          callback1: () async {
+                            if (this.mounted) {
+                              await _loadList("food");
+                              await _loadUserList("food");
+                            }
+                          },
                         ),
                         type: PageTransitionType.fade,
                       ),
@@ -240,6 +267,63 @@ class _UserPage2State extends State<UserPage2>
         ],
       ),
     );
+  }
+
+  Future<void> _loadList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
+        body: {
+          "option": option,
+        }).then((res) async {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          widget.user.setFoodList(_extractData);
+        });
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
+
+  Future<void> _loadUserList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
+        body: {
+          "email": widget.user.getEmail(),
+          "weight": widget.user.getWeight(),
+          "option": option,
+        }).then((res) async {
+      if (res.body != "no data" && res.body != "connected but no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          widget.user.setUserFoodList(_extractData);
+        });
+      } else if (res.body == "connected but no data") {
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
   }
 
   @override

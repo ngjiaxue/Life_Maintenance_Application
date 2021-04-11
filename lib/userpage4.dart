@@ -52,7 +52,7 @@ class _UserPage4State extends State<UserPage4>
   PickedFile _pickedFile;
   File _image;
   AssetImage _gif;
-  // Flushbar flushbar;
+  Color _darkColor = Color(0XFF424242);
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _dobController = new TextEditingController();
   TextEditingController _genderController = new TextEditingController();
@@ -121,19 +121,32 @@ class _UserPage4State extends State<UserPage4>
                               height: _screenWidth,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [
-                                    Colors.white.withOpacity(0),
-                                    Colors.white.withOpacity(0.1),
-                                    Colors.white.withOpacity(0.2),
-                                    Colors.white.withOpacity(0.3),
-                                    Colors.white.withOpacity(0.4),
-                                    Colors.white.withOpacity(0.5),
-                                    Colors.white.withOpacity(0.6),
-                                    Colors.white.withOpacity(0.7),
-                                    Colors.white.withOpacity(0.8),
-                                    Colors.white.withOpacity(0.9),
-                                    Colors.white.withOpacity(1),
-                                  ],
+                                  colors: widget.user.getDarkMode()
+                                      ? [
+                                          _darkColor.withOpacity(0.1),
+                                          _darkColor.withOpacity(0.2),
+                                          _darkColor.withOpacity(0.3),
+                                          _darkColor.withOpacity(0.4),
+                                          _darkColor.withOpacity(0.5),
+                                          _darkColor.withOpacity(0.6),
+                                          _darkColor.withOpacity(0.7),
+                                          _darkColor.withOpacity(0.8),
+                                          _darkColor.withOpacity(0.9),
+                                          _darkColor.withOpacity(1),
+                                        ]
+                                      : [
+                                          Colors.white.withOpacity(0),
+                                          Colors.white.withOpacity(0.1),
+                                          Colors.white.withOpacity(0.2),
+                                          Colors.white.withOpacity(0.3),
+                                          Colors.white.withOpacity(0.4),
+                                          Colors.white.withOpacity(0.5),
+                                          Colors.white.withOpacity(0.6),
+                                          Colors.white.withOpacity(0.7),
+                                          Colors.white.withOpacity(0.8),
+                                          Colors.white.withOpacity(0.9),
+                                          Colors.white.withOpacity(1),
+                                        ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                 ),
@@ -193,7 +206,10 @@ class _UserPage4State extends State<UserPage4>
                                                   children: <Widget>[
                                                     Container(
                                                       decoration: BoxDecoration(
-                                                        color: Colors.white,
+                                                        color: widget.user
+                                                                .getDarkMode()
+                                                            ? _darkColor
+                                                            : Colors.white,
                                                         borderRadius:
                                                             BorderRadius.only(
                                                           topLeft:
@@ -226,13 +242,19 @@ class _UserPage4State extends State<UserPage4>
                                                     ),
                                                     Container(
                                                       height: 1.0,
-                                                      color: Colors.grey[300],
+                                                      color: widget.user
+                                                              .getDarkMode()
+                                                          ? Colors.white30
+                                                          : Colors.grey[300],
                                                     ),
                                                     InkWell(
                                                       child: Container(
                                                         decoration:
                                                             BoxDecoration(
-                                                          color: Colors.white,
+                                                          color: widget.user
+                                                                  .getDarkMode()
+                                                              ? _darkColor
+                                                              : Colors.white,
                                                           borderRadius:
                                                               BorderRadius.only(
                                                             bottomLeft:
@@ -268,7 +290,10 @@ class _UserPage4State extends State<UserPage4>
                                                     ),
                                                     Container(
                                                       decoration: BoxDecoration(
-                                                        color: Colors.white,
+                                                        color: widget.user
+                                                                .getDarkMode()
+                                                            ? _darkColor
+                                                            : Colors.white,
                                                         borderRadius:
                                                             BorderRadius.only(
                                                           topLeft:
@@ -343,8 +368,9 @@ class _UserPage4State extends State<UserPage4>
                                 heroTag: 3,
                                 mini: true,
                                 elevation: 10.0,
-                                backgroundColor:
-                                    !_isEditing ? Colors.white : Colors.red,
+                                backgroundColor: widget.user.getDarkMode()
+                                    ? (!_isEditing ? _darkColor : Colors.red)
+                                    : (!_isEditing ? Colors.white : Colors.red),
                                 child: !_isEditing
                                     ? methods.shaderMask(
                                         Icon(
@@ -359,7 +385,10 @@ class _UserPage4State extends State<UserPage4>
                                       ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50),
-                                  side: BorderSide(color: Colors.black12),
+                                  side: BorderSide(
+                                      color: widget.user.getDarkMode()
+                                          ? Colors.white12
+                                          : Colors.black12),
                                 ),
                               ),
                             ),
@@ -507,8 +536,11 @@ class _UserPage4State extends State<UserPage4>
                                 heroTag: 4,
                                 mini: true,
                                 elevation: 10.0,
-                                backgroundColor:
-                                    !_isEditing ? Colors.white : Colors.green,
+                                backgroundColor: widget.user.getDarkMode()
+                                    ? (!_isEditing ? _darkColor : Colors.green)
+                                    : (!_isEditing
+                                        ? Colors.white
+                                        : Colors.green),
                                 child: !_isEditing
                                     ? methods.shaderMask(
                                         Padding(
@@ -528,7 +560,10 @@ class _UserPage4State extends State<UserPage4>
                                       ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50),
-                                  side: BorderSide(color: Colors.black12),
+                                  side: BorderSide(
+                                      color: widget.user.getDarkMode()
+                                          ? Colors.white12
+                                          : Colors.black12),
                                 ),
                               ),
                             ),
@@ -671,10 +706,12 @@ class _UserPage4State extends State<UserPage4>
         color: Colors.white,
       );
     } else if (_index == 11) {
-      _color = Colors.red[400];
+      _color = widget.user.getDarkMode()
+          ? Colors.white.withOpacity(0.8)
+          : _darkColor;
       _icon = Icon(
         FlutterIcons.theme_light_dark_mco,
-        color: Colors.white,
+        color: widget.user.getDarkMode() ? _darkColor : Colors.white,
       );
     }
 
@@ -685,7 +722,7 @@ class _UserPage4State extends State<UserPage4>
       child: Container(
         height: 60.0,
         child: Card(
-          color: _index == 10 ? _color : null,
+          color: _index == 10 || _index == 11 ? _color : null,
           elevation: 4.0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
@@ -693,7 +730,7 @@ class _UserPage4State extends State<UserPage4>
             ),
             side: BorderSide(
               width: 1.5,
-              color: _index != 10 ? _color : Colors.black12,
+              color: _index != 10 || _index != 11 ? _color : Colors.black12,
             ),
           ),
           child: _index <= 5
@@ -731,9 +768,14 @@ class _UserPage4State extends State<UserPage4>
                     _leading,
                     "Leoscar",
                     18.0,
-                    (_content == "0.0 kg" || _content == "0.0 cm")
+                    widget.user.getDarkMode() &&
+                            (_content == "0.0 kg" || _content == "0.0 cm")
                         ? Colors.red
-                        : Colors.black,
+                        : widget.user.getDarkMode()
+                            ? Colors.white70
+                            : (_content == "0.0 kg" || _content == "0.0 cm")
+                                ? Colors.red
+                                : Colors.black,
                     FontWeight.normal,
                     FontStyle.normal,
                     TextAlign.start),
@@ -749,9 +791,14 @@ class _UserPage4State extends State<UserPage4>
                       _content,
                       "Leoscar",
                       18.0,
-                      (_content == "0.0 kg" || _content == "0.0 cm")
+                      widget.user.getDarkMode() &&
+                              (_content == "0.0 kg" || _content == "0.0 cm")
                           ? Colors.red
-                          : Colors.black,
+                          : widget.user.getDarkMode()
+                              ? Colors.white70
+                              : (_content == "0.0 kg" || _content == "0.0 cm")
+                                  ? Colors.red
+                                  : Colors.black,
                       FontWeight.normal,
                       FontStyle.normal,
                       TextAlign.start),
@@ -900,7 +947,9 @@ class _UserPage4State extends State<UserPage4>
               ),
               builder: (BuildContext context) {
                 return SliderButton(
-                  label: methods.textOnly("Slide to logout", "Leoscar", 18.0,
+                  alignLabel: Alignment.center,
+                  swipeFromRight: false,
+                  label: methods.textOnly(" Slide to logout", "Leoscar", 18.0,
                       Colors.white, null, null, TextAlign.center),
                   icon: Icon(
                     FlutterIcons.logout_variant_mco,
@@ -908,10 +957,17 @@ class _UserPage4State extends State<UserPage4>
                   ),
                   width: _screenWidth,
                   radius: 8,
-                  buttonColor: Color(0XFFB563E0),
-                  backgroundColor: Colors.white,
-                  highlightedColor: Colors.white,
-                  baseColor: Color(0XFFB563E0),
+                  buttonColor: widget.user.getDarkMode()
+                      ? _darkColor
+                      : Color(0XFFB563E0),
+                  backgroundColor: widget.user.getDarkMode()
+                      ? Color(0XFF9E9E9E)
+                      : Colors.white,
+                  highlightedColor:
+                      widget.user.getDarkMode() ? _darkColor : Colors.white,
+                  baseColor: widget.user.getDarkMode()
+                      ? Colors.white
+                      : Color(0XFFB563E0),
                   dismissThresholds: 0.5,
                   action: () {},
                   onDismissed: (dir) {
@@ -976,7 +1032,7 @@ class _UserPage4State extends State<UserPage4>
                   label: methods.textOnly(
                       widget.user.getDarkMode()
                           ? "Slide to change to light mode"
-                          : "Slide to change to dark mode",
+                          : " Slide to change to dark mode",
                       "Leoscar",
                       18.0,
                       Colors.white,
@@ -985,14 +1041,21 @@ class _UserPage4State extends State<UserPage4>
                       TextAlign.center),
                   icon: Icon(
                     FlutterIcons.theme_light_dark_mco,
-                    color: Colors.white,
+                    color: widget.user.getDarkMode()
+                        ? Color(0XFF424242)
+                        : Colors.white,
                   ),
                   width: _screenWidth,
                   radius: 8,
-                  buttonColor: Color(0XFFB563E0),
-                  backgroundColor: Colors.white,
-                  highlightedColor: Colors.white,
-                  baseColor: Color(0XFFB563E0),
+                  buttonColor:
+                      widget.user.getDarkMode() ? Colors.white : _darkColor,
+                  backgroundColor: widget.user.getDarkMode()
+                      ? Colors.white.withOpacity(0.8)
+                      : _darkColor.withOpacity(0.5),
+                  highlightedColor:
+                      widget.user.getDarkMode() ? Colors.white : _darkColor,
+                  baseColor:
+                      widget.user.getDarkMode() ? _darkColor : Colors.white,
                   dismissThresholds: 0.5,
                   action: () {},
                   onDismissed: (dir) {
@@ -1022,7 +1085,13 @@ class _UserPage4State extends State<UserPage4>
                   _leading,
                   "Leoscar",
                   18.0,
-                  _index != 10 ? Colors.black : Colors.white,
+                  _index != 10 && _index != 11
+                      ? (widget.user.getDarkMode()
+                          ? Colors.white70
+                          : Colors.black)
+                      : _index == 11 && widget.user.getDarkMode()
+                          ? _darkColor
+                          : Colors.white,
                   FontWeight.normal,
                   FontStyle.normal,
                   TextAlign.start),

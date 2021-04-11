@@ -31,17 +31,13 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   Methods methods = new Methods();
   User user;
   List<bool> _tabSelected = [true, false, false, false];
-  // List _foodList = [];
-  // List _exerciseList = [];
-  // List _userFoodList = [];
-  // List _userExerciseList = [];
   bool _fadeIn = false;
   bool _onDrag = true;
   double _screenHeight;
   int _currentTab = 0;
   int _badgeQuantity = 0;
   int _userPage1CallBack = 0;
-
+  Color _darkColor = Color(0XFF424242);
   @override
   void initState() {
     super.initState();
@@ -139,13 +135,20 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
           // userExerciseList: _userExerciseList,
         ),
         UserPage2(
+          callback1: () async {
+            if (this.mounted) {
+              await _loadList("exercise");
+              await _loadUserList("exercise");
+              setState(() {});
+            }
+          },
           user: widget.user,
-          // foodList: _foodList,
-          // userFoodList: _userFoodList,
         ),
         UserPage3(
-          callback1: () {
+          callback1: () async {
             if (this.mounted) {
+              await _loadList("food");
+              await _loadUserList("food");
               setState(() {});
             }
           },
@@ -160,14 +163,13 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             });
           },
           user: widget.user,
-          // exerciseList: _exerciseList,
-          // userExerciseList: _userExerciseList,
         ),
         UserPage4(
           callback1: () {
             if (this.mounted) {
               print("#######backtoTabs########");
               callback2();
+              setState(() {});
             }
           },
           user: widget.user,
@@ -209,7 +211,9 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
                               child: Container(
                                 height: 65,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: widget.user.getDarkMode()
+                                      ? _darkColor
+                                      : Colors.white,
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black12,
@@ -401,7 +405,9 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
                       width: 70,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: widget.user.getDarkMode()
+                            ? _darkColor
+                            : Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
@@ -440,7 +446,9 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
                           ),
                           child: Icon(
                             iconData,
-                            color: Colors.white,
+                            color: widget.user.getDarkMode()
+                                ? _darkColor
+                                : Colors.white,
                           ),
                         ),
                         methods.shaderMask(

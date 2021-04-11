@@ -1,7 +1,5 @@
 import 'dart:ui';
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'user.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +10,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPage1 extends StatefulWidget {
   final User user;
@@ -91,15 +90,23 @@ class _UserPage1State extends State<UserPage1> {
                             "Hey, " + widget.user.getName(),
                             "Leoscar",
                             18.0,
-                            Colors.white.withOpacity(0.7),
+                            Colors.white70,
                             FontWeight.normal,
                             FontStyle.normal,
                             TextAlign.start),
                         SizedBox(
                           height: 5.0,
                         ),
-                        methods.textOnly("Home", "Leoscar", 36.0, Colors.white,
-                            FontWeight.bold, FontStyle.normal, TextAlign.start),
+                        methods.textOnly(
+                            "Home",
+                            "Leoscar",
+                            36.0,
+                            widget.user.getDarkMode()
+                                ? Colors.white.withOpacity(0.8)
+                                : Colors.white,
+                            FontWeight.bold,
+                            FontStyle.normal,
+                            TextAlign.start),
                       ],
                     ),
                   ),
@@ -111,7 +118,6 @@ class _UserPage1State extends State<UserPage1> {
                     right: 20.0,
                   ),
                   child: Card(
-                    shadowColor: Colors.deepPurple[200],
                     elevation: 10.0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
@@ -155,7 +161,6 @@ class _UserPage1State extends State<UserPage1> {
                 right: 20.0,
               ),
               child: Card(
-                shadowColor: Colors.deepPurple[200],
                 elevation: 10.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
@@ -181,7 +186,7 @@ class _UserPage1State extends State<UserPage1> {
   }
 
   Widget _details(IconData _icon, String _leading, String _content) {
-    Color _color = Colors.black;
+    Color _color = widget.user.getDarkMode() ? Colors.white70 : Colors.black;
     if (_content == "0.0 cm" || _content == "0.0 kg" || _content == "NaN") {
       _color = Colors.red;
     }
@@ -647,15 +652,7 @@ class _UserPage1State extends State<UserPage1> {
 class NestedTabBar extends StatefulWidget {
   final User user;
   final double screenHeight;
-  // final List userFoodList;
-  // final List userExerciseList;
-  const NestedTabBar(
-      {Key key,
-      this.user,
-      // this.userFoodList,
-      // this.userExerciseList,
-      this.screenHeight})
-      : super(key: key);
+  const NestedTabBar({Key key, this.user, this.screenHeight}) : super(key: key);
   @override
   _NestedTabBarState createState() => _NestedTabBarState();
 }
@@ -747,8 +744,9 @@ class _NestedTabBarState extends State<NestedTabBar>
     //_i = 0 => food, _i = 1 => exercise
     List _unfilteredList = [];
     List _filteredList = [];
-    double _highestCalories = 0;
     List<FlSpot> _data = [];
+    int _toBeDivide;
+    double _highestCalories = 0;
     final intl.DateFormat _formatter = intl.DateFormat('yyyy-MM-dd');
     final _now = DateTime.now();
     final _today = DateTime(_now.year, _now.month, _now.day);
@@ -758,11 +756,12 @@ class _NestedTabBarState extends State<NestedTabBar>
 
     if (_i == 0) {
       setState(() {
-        _unfilteredList = widget.user.getUserFoodList();
+        _unfilteredList = new List.from(widget.user.getUserFoodList().reversed);
       });
     } else {
       setState(() {
-        _unfilteredList = widget.user.getUserExerciseList();
+        _unfilteredList =
+            new List.from(widget.user.getUserExerciseList().reversed);
       });
     }
 
@@ -792,18 +791,36 @@ class _NestedTabBarState extends State<NestedTabBar>
         });
       }
       for (int _i = 0; _i < _filteredList.length; _i++) {
+        if (double.parse(_filteredList[_i]["totalcalories"]) >
+            _highestCalories) {
+          _highestCalories = double.parse(_filteredList[_i]["totalcalories"]);
+        }
+      }
+      if (_highestCalories <= 400) {
+        _toBeDivide = 100;
+      } else {
+        // String _digit = _highestCalories.toStringAsFixed(0);
+        // List<String> _digitList = _digit.split("");
+        // _digit = "";
+        // for (int _i = 0; _i < _digitList.length; _i++) {
+        //   if (_i == 0) {
+        //     _digit += "1";
+        //   } else {
+        //     _digit += "0";
+        //   }
+        // }
+        // _toBeDivide =
+        //     ((_highestCalories / 5) ~/ int.parse(_digit)) * int.parse(_digit) +
+        //         int.parse(_digit);
+        _toBeDivide = ((_highestCalories / 5) ~/ 100) * 100 + 100;
+      }
+      for (int _i = 0; _i < _filteredList.length; _i++) {
         _data.add(
           FlSpot(
             _i.toDouble(),
-            double.parse(_filteredList[_i]["totalcalories"]) / 100,
+            double.parse(_filteredList[_i]["totalcalories"]) / _toBeDivide,
           ),
         );
-
-        if ((double.parse(_filteredList[_i]["totalcalories"]) / 100) >
-            _highestCalories) {
-          _highestCalories =
-              (double.parse(_filteredList[_i]["totalcalories"]) / 100);
-        }
       }
     } else {
       if (_chartFilter == "Day") {
@@ -831,18 +848,23 @@ class _NestedTabBarState extends State<NestedTabBar>
         });
       }
       for (int _i = 0; _i < _filteredList.length; _i++) {
+        if (double.parse(_filteredList[_i]["totalcalories"]) >
+            _highestCalories) {
+          _highestCalories = double.parse(_filteredList[_i]["totalcalories"]);
+        }
+      }
+      if (_highestCalories <= 400) {
+        _toBeDivide = 100;
+      } else {
+        _toBeDivide = ((_highestCalories / 5) ~/ 100) * 100 + 100;
+      }
+      for (int _i = 0; _i < _filteredList.length; _i++) {
         _data.add(
           FlSpot(
             _i.toDouble(),
-            double.parse(_filteredList[_i]["totalcalories"]) / 100,
+            double.parse(_filteredList[_i]["totalcalories"]) / _toBeDivide,
           ),
         );
-
-        if ((double.parse(_filteredList[_i]["totalcalories"]) / 100) >
-            _highestCalories) {
-          _highestCalories =
-              (double.parse(_filteredList[_i]["totalcalories"]) / 100);
-        }
       }
     }
 
@@ -862,6 +884,9 @@ class _NestedTabBarState extends State<NestedTabBar>
                           child: Text(
                             label,
                             style: TextStyle(
+                              color: widget.user.getDarkMode()
+                                  ? Colors.white70
+                                  : Colors.black,
                               fontFamily: "Leoscar",
                               fontSize: 17.0,
                               letterSpacing: 1.0,
@@ -900,7 +925,7 @@ class _NestedTabBarState extends State<NestedTabBar>
                           minX: 0,
                           maxX: _filteredList.length.toDouble() - 1,
                           minY: 0,
-                          maxY: _highestCalories + 1,
+                          maxY: _highestCalories / _toBeDivide + 1,
                           lineTouchData: LineTouchData(
                             getTouchedSpotIndicator: (LineChartBarData barData,
                                 List<int> spotIndexes) {
@@ -942,28 +967,19 @@ class _NestedTabBarState extends State<NestedTabBar>
                           ),
                           titlesData: FlTitlesData(
                             leftTitles: SideTitles(
-                                showTitles: true,
-                                getTextStyles: (value) => const TextStyle(
-                                      fontFamily: "Leoscar",
-                                      color: Colors.black,
-                                      fontSize: 11,
-                                    ),
-                                getTitles: (value) {
-                                  return (value * 100).toStringAsFixed(0);
-                                }),
-                            bottomTitles: SideTitles(
-                              rotateAngle: 330,
-                              // showTitles: true,
-                              showTitles: false,
-                              getTextStyles: (value) => const TextStyle(
+                              showTitles: true,
+                              getTextStyles: (value) => TextStyle(
                                 fontFamily: "Leoscar",
-                                color: Colors.black,
-                                fontSize: 10,
+                                color: widget.user.getDarkMode()
+                                    ? Colors.white70
+                                    : Colors.black,
+                                fontSize: 11,
                               ),
                               getTitles: (value) {
-                                return _filteredList[value.toInt()]["name"];
+                                return (value * _toBeDivide).toStringAsFixed(0);
                               },
                             ),
+                            bottomTitles: SideTitles(),
                           ),
                           // gridData: FlGridData(
                           //   drawVerticalLine: true,
