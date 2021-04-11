@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Hero(
                     tag: "background",
                     child: Image.asset(
-                      "assets/images/splashbg.jpg",
+                      "assets/images/splashbg.png",
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -208,11 +208,13 @@ class _LoginScreenState extends State<LoginScreen> {
               "Login",
               "Leoscar",
               _loginPressed ? 30.0 : 25.0,
-              _loginPressed
-                  ? Color(0XFF933FBF)
-                  : _darkMode
-                      ? Colors.white70
-                      : Colors.black45,
+              _loginPressed && _darkMode
+                  ? Color(0XFFC661FF)
+                  : _loginPressed
+                      ? Color(0XFF933FBF)
+                      : _darkMode
+                          ? Colors.white70
+                          : Colors.black45,
               _loginPressed ? FontWeight.bold : FontWeight.normal,
               FontStyle.normal,
               TextAlign.start),
@@ -235,11 +237,13 @@ class _LoginScreenState extends State<LoginScreen> {
               "Sign Up",
               "Leoscar",
               !_loginPressed ? 30.0 : 25.0,
-              !_loginPressed
-                  ? Color(0XFF933FBF)
-                  : _darkMode
-                      ? Colors.white70
-                      : Colors.black45,
+              !_loginPressed && _darkMode
+                  ? Color(0XFFC661FF)
+                  : !_loginPressed
+                      ? Color(0XFF933FBF)
+                      : _darkMode
+                          ? Colors.white70
+                          : Colors.black45,
               !_loginPressed ? FontWeight.bold : FontWeight.normal,
               FontStyle.normal,
               TextAlign.start),
@@ -343,7 +347,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       tag: "logo",
                       child: Image.asset(
                         "assets/images/logo.gif",
-                        scale: 4,
+                        scale: 3,
                       ),
                     ),
                   ),

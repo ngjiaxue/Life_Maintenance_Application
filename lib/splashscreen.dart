@@ -56,9 +56,6 @@ class _MyAppState extends State<MyApp> {
           callback1: () async {
             if (this.mounted) {
               await _loadPrefDarkMode();
-              setState(() {
-                user.setDarkMode(_darkMode);
-              });
             }
           },
         ),
@@ -157,78 +154,78 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     controller = AnimationController(
-        duration: const Duration(milliseconds: 2200), vsync: this);
+        duration: const Duration(milliseconds: 3000), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() async {
         setState(() {
           run = true;
         });
         if (animation.value > 0.99) {
-          // if (widget.loggedIn == 0) {
-          //   await Navigator.push(
-          //     context,
-          //     PageTransition(
-          //       child: LoginScreen(
-          //         userLogout: 1,
-          //         callback1: () {
-          //           if (this.mounted) {
-          //             print("##########backtosplash#######1");
-          //             callback2();
-          //           }
-          //         },
-          //       ),
-          //       type: PageTransitionType.fade,
-          //     ),
-          //   );
-          // } else if (widget.loggedIn == 1) {
-          //   await Navigator.push(
-          //     context,
-          //     PageTransition(
-          //       child: LoginScreen(
-          //         userLogout: 2,
-          //         callback1: () {
-          //           if (this.mounted) {
-          //             print("##########backtosplash#######2");
-          //             callback2();
-          //           }
-          //         },
-          //       ),
-          //       type: PageTransitionType.fade,
-          //     ),
-          //   );
-          // } else {
-          //   methods.snackbarMessage(
-          //     context,
-          //     Duration(
-          //       seconds: 1,
-          //     ),
-          //     Color(0XFFB563E0),
-          //     true,
-          //     methods.textOnly(
-          //         "Login successful...Welcome ${widget.user.getName()}",
-          //         "Leoscar",
-          //         18.0,
-          //         Colors.white,
-          //         null,
-          //         null,
-          //         TextAlign.center),
-          //   );
-          //   await Navigator.push(
-          //     context,
-          //     PageTransition(
-          //       child: Tabs(
-          //         user: widget.user,
-          //         callback1: () {
-          //           if (this.mounted) {
-          //             print("##########backtosplash#######3");
-          //             callback2();
-          //           }
-          //         },
-          //       ),
-          //       type: PageTransitionType.fade,
-          //     ),
-          //   );
-          // }
+          if (widget.loggedIn == 0) {
+            await Navigator.push(
+              context,
+              PageTransition(
+                child: LoginScreen(
+                  userLogout: 1,
+                  callback1: () {
+                    if (this.mounted) {
+                      print("##########backtosplash#######1");
+                      callback2();
+                    }
+                  },
+                ),
+                type: PageTransitionType.fade,
+              ),
+            );
+          } else if (widget.loggedIn == 1) {
+            await Navigator.push(
+              context,
+              PageTransition(
+                child: LoginScreen(
+                  userLogout: 2,
+                  callback1: () {
+                    if (this.mounted) {
+                      print("##########backtosplash#######2");
+                      callback2();
+                    }
+                  },
+                ),
+                type: PageTransitionType.fade,
+              ),
+            );
+          } else {
+            methods.snackbarMessage(
+              context,
+              Duration(
+                seconds: 1,
+              ),
+              Color(0XFFB563E0),
+              true,
+              methods.textOnly(
+                  "Login successful...Welcome ${widget.user.getName()}",
+                  "Leoscar",
+                  18.0,
+                  Colors.white,
+                  null,
+                  null,
+                  TextAlign.center),
+            );
+            await Navigator.push(
+              context,
+              PageTransition(
+                child: Tabs(
+                  user: widget.user,
+                  callback1: () {
+                    if (this.mounted) {
+                      print("##########backtosplash#######3");
+                      callback2();
+                    }
+                  },
+                ),
+                type: PageTransitionType.fade,
+              ),
+            );
+          }
         }
       });
     controller.repeat();
@@ -256,17 +253,6 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 );
               }),
-          // FadeAnimation(
-          //   0.5,
-          //   true,
-          //   Hero(
-          //     tag: "background",
-          //     child: Image.asset(
-          //       "assets/images/splashbg.jpg",
-          //       fit: BoxFit.cover,
-          //     ),
-          //   ),
-          // ),
           FadeAnimation(
             1.5,
             true,
@@ -278,7 +264,7 @@ class _SplashScreenState extends State<SplashScreen>
                     tag: "logo",
                     child: Image.asset(
                       "assets/images/logo.gif",
-                      scale: 3,
+                      scale: 2.5,
                     ),
                   ),
                   Padding(
@@ -311,9 +297,9 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
           AnimatedPositioned(
-            left: run ? MediaQuery.of(context).size.width : -110,
+            left: run ? MediaQuery.of(context).size.width : -100,
             bottom: 20,
-            duration: Duration(milliseconds: 2600),
+            duration: Duration(milliseconds: 3600),
             child: Image.asset(
               "assets/images/running.gif",
               scale: 5,
