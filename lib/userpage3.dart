@@ -118,7 +118,9 @@ class _UserPage3State extends State<UserPage3>
                                                       index]["name"],
                                                   "Leoscar",
                                                   32.0,
-                                                  Colors.black,
+                                                  widget.user.getDarkMode()
+                                                      ? Colors.white70
+                                                      : Colors.black,
                                                   FontWeight.normal,
                                                   FontStyle.normal,
                                                   TextAlign.start),
@@ -127,7 +129,9 @@ class _UserPage3State extends State<UserPage3>
                                                   "${widget.user.getUserExerciseList()[index]["calories"]} calories burned (per 30 minutes)",
                                                   "Leoscar",
                                                   18.0,
-                                                  Colors.black,
+                                                  widget.user.getDarkMode()
+                                                      ? Colors.white70
+                                                      : Colors.black,
                                                   FontWeight.normal,
                                                   FontStyle.normal,
                                                   TextAlign.start),
@@ -136,7 +140,9 @@ class _UserPage3State extends State<UserPage3>
                                                   "Exercise duration: ${widget.user.getUserExerciseList()[index]["amount"]} minutes",
                                                   "Leoscar",
                                                   18.0,
-                                                  Colors.black,
+                                                  widget.user.getDarkMode()
+                                                      ? Colors.white70
+                                                      : Colors.black,
                                                   FontWeight.normal,
                                                   FontStyle.normal,
                                                   TextAlign.start),
@@ -150,7 +156,9 @@ class _UserPage3State extends State<UserPage3>
                                               "Total calories burned: ${widget.user.getUserExerciseList()[index]["totalcalories"]} calories",
                                               "Leoscar",
                                               18.0,
-                                              Colors.black,
+                                              widget.user.getDarkMode()
+                                                  ? Colors.white70
+                                                  : Colors.black,
                                               FontWeight.normal,
                                               FontStyle.normal,
                                               TextAlign.start),
@@ -162,7 +170,9 @@ class _UserPage3State extends State<UserPage3>
                                               "Date added: ${widget.user.getUserExerciseList()[index]["date"]}",
                                               "Leoscar",
                                               12.0,
-                                              Colors.black,
+                                              widget.user.getDarkMode()
+                                                  ? Colors.white70
+                                                  : Colors.black,
                                               FontWeight.normal,
                                               FontStyle.normal,
                                               TextAlign.end),
@@ -237,21 +247,35 @@ class _UserPage3State extends State<UserPage3>
                   ),
                   heroTag: 2,
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        child: AddItem(
-                          option: "exercise",
-                          dbList: widget.user.getExerciseList(),
-                          user: widget.user,
-                          callback1: () async {
-                            await _loadList("exercise");
-                            await _loadUserList("exercise");
-                          },
+                    if (widget.user.getWeight() == "0.0") {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          seconds: 1,
                         ),
-                        type: PageTransitionType.fade,
-                      ),
-                    );
+                        Colors.red[400],
+                        true,
+                        methods.textOnly("Please insert your weight", "Leoscar",
+                            18.0, Colors.white, null, null, TextAlign.center),
+                      );
+                      func2(4);
+                    } else {
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          child: AddItem(
+                            option: "exercise",
+                            dbList: widget.user.getExerciseList(),
+                            user: widget.user,
+                            callback1: () async {
+                              await _loadList("exercise");
+                              await _loadUserList("exercise");
+                            },
+                          ),
+                          type: PageTransitionType.fade,
+                        ),
+                      );
+                    }
                   }),
             ),
           ),
