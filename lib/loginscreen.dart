@@ -51,8 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
   int _buttonClicked =
       0; //0 = login, 1 = forget password, 2 = resend verification email, 3 = sign up
   double _screenHeight;
-  bool _darkMode;
+  bool _darkMode = false;
   bool _loginPressed = true;
+  Color _darkColor = Color(0XFF424242);
   Methods methods = new Methods();
   var _loginKey = GlobalKey<FormState>();
 
@@ -142,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             child: Container(
-              color: Colors.white,
+              // color: Colors.white,
               child: Stack(
                 children: [
                   Hero(
@@ -207,7 +208,11 @@ class _LoginScreenState extends State<LoginScreen> {
               "Login",
               "Leoscar",
               _loginPressed ? 30.0 : 25.0,
-              _loginPressed ? Color(0XFF933FBF) : Colors.black45,
+              _loginPressed
+                  ? Color(0XFF933FBF)
+                  : _darkMode
+                      ? Colors.white70
+                      : Colors.black45,
               _loginPressed ? FontWeight.bold : FontWeight.normal,
               FontStyle.normal,
               TextAlign.start),
@@ -230,7 +235,11 @@ class _LoginScreenState extends State<LoginScreen> {
               "Sign Up",
               "Leoscar",
               !_loginPressed ? 30.0 : 25.0,
-              !_loginPressed ? Color(0XFF933FBF) : Colors.black45,
+              !_loginPressed
+                  ? Color(0XFF933FBF)
+                  : _darkMode
+                      ? Colors.white70
+                      : Colors.black45,
               !_loginPressed ? FontWeight.bold : FontWeight.normal,
               FontStyle.normal,
               TextAlign.start),
@@ -302,7 +311,6 @@ class _LoginScreenState extends State<LoginScreen> {
   //start login card
   Widget _loginCard() {
     return Card(
-      shadowColor: Colors.deepPurple[200],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(8.0),
@@ -312,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen> {
           color: Color(0XFF360052),
         ),
       ),
-      color: Colors.white,
+      color: _darkMode ? _darkColor : Colors.white,
       elevation: 20.0,
       child: Column(
         children: [
@@ -334,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Hero(
                       tag: "logo",
                       child: Image.asset(
-                        "assets/images/logo.png",
+                        "assets/images/logo.gif",
                         scale: 4,
                       ),
                     ),
@@ -365,7 +373,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           textStyle: TextStyle(
                                             fontFamily: "Kultur",
                                             fontSize: 35.0,
-                                            color: Color(0XFF3E005E),
+                                            color: _darkMode
+                                                ? Colors.white70
+                                                : Color(0XFF3E005E),
                                           ),
                                           speed: Duration(milliseconds: 100),
                                         )
@@ -377,7 +387,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "YOUR HEALTH\nIS OUR DUTY",
                               "Kultur",
                               35.0,
-                              Color(0XFF3E005E),
+                              _darkMode ? Colors.white70 : Color(0XFF3E005E),
                               FontWeight.normal,
                               FontStyle.normal,
                               TextAlign.start),
@@ -394,21 +404,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         left: 20.0,
                         right: 20.0,
                       ),
-                      child: methods.textField(
-                        TextInputAction.next,
-                        null,
-                        TextInputType.emailAddress,
-                        false,
-                        _emailController,
-                        Icon(
-                          FlutterIcons.email_outline_mco,
-                        ),
-                        null,
-                        "Email",
-                        "Leoscar",
-                        17.0,
-                        OutlineInputBorder(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _darkMode ? Colors.white70 : Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: methods.textField(
+                          TextInputAction.next,
+                          null,
+                          TextInputType.emailAddress,
+                          false,
+                          _emailController,
+                          Icon(
+                            FlutterIcons.email_outline_mco,
+                          ),
+                          null,
+                          "Email",
+                          "Leoscar",
+                          17.0,
+                          OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
                     ),
@@ -423,37 +439,43 @@ class _LoginScreenState extends State<LoginScreen> {
                         left: 20.0,
                         right: 20.0,
                       ),
-                      child: methods.textField(
-                        TextInputAction.done,
-                        _passwordFocus,
-                        TextInputType.text,
-                        _passwordHidden,
-                        _passwordController,
-                        Icon(
-                          FlutterIcons.lock_sli,
-                          size: 22.0,
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _passwordHidden
-                                ? LineIcons.eyeSlash
-                                : LineIcons.eye,
-                          ),
-                          onPressed: () async {
-                            if (!_passwordFocus.hasPrimaryFocus) {
-                              _passwordFocus.unfocus();
-                              _passwordFocus.canRequestFocus = false;
-                            }
-                            setState(() {
-                              _passwordHidden = !_passwordHidden;
-                            });
-                          },
-                        ),
-                        "Password",
-                        "Leoscar",
-                        17.0,
-                        OutlineInputBorder(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _darkMode ? Colors.white70 : Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: methods.textField(
+                          TextInputAction.done,
+                          _passwordFocus,
+                          TextInputType.text,
+                          _passwordHidden,
+                          _passwordController,
+                          Icon(
+                            FlutterIcons.lock_sli,
+                            size: 22.0,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              _passwordHidden
+                                  ? LineIcons.eyeSlash
+                                  : LineIcons.eye,
+                            ),
+                            onPressed: () async {
+                              if (!_passwordFocus.hasPrimaryFocus) {
+                                _passwordFocus.unfocus();
+                                _passwordFocus.canRequestFocus = false;
+                              }
+                              setState(() {
+                                _passwordHidden = !_passwordHidden;
+                              });
+                            },
+                          ),
+                          "Password",
+                          "Leoscar",
+                          17.0,
+                          OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
                     ),
@@ -489,7 +511,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "Remember Me",
                                 "Leoscar",
                                 15.0,
-                                Colors.black,
+                                _darkMode ? Color(0XFFD58AFF) : Colors.black,
                                 FontWeight.normal,
                                 FontStyle.normal,
                                 TextAlign.start),
@@ -519,7 +541,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             "Forget Password?",
                             "Leoscar",
                             18.0,
-                            Color(0XFF7100AD),
+                            _darkMode ? Color(0XFFD58AFF) : Color(0XFF7100AD),
                             FontWeight.normal,
                             FontStyle.italic,
                             TextAlign.start),
@@ -547,7 +569,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             "Resend Verification Email?",
                             "Leoscar",
                             18.0,
-                            Color(0XFF7100AD),
+                            _darkMode ? Color(0XFFD58AFF) : Color(0XFF7100AD),
                             FontWeight.normal,
                             FontStyle.italic,
                             TextAlign.start),
@@ -567,7 +589,6 @@ class _LoginScreenState extends State<LoginScreen> {
   //start sign up card
   Widget _signUpCard() {
     return Card(
-      shadowColor: Colors.deepPurple[200],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(8.0),
@@ -577,7 +598,7 @@ class _LoginScreenState extends State<LoginScreen> {
           color: Color(0XFF360052),
         ),
       ),
-      color: Colors.white,
+      color: _darkMode ? _darkColor : Colors.white,
       elevation: 20.0,
       child: Column(
         children: [
@@ -592,418 +613,468 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Form(
                 key: _loginKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    // start name to retype password textformfield
-                    //start name textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: methods.textFormField(
-                            null,
-                            null,
-                            TextInputAction.done,
-                            TextInputType.name,
-                            false,
-                            _nameController1,
-                            _validateName,
-                            Icon(
-                              FlutterIcons.address_card_o_faw,
-                              size: 22.0,
-                            ),
-                            null,
-                            "Name",
-                            "Leoscar",
-                            17.0,
-                            null),
-                      ),
-                    ), //end name textformfield
-                    //start DOB textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: methods.textFormField(() {
-                          if (_dobController.text.isEmpty) {
-                            setState(() {
-                              _dobController.text = " ";
-                            });
-                          }
-                          DatePicker.showDatePicker(
-                            context,
-                            minTime: DateTime(DateTime.now().year - 100, 1, 1),
-                            maxTime: DateTime.now(),
-                            theme: DatePickerTheme(
-                              cancelStyle: TextStyle(
-                                fontFamily: "Leoscar",
-                                fontSize: 17.0,
-                                color: Colors.grey,
-                                letterSpacing: 1.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              doneStyle: TextStyle(
-                                fontFamily: "Leoscar",
-                                fontSize: 17.0,
-                                color: Color(0XFF9866B3),
-                                letterSpacing: 1.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              itemStyle: TextStyle(
-                                fontFamily: "Leoscar",
-                                fontSize: 17.0,
-                                letterSpacing: 1.0,
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      // start name to retype password textformfield
+                      //start name textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 10.0,
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _darkMode ? Colors.white70 : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(8.0),
+                                topRight: Radius.circular(8.0),
                               ),
                             ),
-                            onCancel: () {
-                              setState(() {
-                                if (_dobController.text == " ") {
-                                  _dobController.clear();
-                                }
-                                FocusScope.of(context)
-                                    .requestFocus(new FocusNode());
-                              });
-                            },
-                            onConfirm: (date) {
-                              setState(() {
-                                _dobController.text =
-                                    DateFormat("yyyy-MM-dd").format(date);
-                              });
-                            },
-                            currentTime: _dobController.text == " "
-                                ? DateTime.now()
-                                : DateTime.parse(_dobController.text),
-                          );
-                        },
-                            null,
-                            TextInputAction.done,
-                            TextInputType.datetime,
-                            false,
-                            _dobController,
-                            _validateDOB,
-                            Icon(
-                              FlutterIcons.birthday_cake_faw,
-                              size: 22.0,
-                            ),
-                            null,
-                            "Date of Birth",
-                            "Leoscar",
-                            17.0,
-                            null),
-                      ),
-                    ), //end DOB textformfield
-                    //start gender textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: Stack(
-                          children: [
-                            methods.textFormField(
-                                () => setState(() {
-                                      _genderFocus.requestFocus();
-                                    }),
-                                _genderFocus,
+                            child: methods.textFormField(
+                                null,
+                                null,
                                 TextInputAction.done,
-                                TextInputType.datetime,
+                                TextInputType.name,
                                 false,
-                                _genderController,
-                                _validateGender,
+                                _nameController1,
+                                _validateName,
                                 Icon(
-                                  FlutterIcons.transgender_faw,
+                                  FlutterIcons.address_card_o_faw,
                                   size: 22.0,
                                 ),
                                 null,
-                                "Gender",
+                                "Name",
                                 "Leoscar",
                                 17.0,
                                 null),
-                            Container(
-                              height: 60.0,
-                              width: double.infinity,
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  icon: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 10.0,
-                                      right: 5.0,
-                                    ),
-                                    child: Icon(
-                                      FlutterIcons.chevron_small_down_ent,
-                                      color: _genderFocus.hasFocus
-                                          ? Color(0XFF9866B3)
-                                          : Colors.black45,
-                                    ),
+                          ),
+                        ),
+                      ), //end name textformfield
+                      //start DOB textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _darkMode ? Colors.white70 : Colors.white,
+                            ),
+                            child: methods.textFormField(() {
+                              if (_dobController.text.isEmpty) {
+                                setState(() {
+                                  _dobController.text = " ";
+                                });
+                              }
+                              DatePicker.showDatePicker(
+                                context,
+                                minTime:
+                                    DateTime(DateTime.now().year - 100, 1, 1),
+                                maxTime: DateTime.now(),
+                                theme: DatePickerTheme(
+                                  cancelStyle: TextStyle(
+                                    fontFamily: "Leoscar",
+                                    fontSize: 17.0,
+                                    color: Colors.grey,
+                                    letterSpacing: 1.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  items: ["Male", "Female"]
-                                      .map((label) => DropdownMenuItem(
-                                            child: Text(
-                                              label,
-                                              style: TextStyle(
-                                                fontFamily: "Leoscar",
-                                                fontSize: 17.0,
-                                                letterSpacing: 1.0,
+                                  doneStyle: TextStyle(
+                                    fontFamily: "Leoscar",
+                                    fontSize: 17.0,
+                                    color: Color(0XFF9866B3),
+                                    letterSpacing: 1.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  itemStyle: TextStyle(
+                                    fontFamily: "Leoscar",
+                                    fontSize: 17.0,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                                onCancel: () {
+                                  setState(() {
+                                    if (_dobController.text == " ") {
+                                      _dobController.clear();
+                                    }
+                                    FocusScope.of(context)
+                                        .requestFocus(new FocusNode());
+                                  });
+                                },
+                                onConfirm: (date) {
+                                  setState(() {
+                                    _dobController.text =
+                                        DateFormat("yyyy-MM-dd").format(date);
+                                  });
+                                },
+                                currentTime: _dobController.text == " "
+                                    ? DateTime.now()
+                                    : DateTime.parse(_dobController.text),
+                              );
+                            },
+                                null,
+                                TextInputAction.done,
+                                TextInputType.datetime,
+                                false,
+                                _dobController,
+                                _validateDOB,
+                                Icon(
+                                  FlutterIcons.birthday_cake_faw,
+                                  size: 22.0,
+                                ),
+                                null,
+                                "Date of Birth",
+                                "Leoscar",
+                                17.0,
+                                null),
+                          ),
+                        ),
+                      ), //end DOB textformfield
+                      //start gender textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:
+                                      _darkMode ? Colors.white70 : Colors.white,
+                                ),
+                                child: methods.textFormField(
+                                    () => setState(() {
+                                          _genderFocus.requestFocus();
+                                        }),
+                                    _genderFocus,
+                                    TextInputAction.done,
+                                    TextInputType.datetime,
+                                    false,
+                                    _genderController,
+                                    _validateGender,
+                                    Icon(
+                                      FlutterIcons.transgender_faw,
+                                      size: 22.0,
+                                    ),
+                                    null,
+                                    "Gender",
+                                    "Leoscar",
+                                    17.0,
+                                    null),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    icon: Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 10.0,
+                                        right: 5.0,
+                                      ),
+                                      child: Icon(
+                                        FlutterIcons.chevron_small_down_ent,
+                                        color: _genderFocus.hasFocus
+                                            ? Color(0XFF9866B3)
+                                            : Colors.black45,
+                                      ),
+                                    ),
+                                    items: ["Male", "Female"]
+                                        .map((label) => DropdownMenuItem(
+                                              child: Text(
+                                                label,
+                                                style: TextStyle(
+                                                  fontFamily: "Leoscar",
+                                                  fontSize: 17.0,
+                                                  letterSpacing: 1.0,
+                                                ),
                                               ),
-                                            ),
-                                            value: label,
-                                          ))
-                                      .toList(),
-                                  onChanged: (_gender) {
+                                              value: label,
+                                            ))
+                                        .toList(),
+                                    onChanged: (_gender) {
+                                      setState(() {
+                                        _genderController.text = _gender;
+                                        _genderFocus.requestFocus();
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ), //end gender textformfield
+                      //start email textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _darkMode ? Colors.white70 : Colors.white,
+                            ),
+                            child: methods.textFormField(
+                                null,
+                                null,
+                                TextInputAction.next,
+                                TextInputType.emailAddress,
+                                false,
+                                _emailController1,
+                                _validateEmail,
+                                Icon(
+                                  FlutterIcons.email_outline_mco,
+                                ),
+                                null,
+                                "Email",
+                                "Leoscar",
+                                17.0,
+                                null),
+                          ),
+                        ),
+                      ), //end email textformfield
+                      //start phone textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _darkMode ? Colors.white70 : Colors.white,
+                            ),
+                            child: methods.textFormField(
+                                null,
+                                null,
+                                TextInputAction.next,
+                                TextInputType.number,
+                                false,
+                                _phoneController1,
+                                _validatePhone,
+                                Icon(
+                                  FlutterIcons.mobile1_ant,
+                                  size: 22.0,
+                                ),
+                                null,
+                                "Phone",
+                                "Leoscar",
+                                17.0,
+                                null),
+                          ),
+                        ),
+                      ), //end phone textformfield
+                      //start password textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _darkMode ? Colors.white70 : Colors.white,
+                            ),
+                            child: TextFormField(
+                              style: TextStyle(
+                                fontFamily: "Leoscar",
+                                fontSize: 17.0,
+                                letterSpacing: 1.0,
+                              ),
+                              onFieldSubmitted: (String value) {
+                                FocusScope.of(context)
+                                    .requestFocus(_retypePasswordFocus1);
+                              },
+                              focusNode: _passwordFocus1,
+                              obscureText: _passwordHidden3,
+                              controller: _passwordController1,
+                              validator: _validatePassword,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  FlutterIcons.lock_sli,
+                                  size: 22.0,
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _passwordHidden3
+                                        ? LineIcons.eyeSlash
+                                        : LineIcons.eye,
+                                  ),
+                                  onPressed: () async {
+                                    if (!_passwordFocus1.hasPrimaryFocus) {
+                                      _passwordFocus1.unfocus();
+                                      _passwordFocus1.canRequestFocus = false;
+                                    }
                                     setState(() {
-                                      _genderController.text = _gender;
-                                      _genderFocus.requestFocus();
+                                      _passwordHidden3 = !_passwordHidden3;
+                                    });
+                                  },
+                                ),
+                                focusedErrorBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.red[400],
+                                  ),
+                                ),
+                                errorBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.red[400],
+                                  ),
+                                ),
+                                errorStyle: TextStyle(
+                                  fontFamily: "Leoscar",
+                                  letterSpacing: 1.0,
+                                  color: Colors.red[400],
+                                ),
+                                labelText: "Password",
+                                labelStyle: TextStyle(
+                                  fontFamily: "Leoscar",
+                                  fontSize: 17.0,
+                                  color: Colors.black54,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ), //end password textformfield
+                      //start retype password textformfield
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
+                            right: 20.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _darkMode ? Colors.white70 : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(8.0),
+                                bottomRight: Radius.circular(8.0),
+                              ),
+                            ),
+                            child: methods.textFormField(
+                                null,
+                                _retypePasswordFocus1,
+                                TextInputAction.done,
+                                TextInputType.text,
+                                _passwordHidden4,
+                                _retypePasswordController1,
+                                _validateRetypePassword,
+                                Icon(
+                                  FlutterIcons.lock_sli,
+                                  size: 22.0,
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    _passwordHidden4
+                                        ? LineIcons.eyeSlash
+                                        : LineIcons.eye,
+                                  ),
+                                  onPressed: () async {
+                                    if (!_retypePasswordFocus1
+                                        .hasPrimaryFocus) {
+                                      _retypePasswordFocus1.unfocus();
+                                      _retypePasswordFocus1.canRequestFocus =
+                                          false;
+                                    }
+                                    setState(() {
+                                      _passwordHidden4 = !_passwordHidden4;
+                                    });
+                                  },
+                                ),
+                                "Re-type Password",
+                                "Leoscar",
+                                17.0,
+                                null),
+                          ),
+                        ),
+                      ), //end retype password textformfield
+                      //end name to retype password textformfield
+                      //start EULA
+                      FadeAnimation(
+                        1,
+                        true,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 10.0,
+                          ),
+                          child: Row(
+                            children: <Widget>[
+                              Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: Colors.grey[400],
+                                ),
+                                child: Switch(
+                                  value: _isChecked1,
+                                  activeColor: Color(0XFF933FBF),
+                                  onChanged: (bool value) {
+                                    setState(() {
+                                      _isChecked1 = value;
                                     });
                                   },
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ), //end gender textformfield
-                    //start email textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: methods.textFormField(
-                            null,
-                            null,
-                            TextInputAction.next,
-                            TextInputType.emailAddress,
-                            false,
-                            _emailController1,
-                            _validateEmail,
-                            Icon(
-                              FlutterIcons.email_outline_mco,
-                            ),
-                            null,
-                            "Email",
-                            "Leoscar",
-                            17.0,
-                            null),
-                      ),
-                    ), //end email textformfield
-                    //start phone textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: methods.textFormField(
-                            null,
-                            null,
-                            TextInputAction.next,
-                            TextInputType.number,
-                            false,
-                            _phoneController1,
-                            _validatePhone,
-                            Icon(
-                              FlutterIcons.mobile1_ant,
-                              size: 22.0,
-                            ),
-                            null,
-                            "Phone",
-                            "Leoscar",
-                            17.0,
-                            null),
-                      ),
-                    ), //end phone textformfield
-                    //start password textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: TextFormField(
-                          style: TextStyle(
-                            fontFamily: "Leoscar",
-                            fontSize: 17.0,
-                            letterSpacing: 1.0,
-                          ),
-                          onFieldSubmitted: (String value) {
-                            FocusScope.of(context)
-                                .requestFocus(_retypePasswordFocus1);
-                          },
-                          focusNode: _passwordFocus1,
-                          obscureText: _passwordHidden3,
-                          controller: _passwordController1,
-                          validator: _validatePassword,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              FlutterIcons.lock_sli,
-                              size: 22.0,
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _passwordHidden3
-                                    ? LineIcons.eyeSlash
-                                    : LineIcons.eye,
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 3.0,
+                                ),
+                                child: methods.textOnly(
+                                    "I accept the terms in the ",
+                                    "Leoscar",
+                                    13.0,
+                                    _darkMode ? Colors.white70 : Colors.black,
+                                    FontWeight.normal,
+                                    FontStyle.normal,
+                                    TextAlign.start),
                               ),
-                              onPressed: () async {
-                                if (!_passwordFocus1.hasPrimaryFocus) {
-                                  _passwordFocus1.unfocus();
-                                  _passwordFocus1.canRequestFocus = false;
-                                }
-                                setState(() {
-                                  _passwordHidden3 = !_passwordHidden3;
-                                });
-                              },
-                            ),
-                            focusedErrorBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.red[400],
-                              ),
-                            ),
-                            errorBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.red[400],
-                              ),
-                            ),
-                            errorStyle: TextStyle(
-                              fontFamily: "Leoscar",
-                              letterSpacing: 1.0,
-                              color: Colors.red[400],
-                            ),
-                            labelText: "Password",
-                            labelStyle: TextStyle(
-                              fontFamily: "Leoscar",
-                              fontSize: 17.0,
-                              color: Colors.black54,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ), //end password textformfield
-                    //start retype password textformfield
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20.0,
-                        ),
-                        child: methods.textFormField(
-                            null,
-                            _retypePasswordFocus1,
-                            TextInputAction.done,
-                            TextInputType.text,
-                            _passwordHidden4,
-                            _retypePasswordController1,
-                            _validateRetypePassword,
-                            Icon(
-                              FlutterIcons.lock_sli,
-                              size: 22.0,
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _passwordHidden4
-                                    ? LineIcons.eyeSlash
-                                    : LineIcons.eye,
-                              ),
-                              onPressed: () async {
-                                if (!_retypePasswordFocus1.hasPrimaryFocus) {
-                                  _retypePasswordFocus1.unfocus();
-                                  _retypePasswordFocus1.canRequestFocus = false;
-                                }
-                                setState(() {
-                                  _passwordHidden4 = !_passwordHidden4;
-                                });
-                              },
-                            ),
-                            "Re-type Password",
-                            "Leoscar",
-                            17.0,
-                            null),
-                      ),
-                    ), //end retype password textformfield
-                    //end name to retype password textformfield
-                    //start EULA
-                    FadeAnimation(
-                      1,
-                      true,
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10.0,
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Theme(
-                              data: ThemeData(
-                                unselectedWidgetColor: Colors.grey[400],
-                              ),
-                              child: Switch(
-                                value: _isChecked1,
-                                activeColor: Color(0XFF933FBF),
-                                onChanged: (bool value) {
-                                  setState(() {
-                                    _isChecked1 = value;
-                                  });
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 3.0,
-                              ),
-                              child: methods.textOnly(
-                                  "I accept the terms in the ",
-                                  "Leoscar",
-                                  13.0,
-                                  Colors.black,
-                                  FontWeight.normal,
-                                  FontStyle.normal,
-                                  TextAlign.start),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 3.0,
-                              ),
-                              child: InkWell(
-                                onTap: _showEULA, //call _showEULA method
-                                child: Text(
-                                  "License Agreement",
-                                  style: TextStyle(
-                                      color: Color(0XFF7100AD),
-                                      fontFamily: "Leoscar",
-                                      fontSize: 13.0,
-                                      letterSpacing: 1.0,
-                                      decoration: TextDecoration.underline),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 3.0,
+                                ),
+                                child: InkWell(
+                                  onTap: _showEULA, //call _showEULA method
+                                  child: Text(
+                                    "License Agreement",
+                                    style: TextStyle(
+                                        color: _darkMode
+                                            ? Color(0XFFD58AFF)
+                                            : Color(0XFF7100AD),
+                                        fontFamily: "Leoscar",
+                                        fontSize: 13.0,
+                                        letterSpacing: 1.0,
+                                        decoration: TextDecoration.underline),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ), //end EULA
-                    _floatingButton(),
-                  ],
+                      ), //end EULA
+                      _floatingButton(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1770,7 +1841,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontFamily: "Leoscar",
                 fontSize: 24.0,
                 letterSpacing: 1.0,
-                color: Color(0XFF7100AD),
+                color: _darkMode ? Color(0XFFD58AFF) : Color(0XFF7100AD),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -1786,8 +1857,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.justify,
                         text: TextSpan(
                           style: TextStyle(
+                            fontFamily: "Leoscar",
                             fontSize: 14.0,
-                            color: Colors.black,
+                            color: _darkMode ? Colors.white70 : Colors.black,
                           ),
                           text:
                               "This End-User License Agreement (\"EULA\") is a legal agreement between you and Life Maintenance Application.\n\nThis EULA agreement governs your acquisition and use of our Life Maintenance Application (\"Application\") directly from Life Maintenance Application or indirectly through a Life Maintenance Application authorized reseller or distributor (a \"Reseller\").\n\nPlease read this EULA agreement carefully before completing the installation process and using the Life Maintenance Application software. It provides a license to use the Life Maintenance Application and contains warranty information and liability disclaimers.\n\nIf you register for a free trial of the Life Maintenance Application, this EULA agreement will also govern that trial. By clicking \"accept\" or installing and/or using the Life Maintenance Application, you are confirming your acceptance of the Software and agreeing to become bound by the terms of this EULA agreement.\n\nIf you are entering into this EULA agreement on behalf of a company or other legal entity, you represent that you have the authority to bind such entity and its affiliates to these terms and conditions. If you do not have such authority or if you do not agree with the terms and conditions of this EULA agreement, do not install or use the Software, and you must not accept this EULA agreement.\n\nThis EULA agreement shall apply only to the Software supplied by Life Maintenance Application here with regardless of whether other software is referred to or described herein. The terms also apply to any Life Maintenance Application updates, supplements, Internet-based services, and support services for the Software, unless other terms accompany those items on delivery. If so, those terms apply. This EULA was created by EULA Template for Life Maintenance Application.",

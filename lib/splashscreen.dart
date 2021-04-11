@@ -164,71 +164,71 @@ class _SplashScreenState extends State<SplashScreen>
           run = true;
         });
         if (animation.value > 0.99) {
-          if (widget.loggedIn == 0) {
-            await Navigator.push(
-              context,
-              PageTransition(
-                child: LoginScreen(
-                  userLogout: 1,
-                  callback1: () {
-                    if (this.mounted) {
-                      print("##########backtosplash#######1");
-                      callback2();
-                    }
-                  },
-                ),
-                type: PageTransitionType.fade,
-              ),
-            );
-          } else if (widget.loggedIn == 1) {
-            await Navigator.push(
-              context,
-              PageTransition(
-                child: LoginScreen(
-                  userLogout: 2,
-                  callback1: () {
-                    if (this.mounted) {
-                      print("##########backtosplash#######2");
-                      callback2();
-                    }
-                  },
-                ),
-                type: PageTransitionType.fade,
-              ),
-            );
-          } else {
-            methods.snackbarMessage(
-              context,
-              Duration(
-                seconds: 1,
-              ),
-              Color(0XFFB563E0),
-              true,
-              methods.textOnly(
-                  "Login successful...Welcome ${widget.user.getName()}",
-                  "Leoscar",
-                  18.0,
-                  Colors.white,
-                  null,
-                  null,
-                  TextAlign.center),
-            );
-            await Navigator.push(
-              context,
-              PageTransition(
-                child: Tabs(
-                  user: widget.user,
-                  callback1: () {
-                    if (this.mounted) {
-                      print("##########backtosplash#######3");
-                      callback2();
-                    }
-                  },
-                ),
-                type: PageTransitionType.fade,
-              ),
-            );
-          }
+          // if (widget.loggedIn == 0) {
+          //   await Navigator.push(
+          //     context,
+          //     PageTransition(
+          //       child: LoginScreen(
+          //         userLogout: 1,
+          //         callback1: () {
+          //           if (this.mounted) {
+          //             print("##########backtosplash#######1");
+          //             callback2();
+          //           }
+          //         },
+          //       ),
+          //       type: PageTransitionType.fade,
+          //     ),
+          //   );
+          // } else if (widget.loggedIn == 1) {
+          //   await Navigator.push(
+          //     context,
+          //     PageTransition(
+          //       child: LoginScreen(
+          //         userLogout: 2,
+          //         callback1: () {
+          //           if (this.mounted) {
+          //             print("##########backtosplash#######2");
+          //             callback2();
+          //           }
+          //         },
+          //       ),
+          //       type: PageTransitionType.fade,
+          //     ),
+          //   );
+          // } else {
+          //   methods.snackbarMessage(
+          //     context,
+          //     Duration(
+          //       seconds: 1,
+          //     ),
+          //     Color(0XFFB563E0),
+          //     true,
+          //     methods.textOnly(
+          //         "Login successful...Welcome ${widget.user.getName()}",
+          //         "Leoscar",
+          //         18.0,
+          //         Colors.white,
+          //         null,
+          //         null,
+          //         TextAlign.center),
+          //   );
+          //   await Navigator.push(
+          //     context,
+          //     PageTransition(
+          //       child: Tabs(
+          //         user: widget.user,
+          //         callback1: () {
+          //           if (this.mounted) {
+          //             print("##########backtosplash#######3");
+          //             callback2();
+          //           }
+          //         },
+          //       ),
+          //       type: PageTransitionType.fade,
+          //     ),
+          //   );
+          // }
         }
       });
     controller.repeat();
@@ -243,7 +243,6 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
       child: Stack(
         children: [
           FutureBuilder(
@@ -252,7 +251,7 @@ class _SplashScreenState extends State<SplashScreen>
                 return Hero(
                   tag: "background",
                   child: Image.asset(
-                    "assets/images/splashbg.jpg",
+                    "assets/images/splashbg.png",
                     fit: BoxFit.cover,
                   ),
                 );
@@ -278,7 +277,6 @@ class _SplashScreenState extends State<SplashScreen>
                   Hero(
                     tag: "logo",
                     child: Image.asset(
-                      // "assets/images/logo.png",
                       "assets/images/logo.gif",
                       scale: 3,
                     ),
