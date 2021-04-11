@@ -32,6 +32,14 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    Brightness _brightness =
+        MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+            .platformBrightness;
+    if (_brightness == Brightness.dark) {
+      setState(() {
+        _darkMode = true;
+      });
+    }
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));

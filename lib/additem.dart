@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'user.dart';
 import 'methods.dart';
 import 'dart:convert';
@@ -32,6 +34,7 @@ class _AddItemState extends State<AddItem> {
   double _screenHeight;
   double _amount = 100.0;
   int _duration = 30;
+  bool _darkMode = false;
   String _oldQuery = "";
   List _searchList = [];
   TextEditingController _searchController = new TextEditingController();
@@ -49,6 +52,7 @@ class _AddItemState extends State<AddItem> {
   };
   @override
   void initState() {
+    _loadPrefDarkMode();
     super.initState();
   }
 
@@ -130,17 +134,14 @@ class _AddItemState extends State<AddItem> {
                                         : widget.dbList[index]["name"],
                                     "Leoscar",
                                     17.0,
-                                    widget.user.getDarkMode()
-                                        ? Colors.white70
-                                        : Colors.black,
+                                    _darkMode ? Colors.white70 : Colors.black,
                                     FontWeight.normal,
                                     FontStyle.normal,
                                     TextAlign.left),
                                 trailing: Icon(
                                   FlutterIcons.keyboard_arrow_right_mdi,
-                                  color: widget.user.getDarkMode()
-                                      ? Colors.white70
-                                      : Colors.black,
+                                  color:
+                                      _darkMode ? Colors.white70 : Colors.black,
                                 ),
                                 onTap: () {
                                   bool _loading = false;
@@ -487,6 +488,14 @@ class _AddItemState extends State<AddItem> {
     });
   }
 
+  Future<void> _loadPrefDarkMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool darkMode = (prefs.getBool('darkmode')) ?? false;
+    print("darkmodeMyApp: $darkMode");
+    setState(() {
+      _darkMode = darkMode;
+    });
+  }
   // Future<void> _loadList(String option) async {
   //   await http.post(
   //       Uri.parse(
