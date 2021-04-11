@@ -41,7 +41,14 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: "Life Maintenance Application",
       // debugShowCheckedModeBanner: false,
-      theme: _darkMode == true ? ThemeData.dark() : ThemeData.light(),
+      theme: _darkMode == true
+          ? ThemeData(
+              brightness: Brightness.dark,
+              floatingActionButtonTheme: FloatingActionButtonThemeData(
+                foregroundColor: Colors.transparent,
+              ),
+            )
+          : ThemeData.light(),
       home: Scaffold(
         body: SplashScreen(
           loggedIn: _loggedIn,
@@ -49,6 +56,9 @@ class _MyAppState extends State<MyApp> {
           callback1: () async {
             if (this.mounted) {
               await _loadPrefDarkMode();
+              setState(() {
+                user.setDarkMode(_darkMode);
+              });
             }
           },
         ),

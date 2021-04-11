@@ -683,8 +683,9 @@ class _AddItemState extends State<AddItem> {
             "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
         body: {
           "email": widget.user.getEmail(),
+          "weight": widget.user.getWeight(),
           "option": option,
-        }).then((res) {
+        }).then((res) async {
       if (res.body != "no data" && res.body != "connected but no data") {
         var _extractData = json.decode(res.body);
         setState(() {

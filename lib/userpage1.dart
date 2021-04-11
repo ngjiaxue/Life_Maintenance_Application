@@ -511,7 +511,7 @@ class _UserPage1State extends State<UserPage1> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: _gif,
-                        scale: 5,
+                        scale: 2,
                       ),
                     ),
                   );

@@ -1,11 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UserPage3 extends StatefulWidget {
   final User user;

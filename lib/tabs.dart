@@ -277,7 +277,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
         body: {
           "option": option,
-        }).then((res) {
+        }).then((res) async {
       if (res.body != "no data") {
         var _extractData = json.decode(res.body);
         setState(() {
@@ -310,7 +310,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
           "email": widget.user.getEmail(),
           "weight": widget.user.getWeight(),
           "option": option,
-        }).then((res) {
+        }).then((res) async {
       if (res.body != "no data" && res.body != "connected but no data") {
         var _extractData = json.decode(res.body);
         // print("$option: $_extractData");

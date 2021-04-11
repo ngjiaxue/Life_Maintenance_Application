@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'user.dart';
 import 'methods.dart';
 import 'dart:convert';
@@ -19,6 +17,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:slider_button/slider_button.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -44,8 +43,9 @@ class _UserPage4State extends State<UserPage4>
   Methods methods = new Methods();
   double _screenWidth;
   double _screenHeight;
-  double _height = 0.0;
-  double _weight = 0.0;
+  double _userNewHeight;
+  double _userNewWeight;
+  bool _loading = false;
   bool _isCropping = false;
   bool _isEditing = false;
   bool _confirmationMessage = false;
@@ -569,7 +569,16 @@ class _UserPage4State extends State<UserPage4>
                                 "Change Email", "", 8, _emailController),
                             _information("Change Password", "", 9, null),
                             _information("Delete Account", "", 10, null),
-                            _information("Dark Mode", "", 11, null),
+                            SizedBox(
+                              height: 30.0,
+                            ),
+                            _information(
+                                widget.user.getDarkMode()
+                                    ? "Light Mode"
+                                    : "Dark Mode",
+                                "",
+                                11,
+                                null),
                           ],
                         ),
                       ),
@@ -661,8 +670,12 @@ class _UserPage4State extends State<UserPage4>
         FlutterIcons.deleteuser_ant,
         color: Colors.white,
       );
-    } else {
-      _icon = SizedBox.shrink();
+    } else if (_index == 11) {
+      _color = Colors.red[400];
+      _icon = Icon(
+        FlutterIcons.theme_light_dark_mco,
+        color: Colors.white,
+      );
     }
 
     return Padding(
@@ -958,8 +971,12 @@ class _UserPage4State extends State<UserPage4>
               ),
               builder: (BuildContext context) {
                 return SliderButton(
+                  swipeFromRight: widget.user.getDarkMode(),
+                  alignLabel: Alignment.center,
                   label: methods.textOnly(
-                      "Slide to change to dark mode",
+                      widget.user.getDarkMode()
+                          ? "Slide to change to light mode"
+                          : "Slide to change to dark mode",
                       "Leoscar",
                       18.0,
                       Colors.white,
@@ -967,7 +984,7 @@ class _UserPage4State extends State<UserPage4>
                       null,
                       TextAlign.center),
                   icon: Icon(
-                    FlutterIcons.logout_variant_mco,
+                    FlutterIcons.theme_light_dark_mco,
                     color: Colors.white,
                   ),
                   width: _screenWidth,
@@ -982,9 +999,7 @@ class _UserPage4State extends State<UserPage4>
                     Navigator.pop(context);
                     SchedulerBinding.instance.addPostFrameCallback((_) {
                       _savePref();
-                      SchedulerBinding.instance.addPostFrameCallback((_) {
-                        callback2();
-                      });
+                      callback2();
                     });
                   },
                 );
@@ -1054,88 +1069,191 @@ class _UserPage4State extends State<UserPage4>
   }
 
   void _showNumberPicker(int _index) {
-    double _tempValue = _index == 4
-        ? (_height != 0.0
-            ? _height
-            : widget.user.getHeight() == "0.0"
-                ? 50.0
-                : double.parse(widget.user.getHeight()))
-        : (_weight != 0.0
-            ? _weight
-            : widget.user.getWeight() == "0.0"
-                ? 30.0
-                : double.parse(widget.user.getWeight()));
-    methods.snackbarMessage(
-      context,
-      Duration(days: 365),
-      Color(0XFFB563E0),
-      false,
-      StatefulBuilder(builder: (context, newSetState) {
-        return Container(
-          height: _screenHeight / 4.5,
-          child: Column(
-            children: [
-              methods.textOnly(
-                  "Please insert your " +
-                      (_index == 4 ? "height (cm)" : "weight (kg)"),
-                  "Leoscar",
-                  18.0,
-                  Colors.white,
-                  null,
-                  null,
-                  TextAlign.center),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    child: Container(
-                      child: Icon(
-                        LineIcons.times,
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: () =>
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-                  ),
-                  DecimalNumberPicker(
-                      minValue: _index == 0 ? 50 : 30,
-                      maxValue: _index == 0 ? 200 : 300,
-                      decimalPlaces: 1,
-                      value: _tempValue,
-                      onChanged: (value) {
-                        newSetState(() {
-                          _tempValue = value;
-                        });
-                      }),
-                  GestureDetector(
-                    child: Container(
-                      child: Icon(
-                        LineIcons.check,
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: () {
-                      SchedulerBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        setState(() {
-                          if (_index == 4 && _tempValue != null) {
-                            _height = _tempValue;
-                            _heightController.text = _tempValue.toString();
-                          } else if (_index == 5 && _tempValue != null) {
-                            _weight = _tempValue;
-                            _weightController.text = _tempValue.toString();
-                          }
-                        });
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
+    setState(() {
+      if (_index == 4) {
+        _userNewHeight = double.parse(widget.user.getHeight());
+      } else {
+        _userNewWeight = double.parse(widget.user.getWeight());
+      }
+    });
+    showModalBottomSheet(
+        context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10.0),
+            topRight: Radius.circular(10.0),
           ),
-        );
-      }),
-    );
+        ),
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, newSetState) {
+            return _loading == false
+                ? methods.shaderMask(
+                    Container(
+                      height: _screenHeight / 4.3,
+                      child: Column(
+                        children: [
+                          Spacer(),
+                          methods.textOnly(
+                              "Please insert your " +
+                                  (_index == 4 ? "height (cm)" : "weight (kg)"),
+                              "Leoscar",
+                              18.0,
+                              Colors.white,
+                              null,
+                              null,
+                              TextAlign.center),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30.0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  child: Container(
+                                    child: Icon(
+                                      LineIcons.times,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    _gif.evict();
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                DecimalNumberPicker(
+                                    minValue: _index == 0 ? 50 : 30,
+                                    maxValue: _index == 0 ? 200 : 300,
+                                    decimalPlaces: 1,
+                                    value: _index == 4
+                                        ? _userNewHeight
+                                        : _userNewWeight,
+                                    onChanged: (value) {
+                                      newSetState(() {
+                                        if (_index == 4) {
+                                          _userNewHeight = value;
+                                          _heightController.text =
+                                              value.toString();
+                                        } else {
+                                          _userNewWeight = value;
+                                          _weightController.text =
+                                              value.toString();
+                                        }
+                                      });
+                                    }),
+                                GestureDetector(
+                                  child: Container(
+                                    child: Icon(
+                                      LineIcons.check,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    // newSetState(() {
+                                    // });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    true,
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: _gif,
+                        scale: 5,
+                      ),
+                    ),
+                  );
+          });
+        });
+    // double _tempValue = _index == 4
+    //     ? (_height != 0.0
+    //         ? _height
+    //         : widget.user.getHeight() == "0.0"
+    //             ? 50.0
+    //             : double.parse(widget.user.getHeight()))
+    //     : (_weight != 0.0
+    //         ? _weight
+    //         : widget.user.getWeight() == "0.0"
+    //             ? 30.0
+    //             : double.parse(widget.user.getWeight()));
+    // methods.snackbarMessage(
+    //   context,
+    //   Duration(days: 365),
+    //   Color(0XFFB563E0),
+    //   false,
+    //   StatefulBuilder(builder: (context, newSetState) {
+    //     return Container(
+    //       height: _screenHeight / 4.5,
+    //       child: Column(
+    //         children: [
+    //           methods.textOnly(
+    //               "Please insert your " +
+    //                   (_index == 4 ? "height (cm)" : "weight (kg)"),
+    //               "Leoscar",
+    //               18.0,
+    //               Colors.white,
+    //               null,
+    //               null,
+    //               TextAlign.center),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             children: [
+    //               GestureDetector(
+    //                 child: Container(
+    //                   child: Icon(
+    //                     LineIcons.times,
+    //                     color: Colors.white,
+    //                   ),
+    //                 ),
+    //                 onTap: () =>
+    //                     ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+    //               ),
+    //               DecimalNumberPicker(
+    //                   minValue: _index == 0 ? 50 : 30,
+    //                   maxValue: _index == 0 ? 200 : 300,
+    //                   decimalPlaces: 1,
+    //                   value: _tempValue,
+    //                   onChanged: (value) {
+    //                     newSetState(() {
+    //                       _tempValue = value;
+    //                     });
+    //                   }),
+    //               GestureDetector(
+    //                 child: Container(
+    //                   child: Icon(
+    //                     LineIcons.check,
+    //                     color: Colors.white,
+    //                   ),
+    //                 ),
+    //                 onTap: () {
+    //                   SchedulerBinding.instance.addPostFrameCallback((_) {
+    //                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    //                     setState(() {
+    //                       if (_index == 4 && _tempValue != null) {
+    //                         _height = _tempValue;
+    //                         _heightController.text = _tempValue.toString();
+    //                       } else if (_index == 5 && _tempValue != null) {
+    //                         _weight = _tempValue;
+    //                         _weightController.text = _tempValue.toString();
+    //                       }
+    //                     });
+    //                   });
+    //                 },
+    //               ),
+    //             ],
+    //           ),
+    //         ],
+    //       ),
+    //     );
+    //   }),
+    // );
   }
 
   Future<void> _getImage(bool isCamera) async {
@@ -1248,7 +1366,7 @@ class _UserPage4State extends State<UserPage4>
 
   Future<void> _savePref() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool darkMode = prefs.getBool('darkmode');
+    bool darkMode = prefs.getBool('darkmode') ?? false;
     await prefs.setBool('darkmode', !darkMode);
     print("darkModepage4: ${prefs.getBool('darkmode')}");
     setState(() {

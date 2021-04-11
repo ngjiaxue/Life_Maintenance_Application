@@ -17,6 +17,7 @@ class User {
     this._phone = phone;
     this._height = height;
     this._weight = weight;
+    this._darkMode = darkMode;
   }
 
   String getName() {
