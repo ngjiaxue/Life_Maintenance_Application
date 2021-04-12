@@ -20,6 +20,8 @@ class User {
     this._darkMode = darkMode;
   }
 
+  DarkMode(bool darkMode) async {}
+
   String getName() {
     return this._name;
   }

@@ -19,27 +19,31 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   User user;
-  bool _darkMode;
+  bool _darkMode = false;
   int _loggedIn =
       0; // 0 = navigate to login as unregistered user, 1 = navigate to login with email, 2 = navigate to tabs
 
   @override
   void initState() {
-    super.initState();
-    _loadPrefUserDetails();
     _loadPrefDarkMode();
+    _loadPrefUserDetails();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Brightness _brightness =
-        MediaQueryData.fromWindow(WidgetsBinding.instance.window)
-            .platformBrightness;
-    if (_brightness == Brightness.dark) {
-      setState(() {
-        _darkMode = true;
-      });
-    }
+    // Brightness _brightness =
+    //     MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+    //         .platformBrightness;
+    // if (_brightness == Brightness.dark) {
+    //   setState(() {
+    //     _darkMode = true;
+    //   });
+    // } else {
+    //   setState(() {
+    //     _darkMode = false;
+    //   });
+    // }
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
@@ -63,6 +67,7 @@ class _MyAppState extends State<MyApp> {
           user: user,
           callback1: () async {
             if (this.mounted) {
+              print("#####baacktoMYAPP###########");
               await _loadPrefDarkMode();
             }
           },
@@ -130,6 +135,20 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _darkMode = darkMode;
     });
+    //   Brightness _brightness =
+    //       MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+    //           .platformBrightness;
+    //   if (_brightness == Brightness.dark) {
+    //     setState(() {
+    //       _darkMode = true;
+    //     });
+    //     print("i am here");
+    //   } else {
+    //     setState(() {
+    //       _darkMode = darkMode;
+    //     });
+    //     print("i am here1");
+    //   }
   }
 }
 

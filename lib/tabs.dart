@@ -167,9 +167,10 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
         UserPage4(
           callback1: () {
             if (this.mounted) {
-              print("#######backtoTabs########");
+              setState(() {
+                widget.user.setDarkMode(!widget.user.getDarkMode());
+              });
               callback2();
-              setState(() {});
             }
           },
           user: widget.user,

@@ -976,7 +976,12 @@ class _UserPage4State extends State<UserPage4>
                       Navigator.push(
                         context,
                         PageTransition(
-                          child: LoginScreen(userLogout: 2),
+                          child: LoginScreen(
+                            userLogout: 2,
+                            callback1: () {
+                              callback2();
+                            },
+                          ),
                           type: PageTransitionType.fade,
                         ),
                       );
@@ -1031,8 +1036,8 @@ class _UserPage4State extends State<UserPage4>
                   alignLabel: Alignment.center,
                   label: methods.textOnly(
                       widget.user.getDarkMode()
-                          ? "Slide to change to light mode"
-                          : " Slide to change to dark mode",
+                          ? "Slide to switch to light mode"
+                          : " Slide to switch to dark mode",
                       "Leoscar",
                       18.0,
                       Colors.white,
@@ -1051,7 +1056,7 @@ class _UserPage4State extends State<UserPage4>
                       widget.user.getDarkMode() ? Colors.white : _darkColor,
                   backgroundColor: widget.user.getDarkMode()
                       ? Colors.white.withOpacity(0.8)
-                      : _darkColor.withOpacity(0.5),
+                      : Color(0XFF9E9E9E),
                   highlightedColor:
                       widget.user.getDarkMode() ? Colors.white : _darkColor,
                   baseColor:
@@ -1439,11 +1444,27 @@ class _UserPage4State extends State<UserPage4>
   Future<void> _savePref() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool darkMode = prefs.getBool('darkmode') ?? false;
+    print("darkModepage4: ${!darkMode}");
     await prefs.setBool('darkmode', !darkMode);
-    print("darkModepage4: ${prefs.getBool('darkmode')}");
     setState(() {
       widget.user.setDarkMode(!darkMode);
     });
+    // Brightness _brightness =
+    //     MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+    //         .platformBrightness;
+    // if (_brightness == Brightness.dark) {
+    //   setState(() {
+    //     widget.user.setDarkMode(true);
+    //   });
+    //   await prefs.setBool('darkmode', true);
+    //   print("i am here");
+    // } else {
+    //   setState(() {
+    //     widget.user.setDarkMode(!darkMode);
+    //   });
+    //   await prefs.setBool('darkmode', !darkMode);
+    //   print("i am here1");
+    // }
   }
 
   @override

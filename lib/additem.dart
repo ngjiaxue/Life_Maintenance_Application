@@ -1,14 +1,12 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'user.dart';
 import 'methods.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddItem extends StatefulWidget {
   final String option;
