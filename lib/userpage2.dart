@@ -248,12 +248,10 @@ class _UserPage2State extends State<UserPage2>
                       PageTransition(
                         child: AddItem(
                           option: "food",
-                          // dbList: widget.foodList,
                           dbList: widget.user.getFoodList(),
                           user: widget.user,
                           callback1: () async {
                             if (this.mounted) {
-                              await _loadList("food");
                               await _loadUserList("food");
                             }
                           },
@@ -267,33 +265,6 @@ class _UserPage2State extends State<UserPage2>
         ],
       ),
     );
-  }
-
-  Future<void> _loadList(String option) async {
-    await http.post(
-        Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
-        body: {
-          "option": option,
-        }).then((res) async {
-      if (res.body != "no data") {
-        var _extractData = json.decode(res.body);
-        setState(() {
-          widget.user.setFoodList(_extractData);
-        });
-      } else {
-        methods.snackbarMessage(
-          context,
-          Duration(
-            seconds: 1,
-          ),
-          Colors.red[400],
-          true,
-          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
-              Colors.white, null, null, TextAlign.center),
-        );
-      }
-    });
   }
 
   Future<void> _loadUserList(String option) async {

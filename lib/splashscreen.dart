@@ -92,29 +92,29 @@ class _MyAppState extends State<MyApp> {
         if (userDetails[0] == "success admin") {
           setState(() {
             user = new User(
-              userDetails[1],
-              userDetails[2],
-              userDetails[3],
-              userDetails[4],
-              userDetails[5],
-              userDetails[6],
-              userDetails[7],
-              _darkMode,
-            );
+                userDetails[1],
+                userDetails[2],
+                userDetails[3],
+                userDetails[4],
+                userDetails[5],
+                userDetails[6],
+                userDetails[7],
+                _darkMode,
+                true);
             _loggedIn = 2;
           });
         } else if (userDetails[0] == "success") {
           setState(() {
             user = new User(
-              userDetails[1],
-              userDetails[2],
-              userDetails[3],
-              userDetails[4],
-              userDetails[5],
-              userDetails[6],
-              userDetails[7],
-              _darkMode,
-            );
+                userDetails[1],
+                userDetails[2],
+                userDetails[3],
+                userDetails[4],
+                userDetails[5],
+                userDetails[6],
+                userDetails[7],
+                _darkMode,
+                false);
             _loggedIn = 2;
           });
         }

@@ -156,13 +156,20 @@ class Methods {
     });
   }
 
-  Future<bool> backPressed(BuildContext context, FocusNode focusNode) {
+  Future<bool> backPressed(
+      BuildContext context, FocusNode focusNode, bool darkMode) {
     focusNode.unfocus();
     return showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: textOnly("Exit Application?", "Leoscar", 26.0,
-                Color(0XFF7100AD), FontWeight.bold, null, null),
+            title: textOnly(
+                "Exit Application?",
+                "Leoscar",
+                26.0,
+                darkMode ? Color(0XFFC661FF) : Color(0XFF7100AD),
+                FontWeight.bold,
+                null,
+                null),
             content: textOnly("Are you sure?", "Leoscar", 17.0, null,
                 FontWeight.w500, null, null),
             actions: <Widget>[

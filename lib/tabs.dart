@@ -187,7 +187,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             resizeToAvoidBottomInset: false,
             body: WillPopScope(
               onWillPop: () {
-                return methods.backPressed(context, FocusScope.of(context));
+                return methods.backPressed(
+                    context, FocusScope.of(context), widget.user.getDarkMode());
               },
               child: Stack(
                 children: [

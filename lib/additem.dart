@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'user.dart';
 import 'methods.dart';
+import 'addnewitem.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddItem extends StatefulWidget {
@@ -34,7 +38,9 @@ class _AddItemState extends State<AddItem> {
   int _duration = 30;
   bool _darkMode = false;
   String _oldQuery = "";
+  List _dbList = [];
   List _searchList = [];
+
   TextEditingController _searchController = new TextEditingController();
   Map<int, Color> _swatch = {
     50: Color.fromRGBO(152, 102, 187, .1),
@@ -52,6 +58,9 @@ class _AddItemState extends State<AddItem> {
   void initState() {
     _loadPrefDarkMode();
     super.initState();
+    setState(() {
+      _dbList = widget.dbList;
+    });
   }
 
   @override
@@ -85,21 +94,46 @@ class _AddItemState extends State<AddItem> {
                               "No data found...",
                               "Leoscar",
                               22.0,
-                              Colors.black,
+                              _darkMode ? Colors.white70 : Colors.black,
                               FontWeight.bold,
                               FontStyle.normal,
                               TextAlign.center),
                           methods.shaderMask(
-                            Text(
-                              "Add a new " + widget.option + "?",
-                              style: TextStyle(
-                                fontFamily: "Leoscar",
-                                fontSize: 16.0,
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                                letterSpacing: 1.0,
-                                decoration: TextDecoration.underline,
+                            GestureDetector(
+                              child: Text(
+                                "Add a new " + widget.option + "?",
+                                style: TextStyle(
+                                  fontFamily: "Leoscar",
+                                  fontSize: 17.0,
+                                  color: Colors.white,
+                                  fontStyle: FontStyle.italic,
+                                  letterSpacing: 1.0,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    child: AddNewItem(
+                                      option: widget.option,
+                                      darkMode: _darkMode,
+                                      isAdmin: widget.user.getIsAdmin(),
+                                      callback1: () async {
+                                        if (this.mounted) {
+                                          if (widget.option == "food") {
+                                            await _loadList(widget.option);
+                                          } else {
+                                            await _loadList(widget.option);
+                                          }
+                                        }
+                                      },
+                                    ),
+                                    type: PageTransitionType.fade,
+                                  ),
+                                );
+                              },
                             ),
                             false,
                           ),
@@ -123,13 +157,13 @@ class _AddItemState extends State<AddItem> {
                             shrinkWrap: true,
                             itemCount: _searchList.isNotEmpty
                                 ? _searchList.length
-                                : widget.dbList.length,
+                                : _dbList.length,
                             itemBuilder: (BuildContext context, int index) {
                               return ListTile(
                                 title: methods.textOnly(
                                     _searchList.isNotEmpty
                                         ? _searchList[index]["name"]
-                                        : widget.dbList[index]["name"],
+                                        : _dbList[index]["name"],
                                     "Leoscar",
                                     17.0,
                                     _darkMode ? Colors.white70 : Colors.black,
@@ -142,6 +176,7 @@ class _AddItemState extends State<AddItem> {
                                       _darkMode ? Colors.white70 : Colors.black,
                                 ),
                                 onTap: () {
+                                  _gif.evict();
                                   bool _loading = false;
                                   FocusScope.of(context).unfocus();
                                   showModalBottomSheet(
@@ -197,6 +232,7 @@ class _AddItemState extends State<AddItem> {
                                                                     ),
                                                                   ),
                                                                   onTap: () {
+                                                                    _gif.evict();
                                                                     setState(
                                                                         () {
                                                                       _amount =
@@ -253,6 +289,7 @@ class _AddItemState extends State<AddItem> {
                                                                 ),
                                                                 onTap:
                                                                     () async {
+                                                                  _gif.evict();
                                                                   newSetState(
                                                                       () {
                                                                     _loading =
@@ -262,7 +299,7 @@ class _AddItemState extends State<AddItem> {
                                                                       _searchList.isNotEmpty
                                                                           ? _searchList[
                                                                               index]
-                                                                          : widget.dbList[
+                                                                          : _dbList[
                                                                               index],
                                                                       widget.option ==
                                                                               "food"
@@ -382,32 +419,7 @@ class _AddItemState extends State<AddItem> {
                     child: TextField(
                       controller: _searchController,
                       onChanged: (String _query) {
-                        bool _atLeastOneData = false;
-                        if (_oldQuery.length != _query.length) {
-                          setState(() {
-                            _searchList.clear();
-                          });
-                        }
-                        if (_query.isNotEmpty) {
-                          for (int _i = 0; _i < widget.dbList.length; _i++) {
-                            if (widget.dbList[_i]["name"]
-                                .toLowerCase()
-                                .contains(_query.toLowerCase())) {
-                              setState(() {
-                                _searchList.add(widget.dbList[_i]);
-                                _atLeastOneData = true;
-                              });
-                            }
-                          }
-                        } else {
-                          setState(() {
-                            _searchList.clear();
-                          });
-                        }
-                        if (_query.isNotEmpty && _atLeastOneData == false) {
-                          _searchList.add("no data");
-                        }
-                        _oldQuery = _query;
+                        _queryList(_query, false);
                       },
                       style: TextStyle(
                         fontFamily: "Leoscar",
@@ -450,10 +462,40 @@ class _AddItemState extends State<AddItem> {
     );
   }
 
+  _queryList(String _query, bool fromNewItem) {
+    bool _atLeastOneData = false;
+    if (_oldQuery.length != _query.length ||
+        _query.substring(_query.length - 1, _query.length) == " " ||
+        fromNewItem) {
+      setState(() {
+        _searchList.clear();
+      });
+    }
+    if (_query.isNotEmpty) {
+      for (int _i = 0; _i < _dbList.length; _i++) {
+        if (_dbList[_i]["name"].toLowerCase().contains(_query.toLowerCase())) {
+          setState(() {
+            _searchList.add(_dbList[_i]);
+            _atLeastOneData = true;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        _searchList.clear();
+      });
+    }
+    if (_query.isNotEmpty && _atLeastOneData == false) {
+      _searchList.add("no data");
+    }
+    _oldQuery = _query;
+    ;
+  }
+
   Future<void> _addToList(Map<String, dynamic> list, String amount) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/addlist.php"),
+            "https://lifemaintenanceapplication.000webhostapp.com/php/adduserlist.php"),
         body: {
           "email": widget.user.getEmail(),
           "id": list["id"],
@@ -494,73 +536,40 @@ class _AddItemState extends State<AddItem> {
       _darkMode = darkMode;
     });
   }
-  // Future<void> _loadList(String option) async {
-  //   await http.post(
-  //       Uri.parse(
-  //           "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
-  //       body: {
-  //         "option": option,
-  //       }).then((res) {
-  //     if (res.body != "no data") {
-  //       var _extractData = json.decode(res.body);
-  //       setState(() {
-  //         if (option == "food") {
-  //           // _foodList = _extractData;
-  //           widget.user.setFoodList(_extractData);
-  //         } else {
-  //           // _exerciseList = _extractData;
-  //           widget.user.setExerciseList(_extractData);
-  //         }
-  //       });
-  //     } else {
-  //       methods.snackbarMessage(
-  //         context,
-  //         Duration(
-  //           seconds: 1,
-  //         ),
-  //         Colors.red[400],
-  //         true,
-  //         methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
-  //             Colors.white, null, null, TextAlign.center),
-  //       );
-  //     }
-  //   });
-  // }
 
-  // Future<void> _loadUserList(String option) async {
-  //   await http.post(
-  //       Uri.parse(
-  //           "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
-  //       body: {
-  //         "email": widget.user.getEmail(),
-  //         "weight": widget.user.getWeight(),
-  //         "option": option,
-  //       }).then((res) async {
-  //     if (res.body != "no data" && res.body != "connected but no data") {
-  //       var _extractData = json.decode(res.body);
-  //       setState(() {
-  //         if (option == "food") {
-  //           // _userFoodList = _extractData;
-  //           widget.user.setUserFoodList(_extractData);
-  //         } else {
-  //           // _userExerciseList = _extractData;
-  //           widget.user.setUserExerciseList(_extractData);
-  //         }
-  //       });
-  //     } else if (res.body == "connected but no data") {
-  //     } else {
-  //       methods.snackbarMessage(
-  //         context,
-  //         Duration(
-  //           seconds: 1,
-  //         ),
-  //         Colors.red[400],
-  //         true,
-  //         methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
-  //             Colors.white, null, null, TextAlign.center),
-  //       );
-  //     }
-  //   });
-  // }
-
+  Future<void> _loadList(String option) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
+        body: {
+          "option": option,
+        }).then((res) async {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        if (option == "food") {
+          setState(() {
+            widget.user.setFoodList(_extractData);
+            _dbList = _extractData;
+          });
+        } else {
+          setState(() {
+            widget.user.setExerciseList(_extractData);
+            _dbList = _extractData;
+          });
+        }
+        _queryList(_searchController.text, true);
+      } else {
+        methods.snackbarMessage(
+          context,
+          Duration(
+            seconds: 1,
+          ),
+          Colors.red[400],
+          true,
+          methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
+              Colors.white, null, null, TextAlign.center),
+        );
+      }
+    });
+  }
 }

@@ -17,7 +17,8 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 void main() => runApp(LoginScreen(userLogout: 1));
 
 class LoginScreen extends StatefulWidget {
-  final int userLogout; //1 = do ntg, 2 = clear password & remember me
+  final int
+      userLogout; //1 = do ntg, 2 = clear password & remember me, 3 = user change email
   final VoidCallback callback1;
   const LoginScreen({Key key, this.userLogout, this.callback1})
       : super(key: key);
@@ -97,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    _loadPrefUserDetails();
+    _loadPrefUserDetails(AssetImage("assets/images/logo.gif"));
     _loadPrefDarkMode();
     super.initState();
     KeyboardVisibilityNotification().addNewListener(
@@ -116,6 +117,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AssetImage _gif = AssetImage(
+      "assets/images/logo.gif",
+    );
     _screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: GestureDetector(
@@ -133,7 +137,8 @@ class _LoginScreenState extends State<LoginScreen> {
         //to prevent when user misclick back button
         child: WillPopScope(
           onWillPop: () {
-            return methods.backPressed(context, FocusScope.of(context));
+            return methods.backPressed(
+                context, FocusScope.of(context), user.getDarkMode() ?? false);
           },
           child: Theme(
             data: ThemeData(
@@ -153,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  _card(),
+                  _card(_gif),
                 ],
               ),
             ),
@@ -164,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   //start card method
-  Widget _card() {
+  Widget _card(AssetImage _gif) {
     return FadeAnimation(
       0.8,
       true,
@@ -176,13 +181,13 @@ class _LoginScreenState extends State<LoginScreen> {
           right: 5.0,
         ),
         //decide whether to show login card or sign up card
-        child: _loginPressed ? _loginCard() : _signUpCard(),
+        child: _loginPressed ? _loginCard(_gif) : _signUpCard(_gif),
       ),
     );
   } //end card method
 
   //start login and sign up navigator
-  Widget _navigator() {
+  Widget _navigator(AssetImage _gif) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
@@ -222,6 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
         //start Sign Up navigator
         GestureDetector(
           onTap: () {
+            _gif.evict();
             setState(() {
               if (_loginPressed) {
                 _i++;
@@ -253,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end login and sign up navigator
 
 //start floating button
-  Widget _floatingButton() {
+  Widget _floatingButton(AssetImage _gif) {
     return FadeAnimation(
       _loginPressed ? (_i == 0 ? 1.5 : 1) : 1,
       true,
@@ -313,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end floating button
 
   //start login card
-  Widget _loginCard() {
+  Widget _loginCard(AssetImage _gif) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -333,7 +339,7 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.only(
               top: 15.0,
             ),
-            child: _navigator(),
+            child: _navigator(_gif),
           ), //end Login and SignUp navigator
           //make widget after Login and Sign Up navigator scrollable
           Expanded(
@@ -344,12 +350,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     height: 120.0,
                     child: Hero(
-                      tag: "logo",
-                      child: Image.asset(
-                        "assets/images/logo.gif",
-                        scale: 3,
-                      ),
-                    ),
+                        tag: "logo",
+                        child: Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: _gif,
+                              scale: 1.5,
+                            ),
+                          ),
+                        )),
                   ),
                   //start YOUR HEALTH IS OUR DUTY text
                   FadeAnimation(
@@ -369,7 +378,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               builder: (c, s) => s.connectionState ==
                                       ConnectionState.done
                                   ? AnimatedTextKit(
-                                      // displayFullTextOnTap: true,
+                                      displayFullTextOnTap: true,
                                       isRepeatingAnimation: false,
                                       animatedTexts: [
                                         TypewriterAnimatedText(
@@ -501,7 +510,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: Switch(
                               value: _isChecked,
-                              activeColor: Color(0XFF933FBF),
+                              activeColor: _darkMode
+                                  ? Color(0XFFD58AFF)
+                                  : Color(0XFF933FBF),
                               onChanged: (bool value) {
                                 _onTick(value); //call _onTick method
                               },
@@ -580,7 +591,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ), //end resend verification email
-                  _floatingButton(),
+                  _floatingButton(_gif),
                 ],
               ),
             ),
@@ -591,7 +602,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end login card
 
   //start sign up card
-  Widget _signUpCard() {
+  Widget _signUpCard(AssetImage _gif) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -609,7 +620,7 @@ class _LoginScreenState extends State<LoginScreen> {
           //start Login and Sign Up navigator
           Padding(
             padding: const EdgeInsets.only(top: 15.0),
-            child: _navigator(),
+            child: _navigator(_gif),
           ), //end Login and SignUp navigator
           //make widget after Login and Sign Up navigator scrollable
           Expanded(
@@ -1032,7 +1043,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 child: Switch(
                                   value: _isChecked1,
-                                  activeColor: Color(0XFF933FBF),
+                                  activeColor: _darkMode
+                                      ? Color(0XFFD58AFF)
+                                      : Color(0XFF933FBF),
                                   onChanged: (bool value) {
                                     setState(() {
                                       _isChecked1 = value;
@@ -1076,7 +1089,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ), //end EULA
-                      _floatingButton(),
+                      _floatingButton(_gif),
                     ],
                   ),
                 ),
@@ -1111,7 +1124,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end _savePref method
 
   //start _loadPref method
-  Future<void> _loadPrefUserDetails() async {
+  Future<void> _loadPrefUserDetails(AssetImage _gif) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String email = (prefs.getString('email')) ?? '';
     String password = (prefs.getString('pass')) ?? '';
@@ -1710,7 +1723,8 @@ class _LoginScreenState extends State<LoginScreen> {
               userDetails[5],
               userDetails[6],
               userDetails[7],
-              _darkMode);
+              _darkMode,
+              true);
           Navigator.push(
             context,
             PageTransition(
@@ -1750,7 +1764,8 @@ class _LoginScreenState extends State<LoginScreen> {
               userDetails[5],
               userDetails[6],
               userDetails[7],
-              _darkMode);
+              _darkMode,
+              false);
           Navigator.push(
             context,
             PageTransition(

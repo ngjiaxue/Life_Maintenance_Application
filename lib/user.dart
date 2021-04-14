@@ -1,7 +1,7 @@
 class User {
   String _name, _dob, _gender, _email, _phone, _height, _weight;
 
-  bool _darkMode;
+  bool _darkMode, _isAdmin;
 
   List _foodList = [];
   List _exerciseList = [];
@@ -9,7 +9,7 @@ class User {
   List _userExerciseList = [];
 
   User(String name, String dob, String gender, String email, String phone,
-      String height, String weight, bool darkMode) {
+      String height, String weight, bool darkMode, bool isAdmin) {
     this._name = name;
     this._dob = dob;
     this._gender = gender;
@@ -18,9 +18,8 @@ class User {
     this._height = height;
     this._weight = weight;
     this._darkMode = darkMode;
+    this._isAdmin = isAdmin;
   }
-
-  DarkMode(bool darkMode) async {}
 
   String getName() {
     return this._name;
@@ -52,6 +51,10 @@ class User {
 
   bool getDarkMode() {
     return this._darkMode;
+  }
+
+  bool getIsAdmin() {
+    return this._isAdmin;
   }
 
   List getFoodList() {
