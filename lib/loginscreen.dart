@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    _loadPrefUserDetails(AssetImage("assets/images/logo.gif"));
+    _loadPrefUserDetails();
     _loadPrefDarkMode();
     super.initState();
     KeyboardVisibilityNotification().addNewListener(
@@ -117,9 +117,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AssetImage _gif = AssetImage(
-      "assets/images/logo.gif",
-    );
     _screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: GestureDetector(
@@ -158,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  _card(_gif),
+                  _card(),
                 ],
               ),
             ),
@@ -169,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   //start card method
-  Widget _card(AssetImage _gif) {
+  Widget _card() {
     return FadeAnimation(
       0.8,
       true,
@@ -181,13 +178,13 @@ class _LoginScreenState extends State<LoginScreen> {
           right: 5.0,
         ),
         //decide whether to show login card or sign up card
-        child: _loginPressed ? _loginCard(_gif) : _signUpCard(_gif),
+        child: _loginPressed ? _loginCard() : _signUpCard(),
       ),
     );
   } //end card method
 
   //start login and sign up navigator
-  Widget _navigator(AssetImage _gif) {
+  Widget _navigator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
@@ -227,7 +224,6 @@ class _LoginScreenState extends State<LoginScreen> {
         //start Sign Up navigator
         GestureDetector(
           onTap: () {
-            _gif.evict();
             setState(() {
               if (_loginPressed) {
                 _i++;
@@ -259,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end login and sign up navigator
 
 //start floating button
-  Widget _floatingButton(AssetImage _gif) {
+  Widget _floatingButton() {
     return FadeAnimation(
       _loginPressed ? (_i == 0 ? 1.5 : 1) : 1,
       true,
@@ -319,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end floating button
 
   //start login card
-  Widget _loginCard(AssetImage _gif) {
+  Widget _loginCard() {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -339,7 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.only(
               top: 15.0,
             ),
-            child: _navigator(_gif),
+            child: _navigator(),
           ), //end Login and SignUp navigator
           //make widget after Login and Sign Up navigator scrollable
           Expanded(
@@ -350,15 +346,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     height: 120.0,
                     child: Hero(
-                        tag: "logo",
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: _gif,
-                              scale: 1.5,
-                            ),
-                          ),
-                        )),
+                      tag: "logo",
+                      child: Image.asset(
+                        "assets/images/logo.png",
+                        scale: 4.5,
+                      ),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     image: DecorationImage(
+                      //       image: _gif,
+                      //       scale: 1.5,
+                      //     ),
+                      //   ),
+                      // ),
+                    ),
                   ),
                   //start YOUR HEALTH IS OUR DUTY text
                   FadeAnimation(
@@ -591,7 +592,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ), //end resend verification email
-                  _floatingButton(_gif),
+                  _floatingButton(),
                 ],
               ),
             ),
@@ -602,7 +603,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end login card
 
   //start sign up card
-  Widget _signUpCard(AssetImage _gif) {
+  Widget _signUpCard() {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -620,7 +621,7 @@ class _LoginScreenState extends State<LoginScreen> {
           //start Login and Sign Up navigator
           Padding(
             padding: const EdgeInsets.only(top: 15.0),
-            child: _navigator(_gif),
+            child: _navigator(),
           ), //end Login and SignUp navigator
           //make widget after Login and Sign Up navigator scrollable
           Expanded(
@@ -1089,7 +1090,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ), //end EULA
-                      _floatingButton(_gif),
+                      _floatingButton(),
                     ],
                   ),
                 ),
@@ -1124,7 +1125,7 @@ class _LoginScreenState extends State<LoginScreen> {
   } //end _savePref method
 
   //start _loadPref method
-  Future<void> _loadPrefUserDetails(AssetImage _gif) async {
+  Future<void> _loadPrefUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String email = (prefs.getString('email')) ?? '';
     String password = (prefs.getString('pass')) ?? '';
