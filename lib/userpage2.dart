@@ -1,9 +1,13 @@
+import 'package:flutter/scheduler.dart';
+
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:line_icons/line_icons.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -33,6 +37,8 @@ class _UserPage2State extends State<UserPage2>
   _UserPage2State({this.callback2});
   Methods methods = new Methods();
   double _screenHeight;
+  double _newAmount = 0.0;
+  bool _loading = false;
   AssetImage _gif;
 
   @override
@@ -93,35 +99,332 @@ class _UserPage2State extends State<UserPage2>
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          height: _screenHeight / 4.58,
-                                          width: _screenHeight / 4.38,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              methods.textOnly(
-                                                  widget.user.getUserFoodList()[
-                                                      index]["name"],
-                                                  "Leoscar",
-                                                  32.0,
-                                                  widget.user.getDarkMode()
-                                                      ? Colors.white70
-                                                      : Colors.black,
-                                                  FontWeight.normal,
-                                                  FontStyle.normal,
-                                                  TextAlign.start),
-                                              Spacer(),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  right: 15.0,
+                                    child: InkWell(
+                                      splashColor: index % 5 == 0
+                                          ? Color(0XFF015F9F)
+                                          : index % 5 == 1
+                                              ? Color(0XFF00D1D0)
+                                              : index % 5 == 2
+                                                  ? Color(0XFF00CC49)
+                                                  : index % 5 == 3
+                                                      ? Color(0XFFFA9308)
+                                                      : Color(0XFFEE1F27),
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                            context: context,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(10.0),
+                                                topRight: Radius.circular(10.0),
+                                              ),
+                                            ),
+                                            builder: (BuildContext context) {
+                                              return StatefulBuilder(builder:
+                                                  (context, newSetState) {
+                                                return _loading == false
+                                                    ? methods.shaderMask(
+                                                        Container(
+                                                          height:
+                                                              _screenHeight /
+                                                                  4.3,
+                                                          child: Column(
+                                                            children: [
+                                                              Spacer(),
+                                                              methods.textOnly(
+                                                                  "Update amount taken",
+                                                                  "Leoscar",
+                                                                  18.0,
+                                                                  Colors.white,
+                                                                  null,
+                                                                  null,
+                                                                  TextAlign
+                                                                      .center),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .symmetric(
+                                                                  horizontal:
+                                                                      30.0,
+                                                                ),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    GestureDetector(
+                                                                      child:
+                                                                          Container(
+                                                                        child:
+                                                                            Icon(
+                                                                          LineIcons
+                                                                              .times,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                      onTap:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          _newAmount =
+                                                                              0;
+                                                                        });
+                                                                        _gif.evict();
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                    ),
+                                                                    DecimalNumberPicker(
+                                                                        minValue:
+                                                                            0,
+                                                                        maxValue:
+                                                                            5000,
+                                                                        decimalPlaces:
+                                                                            1,
+                                                                        value: _newAmount ==
+                                                                                0.0
+                                                                            ? double.parse(widget.user.getUserFoodList()[index][
+                                                                                "amount"])
+                                                                            : _newAmount,
+                                                                        onChanged:
+                                                                            (value) {
+                                                                          newSetState(
+                                                                              () {
+                                                                            _newAmount =
+                                                                                value;
+                                                                          });
+                                                                        }),
+                                                                    GestureDetector(
+                                                                      child:
+                                                                          Container(
+                                                                        child:
+                                                                            Icon(
+                                                                          LineIcons
+                                                                              .check,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                      onTap:
+                                                                          () async {
+                                                                        newSetState(
+                                                                            () {
+                                                                          _loading =
+                                                                              true;
+                                                                        });
+                                                                        await _editUserList(
+                                                                            "food",
+                                                                            _newAmount != 0.0
+                                                                                ? _newAmount.toStringAsFixed(1)
+                                                                                : widget.user.getUserFoodList()[index]["amount"],
+                                                                            widget.user.getUserFoodList()[index]["date"],
+                                                                            widget.user.getEmail());
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                        SchedulerBinding
+                                                                            .instance
+                                                                            .addPostFrameCallback((_) {
+                                                                          _loading =
+                                                                              false;
+                                                                        });
+                                                                      },
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        true,
+                                                      )
+                                                    : Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
+                                                            image: _gif,
+                                                            scale: 3,
+                                                          ),
+                                                        ),
+                                                      );
+                                              });
+                                            }).whenComplete(() {
+                                          setState(() {
+                                            _newAmount = 0.0;
+                                          });
+                                        });
+                                      },
+                                      onLongPress: () {
+                                        showModalBottomSheet(
+                                            context: context,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(10.0),
+                                                topRight: Radius.circular(10.0),
+                                              ),
+                                            ),
+                                            builder: (BuildContext context) {
+                                              return StatefulBuilder(builder:
+                                                  (context, newSetState) {
+                                                return _loading == false
+                                                    ? Container(
+                                                        height: 60.0,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 30.0,
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              GestureDetector(
+                                                                child:
+                                                                    Container(
+                                                                  child: methods
+                                                                      .shaderMask(
+                                                                    Icon(
+                                                                      LineIcons
+                                                                          .times,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    true,
+                                                                  ),
+                                                                ),
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    _newAmount =
+                                                                        0;
+                                                                  });
+                                                                  _gif.evict();
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                              ),
+                                                              methods.shaderMask(
+                                                                  methods.textOnly(
+                                                                      "Delete selected food?",
+                                                                      "Leoscar",
+                                                                      18.0,
+                                                                      Colors
+                                                                          .white,
+                                                                      FontWeight
+                                                                          .normal,
+                                                                      FontStyle
+                                                                          .normal,
+                                                                      TextAlign
+                                                                          .start),
+                                                                  true),
+                                                              GestureDetector(
+                                                                child:
+                                                                    Container(
+                                                                  child: methods
+                                                                      .shaderMask(
+                                                                    Icon(
+                                                                      LineIcons
+                                                                          .check,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    true,
+                                                                  ),
+                                                                ),
+                                                                onTap:
+                                                                    () async {
+                                                                  newSetState(
+                                                                      () {
+                                                                    _loading =
+                                                                        true;
+                                                                  });
+                                                                  await _deleteUserList(
+                                                                      "food",
+                                                                      widget.user
+                                                                              .getUserFoodList()[index]
+                                                                          [
+                                                                          "amount"],
+                                                                      widget.user.getUserFoodList()[
+                                                                              index]
+                                                                          [
+                                                                          "date"],
+                                                                      widget
+                                                                          .user
+                                                                          .getEmail());
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  SchedulerBinding
+                                                                      .instance
+                                                                      .addPostFrameCallback(
+                                                                          (_) {
+                                                                    _loading =
+                                                                        false;
+                                                                  });
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          // true,
+                                                          // ),
+                                                        ),
+                                                      )
+                                                    : Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
+                                                            image: _gif,
+                                                            scale: 3,
+                                                          ),
+                                                        ),
+                                                      );
+                                              });
+                                            });
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            height: _screenHeight / 4.58,
+                                            width: _screenHeight / 4.38,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                methods.textOnly(
+                                                    widget.user
+                                                            .getUserFoodList()[
+                                                        index]["name"],
+                                                    "Leoscar",
+                                                    32.0,
+                                                    widget.user.getDarkMode()
+                                                        ? Colors.white70
+                                                        : Colors.black,
+                                                    FontWeight.normal,
+                                                    FontStyle.normal,
+                                                    TextAlign.start),
+                                                Spacer(),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    right: 15.0,
+                                                  ),
+                                                  child: methods.textOnly(
+                                                      "${widget.user.getUserFoodList()[index]["calories"]} calories (per 100 grams)",
+                                                      "Leoscar",
+                                                      18.0,
+                                                      widget.user.getDarkMode()
+                                                          ? Colors.white70
+                                                          : Colors.black,
+                                                      FontWeight.normal,
+                                                      FontStyle.normal,
+                                                      TextAlign.start),
                                                 ),
-                                                child: methods.textOnly(
-                                                    "${widget.user.getUserFoodList()[index]["calories"]} calories (per 100 grams)",
+                                                Spacer(),
+                                                methods.textOnly(
+                                                    "Amount taken: ${double.parse(widget.user.getUserFoodList()[index]["amount"]).toStringAsFixed(1)} grams",
                                                     "Leoscar",
                                                     18.0,
                                                     widget.user.getDarkMode()
@@ -130,49 +433,38 @@ class _UserPage2State extends State<UserPage2>
                                                     FontWeight.normal,
                                                     FontStyle.normal,
                                                     TextAlign.start),
-                                              ),
-                                              Spacer(),
-                                              methods.textOnly(
-                                                  "Amount taken: ${double.parse(widget.user.getUserFoodList()[index]["amount"]).toStringAsFixed(1)} grams",
-                                                  "Leoscar",
-                                                  18.0,
-                                                  widget.user.getDarkMode()
-                                                      ? Colors.white70
-                                                      : Colors.black,
-                                                  FontWeight.normal,
-                                                  FontStyle.normal,
-                                                  TextAlign.start),
-                                              Spacer(),
-                                            ],
+                                                Spacer(),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        Container(
-                                          child: methods.textOnly(
-                                              "Total calories: ${widget.user.getUserFoodList()[index]["totalcalories"]} calories",
-                                              "Leoscar",
-                                              18.0,
-                                              widget.user.getDarkMode()
-                                                  ? Colors.white70
-                                                  : Colors.black,
-                                              FontWeight.normal,
-                                              FontStyle.normal,
-                                              TextAlign.start),
-                                        ),
-                                        Spacer(),
-                                        Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: methods.textOnly(
-                                              "Date added: ${widget.user.getUserFoodList()[index]["date"]}",
-                                              "Leoscar",
-                                              12.0,
-                                              widget.user.getDarkMode()
-                                                  ? Colors.white70
-                                                  : Colors.black,
-                                              FontWeight.normal,
-                                              FontStyle.normal,
-                                              TextAlign.end),
-                                        ),
-                                      ],
+                                          Container(
+                                            child: methods.textOnly(
+                                                "Total calories: ${widget.user.getUserFoodList()[index]["totalcalories"]} calories",
+                                                "Leoscar",
+                                                18.0,
+                                                widget.user.getDarkMode()
+                                                    ? Colors.white70
+                                                    : Colors.black,
+                                                FontWeight.normal,
+                                                FontStyle.normal,
+                                                TextAlign.start),
+                                          ),
+                                          Spacer(),
+                                          Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: methods.textOnly(
+                                                "Date added: ${widget.user.getUserFoodList()[index]["date"]}",
+                                                "Leoscar",
+                                                12.0,
+                                                widget.user.getDarkMode()
+                                                    ? Colors.white70
+                                                    : Colors.black,
+                                                FontWeight.normal,
+                                                FontStyle.normal,
+                                                TextAlign.end),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -282,6 +574,9 @@ class _UserPage2State extends State<UserPage2>
           widget.user.setUserFoodList(_extractData);
         });
       } else if (res.body == "connected but no data") {
+        setState(() {
+          widget.user.setUserExerciseList([]);
+        });
       } else {
         methods.snackbarMessage(
           context,
@@ -293,6 +588,90 @@ class _UserPage2State extends State<UserPage2>
           methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
+      }
+    });
+  }
+
+  Future<void> _editUserList(
+      String _option, String _amount, String _date, String _email) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/edituserlist.php"),
+        body: {
+          "option": _option,
+          "amount": _amount,
+          "date": _date,
+          "email": _email,
+        }).then((res) async {
+      if (res.body == "success") {
+        await _loadUserList("food");
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              milliseconds: 1500,
+            ),
+            Color(0XFFB563E0),
+            true,
+            methods.textOnly("Amount taken updated successfully", "Leoscar",
+                18.0, Colors.white, null, null, TextAlign.center),
+          );
+        });
+      } else {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Colors.red[400],
+            true,
+            methods.textOnly("Failed to update amount taken...Please try again",
+                "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+          );
+        });
+      }
+    });
+  }
+
+  Future<void> _deleteUserList(
+      String _option, String _amount, String _date, String _email) async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/deleteuserlist.php"),
+        body: {
+          "option": _option,
+          "amount": _amount,
+          "date": _date,
+          "email": _email,
+        }).then((res) async {
+      if (res.body == "success") {
+        await _loadUserList("food");
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              milliseconds: 1500,
+            ),
+            Color(0XFFB563E0),
+            true,
+            methods.textOnly("Food deleted successfully", "Leoscar", 18.0,
+                Colors.white, null, null, TextAlign.center),
+          );
+        });
+      } else {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          methods.snackbarMessage(
+            context,
+            Duration(
+              seconds: 1,
+            ),
+            Colors.red[400],
+            true,
+            methods.textOnly("Failed to delete food...Please try again",
+                "Leoscar", 18.0, Colors.white, null, null, TextAlign.center),
+          );
+        });
       }
     });
   }

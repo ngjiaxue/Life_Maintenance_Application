@@ -335,7 +335,7 @@ class _AddItemState extends State<AddItem> {
                                                   decoration: BoxDecoration(
                                                     image: DecorationImage(
                                                       image: _gif,
-                                                      scale: 1.5,
+                                                      scale: 3,
                                                     ),
                                                   ),
                                                 );
@@ -489,7 +489,6 @@ class _AddItemState extends State<AddItem> {
       _searchList.add("no data");
     }
     _oldQuery = _query;
-    ;
   }
 
   Future<void> _addToList(Map<String, dynamic> list, String amount) async {
