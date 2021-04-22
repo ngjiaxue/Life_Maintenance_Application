@@ -361,6 +361,8 @@ class _UserPage4State extends State<UserPage4>
                                             _weightController.clear();
                                             _confirmationMessage = false;
                                             _isEditing = false;
+                                            _userNewHeight = 0.0;
+                                            _userNewWeight = 0.0;
                                           });
                                         });
                                   }
@@ -1146,13 +1148,15 @@ class _UserPage4State extends State<UserPage4>
   }
 
   void _showNumberPicker(int _index) {
-    setState(() {
-      if (_index == 4) {
+    if (_userNewHeight == 0.0 && _index == 4) {
+      setState(() {
         _userNewHeight = double.parse(widget.user.getHeight());
-      } else {
+      });
+    } else if (_userNewWeight == 0.0 && _index == 5) {
+      setState(() {
         _userNewWeight = double.parse(widget.user.getWeight());
-      }
-    });
+      });
+    }
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(
@@ -1199,25 +1203,32 @@ class _UserPage4State extends State<UserPage4>
                                   },
                                 ),
                                 DecimalNumberPicker(
-                                    minValue: _index == 0 ? 50 : 30,
-                                    maxValue: _index == 0 ? 200 : 300,
-                                    decimalPlaces: 1,
-                                    value: _index == 4
-                                        ? _userNewHeight
-                                        : _userNewWeight,
-                                    onChanged: (value) {
-                                      newSetState(() {
-                                        if (_index == 4) {
-                                          _userNewHeight = value;
-                                          _heightController.text =
-                                              value.toString();
-                                        } else {
-                                          _userNewWeight = value;
-                                          _weightController.text =
-                                              value.toString();
-                                        }
-                                      });
-                                    }),
+                                  minValue: _index == 4 ? 50 : 30,
+                                  maxValue: _index == 4 ? 200 : 300,
+                                  decimalPlaces: 1,
+                                  value: _index == 4
+                                      ? (_userNewHeight == 0.0
+                                          ? 50
+                                          : _userNewHeight)
+                                      : (_userNewWeight == 0.0
+                                          ? 30
+                                          : _userNewWeight),
+                                  //     ? (_heightController.text != "0.0"
+                                  //     ? double.parse(_heightController.text)
+                                  //     : 50.0)
+                                  // : (_weightController.text != "0.0"
+                                  //     ? double.parse(_weightController.text)
+                                  //     : 30),
+                                  onChanged: (value) {
+                                    newSetState(() {
+                                      if (_index == 4) {
+                                        _userNewHeight = value;
+                                      } else {
+                                        _userNewWeight = value;
+                                      }
+                                    });
+                                  },
+                                ),
                                 GestureDetector(
                                   child: Container(
                                     child: Icon(
@@ -1227,8 +1238,15 @@ class _UserPage4State extends State<UserPage4>
                                   ),
                                   onTap: () {
                                     Navigator.pop(context);
-                                    // newSetState(() {
-                                    // });
+                                    setState(() {
+                                      if (_index == 4) {
+                                        _heightController.text =
+                                            _userNewHeight.toString();
+                                      } else {
+                                        _weightController.text =
+                                            _userNewWeight.toString();
+                                      }
+                                    });
                                   },
                                 ),
                               ],
@@ -1248,89 +1266,13 @@ class _UserPage4State extends State<UserPage4>
                     ),
                   );
           });
-        });
-    // double _tempValue = _index == 4
-    //     ? (_height != 0.0
-    //         ? _height
-    //         : widget.user.getHeight() == "0.0"
-    //             ? 50.0
-    //             : double.parse(widget.user.getHeight()))
-    //     : (_weight != 0.0
-    //         ? _weight
-    //         : widget.user.getWeight() == "0.0"
-    //             ? 30.0
-    //             : double.parse(widget.user.getWeight()));
-    // methods.snackbarMessage(
-    //   context,
-    //   Duration(days: 365),
-    //   Color(0XFFB563E0),
-    //   false,
-    //   StatefulBuilder(builder: (context, newSetState) {
-    //     return Container(
-    //       height: _screenHeight / 4.5,
-    //       child: Column(
-    //         children: [
-    //           methods.textOnly(
-    //               "Please insert your " +
-    //                   (_index == 4 ? "height (cm)" : "weight (kg)"),
-    //               "Leoscar",
-    //               18.0,
-    //               Colors.white,
-    //               null,
-    //               null,
-    //               TextAlign.center),
-    //           Row(
-    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               GestureDetector(
-    //                 child: Container(
-    //                   child: Icon(
-    //                     LineIcons.times,
-    //                     color: Colors.white,
-    //                   ),
-    //                 ),
-    //                 onTap: () =>
-    //                     ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-    //               ),
-    //               DecimalNumberPicker(
-    //                   minValue: _index == 0 ? 50 : 30,
-    //                   maxValue: _index == 0 ? 200 : 300,
-    //                   decimalPlaces: 1,
-    //                   value: _tempValue,
-    //                   onChanged: (value) {
-    //                     newSetState(() {
-    //                       _tempValue = value;
-    //                     });
-    //                   }),
-    //               GestureDetector(
-    //                 child: Container(
-    //                   child: Icon(
-    //                     LineIcons.check,
-    //                     color: Colors.white,
-    //                   ),
-    //                 ),
-    //                 onTap: () {
-    //                   SchedulerBinding.instance.addPostFrameCallback((_) {
-    //                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    //                     setState(() {
-    //                       if (_index == 4 && _tempValue != null) {
-    //                         _height = _tempValue;
-    //                         _heightController.text = _tempValue.toString();
-    //                       } else if (_index == 5 && _tempValue != null) {
-    //                         _weight = _tempValue;
-    //                         _weightController.text = _tempValue.toString();
-    //                       }
-    //                     });
-    //                   });
-    //                 },
-    //               ),
-    //             ],
-    //           ),
-    //         ],
-    //       ),
-    //     );
-    //   }),
-    // );
+        }).whenComplete(() {
+      if (_index == 4 && _heightController.text.isNotEmpty) {
+        _userNewHeight = double.parse(_heightController.text);
+      } else if (_index == 5 && _weightController.text.isNotEmpty) {
+        _userNewWeight = double.parse(_weightController.text);
+      }
+    });
   }
 
   Future<void> _getImage(bool isCamera) async {
