@@ -43,8 +43,8 @@ class _UserPage4State extends State<UserPage4>
   Methods methods = new Methods();
   double _screenWidth;
   double _screenHeight;
-  double _userNewHeight;
-  double _userNewWeight;
+  double _userNewHeight = 0.0;
+  double _userNewWeight = 0.0;
   bool _loading = false;
   bool _isCropping = false;
   bool _isEditing = false;
@@ -504,6 +504,8 @@ class _UserPage4State extends State<UserPage4>
                                                 _weightController.clear();
                                                 _confirmationMessage = false;
                                                 _isEditing = false;
+                                                _userNewHeight = 0.0;
+                                                _userNewWeight = 0.0;
                                               });
                                             } else {
                                               Future.delayed(
