@@ -103,56 +103,45 @@ class _UserPage4State extends State<UserPage4>
                             errorWidget: (context, url, error) =>
                                 Image.asset("assets/images/defaultprofile.png"),
                           ),
-                          // Image.asset(
-                          //   "assets/images/defaultprofile.png",
-                          //   fit: BoxFit.cover,
-                          //   height: _screenWidth,
-                          //   width: _screenWidth,
-                          // ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: 50,
-                          ),
-                          child: ClipPath(
-                            clipper: ClippingClass(),
-                            child: Container(
-                              width: _screenWidth,
-                              height: _screenWidth,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: widget.user.getDarkMode()
-                                      ? [
-                                          _darkColor.withOpacity(0.1),
-                                          _darkColor.withOpacity(0.2),
-                                          _darkColor.withOpacity(0.3),
-                                          _darkColor.withOpacity(0.4),
-                                          _darkColor.withOpacity(0.5),
-                                          _darkColor.withOpacity(0.6),
-                                          _darkColor.withOpacity(0.7),
-                                          _darkColor.withOpacity(0.8),
-                                          _darkColor.withOpacity(0.9),
-                                          _darkColor.withOpacity(1),
-                                        ]
-                                      : [
-                                          Colors.white.withOpacity(0),
-                                          Colors.white.withOpacity(0.1),
-                                          Colors.white.withOpacity(0.2),
-                                          Colors.white.withOpacity(0.3),
-                                          Colors.white.withOpacity(0.4),
-                                          Colors.white.withOpacity(0.5),
-                                          Colors.white.withOpacity(0.6),
-                                          Colors.white.withOpacity(0.7),
-                                          Colors.white.withOpacity(0.8),
-                                          Colors.white.withOpacity(0.9),
-                                          Colors.white.withOpacity(1),
-                                        ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0),
-                                ),
+                        ClipPath(
+                          clipper: ClippingClass(),
+                          child: Container(
+                            width: _screenWidth,
+                            height: _screenWidth,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: widget.user.getDarkMode()
+                                    ? [
+                                        _darkColor.withOpacity(0.1),
+                                        _darkColor.withOpacity(0.2),
+                                        _darkColor.withOpacity(0.3),
+                                        _darkColor.withOpacity(0.4),
+                                        _darkColor.withOpacity(0.5),
+                                        _darkColor.withOpacity(0.6),
+                                        _darkColor.withOpacity(0.7),
+                                        _darkColor.withOpacity(0.8),
+                                        _darkColor.withOpacity(0.9),
+                                        _darkColor.withOpacity(1),
+                                      ]
+                                    : [
+                                        Colors.white.withOpacity(0),
+                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withOpacity(0.2),
+                                        Colors.white.withOpacity(0.3),
+                                        Colors.white.withOpacity(0.4),
+                                        Colors.white.withOpacity(0.5),
+                                        Colors.white.withOpacity(0.6),
+                                        Colors.white.withOpacity(0.7),
+                                        Colors.white.withOpacity(0.8),
+                                        Colors.white.withOpacity(0.9),
+                                        Colors.white.withOpacity(1),
+                                      ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0),
                               ),
                             ),
                           ),
