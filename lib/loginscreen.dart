@@ -515,7 +515,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ? Color(0XFFD58AFF)
                                   : Color(0XFF933FBF),
                               onChanged: (bool value) {
-                                _onTick(value); //call _onTick method
+                                setState(() {
+                                  _i++;
+                                  _isChecked = value;
+                                });
+                                // _onTick(value); //call _onTick method
                               },
                             ),
                           ),
@@ -1163,51 +1167,51 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-//start _onTick method
-  void _onTick(bool value) {
-    setState(() {
-      _i++;
-      _isChecked = value;
-      if (_emailController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty) {
-        if (_isChecked) {
-          methods.snackbarMessage(
-            context,
-            Duration(
-              milliseconds: 500,
-            ),
-            Color(0XFFB563E0),
-            true,
-            methods.textOnly("Email & password saved", "Leoscar", 18.0,
-                Colors.white, null, null, TextAlign.center),
-          );
-        } else {
-          methods.snackbarMessage(
-            context,
-            Duration(
-              milliseconds: 500,
-            ),
-            Color(0XFFB563E0),
-            true,
-            methods.textOnly("Email & password removed", "Leoscar", 18.0,
-                Colors.white, null, null, TextAlign.center),
-          );
-        }
-      } else {
-        _isChecked = false;
-        methods.snackbarMessage(
-          context,
-          Duration(
-            seconds: 1,
-          ),
-          Colors.red[400],
-          true,
-          methods.textOnly("Please fill in all the blank(s)", "Leoscar", 18.0,
-              Colors.white, null, null, TextAlign.center),
-        );
-      }
-    });
-  } //end _onTick method
+// //start _onTick method
+//   void _onTick(bool value) {
+//     setState(() {
+//       _i++;
+//       _isChecked = value;
+//       if (_emailController.text.isNotEmpty &&
+//           _passwordController.text.isNotEmpty) {
+//         if (_isChecked) {
+//           methods.snackbarMessage(
+//             context,
+//             Duration(
+//               milliseconds: 500,
+//             ),
+//             Color(0XFFB563E0),
+//             true,
+//             methods.textOnly("Email & password saved", "Leoscar", 18.0,
+//                 Colors.white, null, null, TextAlign.center),
+//           );
+//         } else {
+//           methods.snackbarMessage(
+//             context,
+//             Duration(
+//               milliseconds: 500,
+//             ),
+//             Color(0XFFB563E0),
+//             true,
+//             methods.textOnly("Email & password removed", "Leoscar", 18.0,
+//                 Colors.white, null, null, TextAlign.center),
+//           );
+//         }
+//       } else {
+//         _isChecked = false;
+//         methods.snackbarMessage(
+//           context,
+//           Duration(
+//             seconds: 1,
+//           ),
+//           Colors.red[400],
+//           true,
+//           methods.textOnly("Please fill in all the blank(s)", "Leoscar", 18.0,
+//               Colors.white, null, null, TextAlign.center),
+//         );
+//       }
+//     });
+//   } //end _onTick method
 
   //start _forgetPassword method
   void _forgetPassword() {

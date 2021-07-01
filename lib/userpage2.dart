@@ -54,17 +54,14 @@ class _UserPage2State extends State<UserPage2>
     return Container(
       child: Stack(
         children: [
-          // widget.userFoodList.length == 0
           widget.user.getUserFoodList().length == 0
               ? Center(
                   child: methods.noRecordFound(5, 24.0),
                 )
               : ListView.builder(
                   padding: EdgeInsets.zero,
-                  // itemCount: widget.userFoodList.length,
                   itemCount: widget.user.getUserFoodList().length,
                   itemBuilder: (context, index) {
-                    // int _count = (widget.userFoodList.length - 1) - index;
                     return Container(
                       height: _screenHeight / 2.5,
                       child: Stack(
@@ -112,6 +109,8 @@ class _UserPage2State extends State<UserPage2>
                                       onTap: () {
                                         showModalBottomSheet(
                                             context: context,
+                                            enableDrag: false,
+                                            isDismissible: false,
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(10.0),
@@ -257,6 +256,7 @@ class _UserPage2State extends State<UserPage2>
                                       onLongPress: () {
                                         showModalBottomSheet(
                                             context: context,
+                                            enableDrag: !_loading,
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(10.0),
@@ -485,7 +485,11 @@ class _UserPage2State extends State<UserPage2>
                                   height: _screenHeight / 4.3,
                                   width: _screenHeight / 4.3,
                                   imageUrl: widget.user.getUserFoodList()[index]
-                                      ["imagesource"],
+                                              ["imagesource"] ==
+                                          null
+                                      ? ""
+                                      : widget.user.getUserFoodList()[index]
+                                          ["imagesource"],
                                   placeholder: (context, url) => Container(
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
@@ -496,7 +500,7 @@ class _UserPage2State extends State<UserPage2>
                                   ),
                                   errorWidget: (context, url, error) =>
                                       Image.asset(
-                                          "assets/images/defaultprofile.png"),
+                                          "assets/images/noimageavailable.png"),
                                 ),
                                 // child: Image.network(
                                 //   widget.user.getUserFoodList()[index]["imagesource"],
@@ -545,6 +549,7 @@ class _UserPage2State extends State<UserPage2>
                           callback1: () async {
                             if (this.mounted) {
                               await _loadUserList("food");
+                              print("hifrompg2");
                             }
                           },
                         ),

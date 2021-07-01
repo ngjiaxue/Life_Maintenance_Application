@@ -119,6 +119,8 @@ class _UserPage3State extends State<UserPage3>
                                       onTap: () {
                                         showModalBottomSheet(
                                             context: context,
+                                            enableDrag: false,
+                                            isDismissible: false,
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(10.0),
@@ -264,6 +266,8 @@ class _UserPage3State extends State<UserPage3>
                                       onLongPress: () {
                                         showModalBottomSheet(
                                             context: context,
+                                            enableDrag: false,
+                                            isDismissible: false,
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(10.0),
@@ -489,8 +493,12 @@ class _UserPage3State extends State<UserPage3>
                                   fit: BoxFit.cover,
                                   height: _screenHeight / 4.3,
                                   width: _screenHeight / 4.3,
-                                  imageUrl:
-                                      widget.user.getUserExerciseList()[index]
+                                  imageUrl: widget.user
+                                                  .getUserExerciseList()[index]
+                                              ["imagesource"] ==
+                                          null
+                                      ? "nosource"
+                                      : widget.user.getUserExerciseList()[index]
                                           ["imagesource"],
                                   placeholder: (context, url) => Container(
                                     decoration: BoxDecoration(
@@ -502,7 +510,7 @@ class _UserPage3State extends State<UserPage3>
                                   ),
                                   errorWidget: (context, url, error) =>
                                       Image.asset(
-                                          "assets/images/defaultprofile.png"),
+                                          "assets/images/noimageavailable.png"),
                                 ),
                               ),
                             ),
