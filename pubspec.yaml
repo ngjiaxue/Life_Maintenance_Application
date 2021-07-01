@@ -35,6 +35,7 @@ dependencies:
   image_cropper: ^1.4.0
   flutter_icons: ^1.1.0
   slider_button: ^0.6.0
+  hawk_fab_menu: ^0.3.2
   page_transition: ^1.1.7+5
   simple_animations: ^3.0.2
   animated_text_kit: ^4.0.0

@@ -1,4 +1,7 @@
+import 'package:badges/badges.dart';
+
 import 'loginscreen.dart';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -393,6 +396,154 @@ class Methods {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(5.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget fab(
+      int _i,
+      int _listLength,
+      String _text,
+      Function() _onPressed,
+      IconData _icon1,
+      IconData _icon2,
+      bool _active,
+      bool _menuPressed,
+      bool _menuInstantPressed,
+      bool _isDarkMode) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: AnimatedOpacity(
+        opacity:
+            (_i != 5 ? _menuInstantPressed : !_menuInstantPressed) ? 1.0 : 0.0,
+        duration: Duration(
+            milliseconds: _menuInstantPressed
+                ? (_i == 5 || _i == 4
+                    ? 0
+                    : _i == 3
+                        ? 500
+                        : _i == 2
+                            ? 900
+                            : 1300)
+                : (_i == 5 || _i == 4
+                    ? 0
+                    : _i == 1
+                        ? 500
+                        : _i == 2
+                            ? 900
+                            : 1300)),
+        child: Visibility(
+          visible: _i != 5 ? _menuPressed : !_menuInstantPressed,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _active
+                        ? (_isDarkMode ? Colors.grey[300] : Colors.white)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(100.0),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(
+                      10.0,
+                    ),
+                    child: Text(
+                      _text,
+                      style: TextStyle(
+                        fontFamily: "Leoscar",
+                        fontSize: 14.0,
+                        letterSpacing: 1.0,
+                        color: _active ? Colors.black : Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+              FloatingActionButton(
+                heroTag: _i,
+                backgroundColor: _isDarkMode ? Color(0XFF424242) : Colors.white,
+                elevation: 10.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  side: BorderSide(color: Colors.black12),
+                ),
+                onPressed: _onPressed,
+                child: _icon1 != _icon2
+                    ? shaderMask(
+                        Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 7,
+                                  right: 7,
+                                ),
+                                child: Icon(
+                                  _icon1,
+                                  size: 26.0,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: 6,
+                                  right: _i == 1 ? 9 : 7,
+                                ),
+                                child: Transform(
+                                  alignment: Alignment.topCenter,
+                                  transform: _i == 1
+                                      ? Matrix4.rotationY(math.pi)
+                                      : Matrix4.rotationY(0),
+                                  child: Icon(
+                                    _icon2,
+                                    size: 22.0,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        true,
+                      )
+                    : Badge(
+                        animationType: BadgeAnimationType.scale,
+                        position: BadgePosition.topEnd(top: -7, end: -3),
+                        showBadge: _listLength > 0 ? true : false,
+                        badgeContent: textOnly(
+                            _listLength.toString(),
+                            "Leoscar",
+                            10.0,
+                            Colors.white,
+                            FontWeight.normal,
+                            FontStyle.normal,
+                            TextAlign.center),
+                        child: shaderMask(
+                          Icon(
+                            _icon1,
+                            size: 30.0,
+                            color: Colors.white,
+                          ),
+                          true,
+                        ),
+                      ),
+              ),
+            ],
           ),
         ),
       ),

@@ -124,8 +124,9 @@ class _AddNewItemState extends State<AddNewItem> {
                           _gif.evict();
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white.withOpacity(0.85),
-                          onPrimary: Colors.grey[350],
+                          primary: widget.darkMode
+                              ? Colors.white70
+                              : Colors.white.withOpacity(0.85),
                           elevation: 20.0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0),
@@ -215,6 +216,7 @@ class _AddNewItemState extends State<AddNewItem> {
             ? () {
                 showModalBottomSheet(
                     context: context,
+                    enableDrag: false,
                     isDismissible: false,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(

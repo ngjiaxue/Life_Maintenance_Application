@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'user.dart';
+import 'dart:convert';
 import 'methods.dart';
 import 'addnewitem.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:life_maintenance_application/pendingapproval.dart';
 
 class AddItem extends StatefulWidget {
   final String option;
@@ -40,6 +40,9 @@ class _AddItemState extends State<AddItem> {
   String _oldQuery = "";
   List _dbList = [];
   List _searchList = [];
+  List _pendingApprovalList = [];
+  bool _menuPressed = false;
+  bool _menuInstantPressed = false;
 
   TextEditingController _searchController = new TextEditingController();
   Map<int, Color> _swatch = {
@@ -61,6 +64,7 @@ class _AddItemState extends State<AddItem> {
     setState(() {
       _dbList = widget.dbList;
     });
+    _loadPendingApprovalList();
   }
 
   @override
@@ -122,11 +126,7 @@ class _AddItemState extends State<AddItem> {
                                       isAdmin: widget.user.getIsAdmin(),
                                       callback1: () async {
                                         if (this.mounted) {
-                                          if (widget.option == "food") {
-                                            await _loadList(widget.option);
-                                          } else {
-                                            await _loadList(widget.option);
-                                          }
+                                          await _loadList(widget.option, false);
                                         }
                                       },
                                     ),
@@ -181,6 +181,7 @@ class _AddItemState extends State<AddItem> {
                                   FocusScope.of(context).unfocus();
                                   showModalBottomSheet(
                                       context: context,
+                                      enableDrag: false,
                                       isDismissible: false,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.only(
@@ -459,6 +460,145 @@ class _AddItemState extends State<AddItem> {
           ],
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(
+          right: 8.0,
+          bottom: 8.0,
+        ),
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 142.0),
+              child: widget.user.getIsAdmin()
+                  ? methods.fab(
+                      2,
+                      _pendingApprovalList.length,
+                      "Pending Approval",
+                      () {
+                        setState(() {
+                          _menuInstantPressed = false;
+                        });
+                        Future.delayed(const Duration(milliseconds: 1300), () {
+                          setState(() {
+                            _menuPressed = false;
+                          });
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              child: PendingApproval(
+                                option: widget.option,
+                                darkMode: _darkMode,
+                                isAdmin: widget.user.getIsAdmin(),
+                                pendingApprovalList: _pendingApprovalList,
+                                callback1: () async {
+                                  if (this.mounted) {
+                                    await _loadList(widget.option, true);
+                                    await _loadPendingApprovalList();
+                                  }
+                                },
+                              ),
+                              type: PageTransitionType.fade,
+                            ),
+                          );
+                        });
+                      },
+                      Icons.pending_actions_rounded,
+                      Icons.pending_actions_rounded,
+                      false,
+                      _menuPressed,
+                      _menuInstantPressed,
+                      widget.user.getDarkMode(),
+                    )
+                  : SizedBox.shrink(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 80.0),
+              child: methods.fab(
+                3,
+                0,
+                "Add a new " + widget.option + "?",
+                () {
+                  setState(() {
+                    _menuInstantPressed = false;
+                  });
+                  Future.delayed(const Duration(milliseconds: 900), () {
+                    setState(() {
+                      _menuPressed = false;
+                    });
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        child: AddNewItem(
+                          option: widget.option,
+                          darkMode: _darkMode,
+                          isAdmin: widget.user.getIsAdmin(),
+                          callback1: () async {
+                            if (this.mounted) {
+                              await _loadList(widget.option, false);
+                            }
+                          },
+                        ),
+                        type: PageTransitionType.fade,
+                      ),
+                    );
+                  });
+                },
+                widget.option == "food"
+                    ? FlutterIcons.food_apple_outline_mco
+                    : FlutterIcons.running_faw5s,
+                widget.option == "food"
+                    ? FlutterIcons.food_apple_outline_mco
+                    : FlutterIcons.running_faw5s,
+                false,
+                _menuPressed,
+                _menuInstantPressed,
+                widget.user.getDarkMode(),
+              ),
+            ),
+            methods.fab(
+              4,
+              0,
+              "",
+              () {
+                setState(() {
+                  _menuPressed = true;
+                  _menuInstantPressed = false;
+                });
+                Future.delayed(const Duration(milliseconds: 900), () {
+                  setState(() {
+                    _menuPressed = false;
+                  });
+                });
+              },
+              Icons.close,
+              Icons.close,
+              false,
+              _menuPressed,
+              _menuInstantPressed,
+              widget.user.getDarkMode(),
+            ),
+            methods.fab(
+                5,
+                _pendingApprovalList.length,
+                "",
+                _menuPressed
+                    ? () {}
+                    : () {
+                        setState(() {
+                          _menuPressed = true;
+                          _menuInstantPressed = true;
+                        });
+                      },
+                Icons.menu,
+                Icons.menu,
+                false,
+                _menuPressed,
+                _menuInstantPressed,
+                widget.user.getDarkMode()),
+          ],
+        ),
+      ),
     );
   }
 
@@ -536,7 +676,7 @@ class _AddItemState extends State<AddItem> {
     });
   }
 
-  Future<void> _loadList(String option) async {
+  Future<void> _loadList(String option, bool _fromPendingApproval) async {
     await http.post(
         Uri.parse(
             "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
@@ -556,7 +696,9 @@ class _AddItemState extends State<AddItem> {
             _dbList = _extractData;
           });
         }
-        _queryList(_searchController.text, true);
+        if (!_fromPendingApproval) {
+          _queryList(_searchController.text, true);
+        }
       } else {
         methods.snackbarMessage(
           context,
@@ -568,6 +710,22 @@ class _AddItemState extends State<AddItem> {
           methods.textOnly("Please connect to the internet", "Leoscar", 18.0,
               Colors.white, null, null, TextAlign.center),
         );
+      }
+    });
+  }
+
+  Future<void> _loadPendingApprovalList() async {
+    await http.post(
+        Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadpendingapprovallist.php"),
+        body: {
+          "option": widget.option,
+        }).then((res) {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          _pendingApprovalList = _extractData;
+        });
       }
     });
   }
