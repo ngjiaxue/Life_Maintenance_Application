@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'user.dart';
+import 'dart:convert';
 import 'methods.dart';
 import 'loginscreen.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,18 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  Methods methods = new Methods();
+  double _screenHeight;
+  int _page = 0;
+  int _index =
+      1; // for _feedbackBuild 1 = new feedback, 2 = feedback history, 3 = all feedback(only admin)
+  AssetImage _gif;
+  bool _menuPressed = false;
+  bool _menuInstantPressed = false;
+  bool _pageChanging = false;
+  List _allFeedbackList = [];
+  List _onlyUserFeedbackList = [];
+
   Map<int, Color> _swatch = {
     50: Color.fromRGBO(0, 0, 0, .1),
     100: Color.fromRGBO(0, 0, 0, .2),
@@ -33,9 +46,6 @@ class _EditProfileState extends State<EditProfile> {
     900: Color.fromRGBO(0, 0, 0, 1),
   };
 
-  Methods methods = new Methods();
-  int _page = 0;
-
   bool _verifyPassword = true;
   String _passwordMessage = "";
 
@@ -44,6 +54,9 @@ class _EditProfileState extends State<EditProfile> {
 
   bool _verifyEmail = true;
   String _emailMessage = "";
+
+  FocusNode _feedbackFocus = new FocusNode();
+  TextEditingController _feedbackController = new TextEditingController();
 
   FocusNode _emailFocus = new FocusNode();
   TextEditingController _emailController = new TextEditingController();
@@ -59,11 +72,14 @@ class _EditProfileState extends State<EditProfile> {
   @override
   void initState() {
     super.initState();
+    _loadFeedbackList();
     _page = widget.page;
   }
 
   @override
   Widget build(BuildContext context) {
+    _gif = AssetImage("assets/images/logowithtext.gif");
+    _screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -79,13 +95,14 @@ class _EditProfileState extends State<EditProfile> {
           child: Stack(
             children: [
               Positioned.fill(
-                child: AnimatedBackground(_page),
+                child: AnimatedBackground(_page, widget.user.getDarkMode()),
               ),
               onBottom(
                 AnimatedWave(
                   page: _page,
                   height: 270,
                   speed: 1.0,
+                  isDarkMode: widget.user.getDarkMode(),
                 ),
               ),
               onBottom(
@@ -94,6 +111,7 @@ class _EditProfileState extends State<EditProfile> {
                   height: 180,
                   speed: 0.9,
                   offset: pi,
+                  isDarkMode: widget.user.getDarkMode(),
                 ),
               ),
               onBottom(
@@ -102,6 +120,7 @@ class _EditProfileState extends State<EditProfile> {
                   height: 330,
                   speed: 1.2,
                   offset: pi / 2,
+                  isDarkMode: widget.user.getDarkMode(),
                 ),
               ),
               Align(
@@ -148,94 +167,494 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
               ),
-              _page == 1
-                  ? _feedbackBuild()
-                  : _page == 2 || _page == 4 || _page == 6
-                      ? _verifyPasswordBuild()
-                      : _page == 3
-                          ? _newEmailBuild()
-                          : _page == 5
-                              ? _newPasswordBuild()
-                              : _deleteAccountBuild(),
+              Container(
+                child: _page == 1
+                    ? _feedbackBuild()
+                    : _page == 2 || _page == 4 || _page == 6
+                        ? _verifyPasswordBuild()
+                        : _page == 3
+                            ? _newEmailBuild()
+                            : _page == 5
+                                ? _newPasswordBuild()
+                                : _deleteAccountBuild(),
+              ),
             ],
           ),
         ),
       ),
+      floatingActionButton: _page == 1
+          ? Padding(
+              padding: const EdgeInsets.only(
+                right: 8.0,
+                bottom: 8.0,
+              ),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 204.0),
+                    child: widget.user.getIsAdmin()
+                        ? methods.fab(
+                            1,
+                            0,
+                            "All feedback(s)",
+                            _pageChanging
+                                ? () {}
+                                : () {
+                                    setState(() {
+                                      _pageChanging = true;
+                                      _menuInstantPressed = false;
+                                      _index = 3;
+                                    });
+                                    Future.delayed(
+                                        const Duration(milliseconds: 1300), () {
+                                      setState(() {
+                                        _menuPressed = false;
+                                      });
+                                    });
+                                  },
+                            FlutterIcons.user_sli,
+                            FlutterIcons.comment_discussion_oct,
+                            _index == 3,
+                            _menuPressed,
+                            _menuInstantPressed,
+                            widget.user.getDarkMode())
+                        : SizedBox.shrink(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 142.0),
+                    child: methods.fab(
+                        2,
+                        0,
+                        "Feedback(s) History",
+                        _pageChanging
+                            ? () {}
+                            : () {
+                                setState(() {
+                                  _pageChanging = true;
+                                  _menuInstantPressed = false;
+                                  _index = 2;
+                                });
+                                Future.delayed(
+                                    const Duration(milliseconds: 1300), () {
+                                  setState(() {
+                                    _menuPressed = false;
+                                  });
+                                });
+                              },
+                        FlutterIcons.comment_discussion_oct,
+                        FlutterIcons.history_mdi,
+                        _index == 2,
+                        _menuPressed,
+                        _menuInstantPressed,
+                        widget.user.getDarkMode()),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 80.0),
+                    child: methods.fab(
+                        3,
+                        0,
+                        "New Feedback",
+                        _pageChanging
+                            ? () {}
+                            : () {
+                                setState(() {
+                                  _pageChanging = true;
+                                  _menuInstantPressed = false;
+                                  _index = 1;
+                                });
+                                Future.delayed(
+                                    const Duration(milliseconds: 1300), () {
+                                  setState(() {
+                                    _menuPressed = false;
+                                  });
+                                });
+                              },
+                        FlutterIcons.comment_discussion_oct,
+                        FlutterIcons.comment_discussion_oct,
+                        _index == 1,
+                        _menuPressed,
+                        _menuInstantPressed,
+                        widget.user.getDarkMode()),
+                  ),
+                  methods.fab(4, 0, "", () {
+                    setState(() {
+                      _menuPressed = true;
+                      _menuInstantPressed = false;
+                    });
+                    Future.delayed(const Duration(milliseconds: 1300), () {
+                      setState(() {
+                        _menuPressed = false;
+                      });
+                    });
+                  }, Icons.close, Icons.close, false, _menuPressed,
+                      _menuInstantPressed, widget.user.getDarkMode()),
+                  methods.fab(
+                      5,
+                      0,
+                      "",
+                      _menuPressed
+                          ? () {}
+                          : () {
+                              setState(() {
+                                _menuPressed = true;
+                                _menuInstantPressed = true;
+                                _pageChanging = false;
+                              });
+                            },
+                      Icons.menu,
+                      Icons.menu,
+                      false,
+                      _menuPressed,
+                      _menuInstantPressed,
+                      widget.user.getDarkMode()),
+                ],
+              ),
+            )
+          : SizedBox.shrink(),
     );
   }
 
   Widget _feedbackBuild() {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            top: 80.0,
-            left: 20.0,
-            bottom: 20.0,
-            right: 20.0,
-          ),
-          child: Material(
-            elevation: 10.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(8.0),
-              ),
-            ),
-            color: Colors.white,
-            child: TextField(
-              style: TextStyle(
-                fontFamily: "Leoscar",
-                fontSize: 18.0,
-                letterSpacing: 1.0,
-              ),
-              textInputAction: TextInputAction.done,
-              keyboardType: TextInputType.text,
-              maxLines: 10,
-              cursorColor: Colors.black,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(20.0),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Colors.black,
-                    width: 1.5,
+    return AnimatedOpacity(
+      opacity: !_menuInstantPressed ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 1000),
+      child: _index == 1
+          ? Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 80.0,
+                    left: 20.0,
+                    bottom: 20.0,
+                    right: 20.0,
                   ),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8.0),
+                  child: Material(
+                    elevation: 10.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      ),
+                    ),
+                    color: widget.user.getDarkMode()
+                        ? Colors.grey[300]
+                        : Colors.white,
+                    child: Theme(
+                      data: ThemeData(
+                        primarySwatch: MaterialColor(0XFF000000, _swatch),
+                      ),
+                      child: TextField(
+                        enabled: !_menuInstantPressed,
+                        style: TextStyle(
+                          fontFamily: "Leoscar",
+                          fontSize: 18.0,
+                          letterSpacing: 1.0,
+                        ),
+                        controller: _feedbackController,
+                        focusNode: _feedbackFocus,
+                        textInputAction: TextInputAction.done,
+                        keyboardType: TextInputType.text,
+                        maxLines: 10,
+                        cursorColor: Colors.black,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(20.0),
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(8.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
+                ElevatedButton(
+                  onPressed: () async {
+                    _feedbackFocus.unfocus();
+                    if (_feedbackController.text.isNotEmpty) {
+                      _loading();
+                      await http.post(
+                          Uri.parse(
+                              "https://lifemaintenanceapplication.000webhostapp.com/php/addfeedback.php"),
+                          body: {
+                            "email": widget.user.getEmail(),
+                            "feedback": _feedbackController.text,
+                          }).then((res) async {
+                        if (res.body == "success") {
+                          await _loadFeedbackList();
+                          methods.snackbarMessage(
+                            context,
+                            Duration(seconds: 1),
+                            Color(0XFFB563E0),
+                            true,
+                            methods.textOnly(
+                                "Feedback submitted",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                          setState(() {
+                            _feedbackController.clear();
+                          });
+                        } else {
+                          methods.snackbarMessage(
+                            context,
+                            Duration(
+                              milliseconds: 1500,
+                            ),
+                            Colors.red[400],
+                            true,
+                            methods.textOnly(
+                                "Submit failed...Please try again",
+                                "Leoscar",
+                                18.0,
+                                Colors.white,
+                                null,
+                                null,
+                                TextAlign.center),
+                          );
+                        }
+                      }).whenComplete(() => Navigator.pop(context));
+                    } else if (_menuInstantPressed) {
+                      return;
+                    } else {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          milliseconds: 1500,
+                        ),
+                        Colors.red[400],
+                        true,
+                        methods.textOnly("Feedback can't be blank", "Leoscar",
+                            18.0, Colors.white, null, null, TextAlign.center),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: widget.user.getDarkMode()
+                        ? Colors.grey[300]
+                        : Colors.white,
+                    onPrimary: widget.user.getDarkMode()
+                        ? Colors.grey[700]
+                        : Colors.grey[350],
+                    elevation: 20.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      side: BorderSide(
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  child: methods.textOnly(
+                      "Submit",
+                      "Leoscar",
+                      18.0,
+                      Colors.black,
+                      FontWeight.normal,
+                      FontStyle.normal,
+                      TextAlign.center),
+                ),
+              ],
+            )
+          : Padding(
+              padding: const EdgeInsets.only(
+                top: 80.0,
+                left: 20.0,
+                right: 20.0,
+              ),
+              child: Container(
+                child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: _index == 2
+                        ? _onlyUserFeedbackList.length
+                        : _allFeedbackList.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 10.0,
+                        ),
+                        child: Container(
+                          height: _index == 2
+                              ? _screenHeight / 7.5
+                              : _screenHeight / 6.5,
+                          child: Card(
+                            color: widget.user.getDarkMode()
+                                ? Colors.grey[300]
+                                : Colors.white,
+                            elevation: 10.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8.0),
+                              ),
+                              side: BorderSide(
+                                width: 3,
+                                color: index % 5 == 0
+                                    ? Color(0XFF015F9F)
+                                    : index % 5 == 1
+                                        ? Color(0XFF00D1D0)
+                                        : index % 5 == 2
+                                            ? Color(0XFF00CC49)
+                                            : index % 5 == 3
+                                                ? Color(0XFFFA9308)
+                                                : Color(0XFFEE1F27),
+                              ),
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8.0),
+                              ),
+                              splashColor: index % 5 == 0
+                                  ? Color(0XFF015F9F)
+                                  : index % 5 == 1
+                                      ? Color(0XFF00D1D0)
+                                      : index % 5 == 2
+                                          ? Color(0XFF00CC49)
+                                          : index % 5 == 3
+                                              ? Color(0XFFFA9308)
+                                              : Color(0XFFEE1F27),
+                              onTap: () {
+                                showModalBottomSheet(
+                                    backgroundColor: widget.user.getDarkMode()
+                                        ? Colors.grey[300]
+                                        : Colors.white,
+                                    context: context,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10.0),
+                                        topRight: Radius.circular(10.0),
+                                      ),
+                                    ),
+                                    builder: (BuildContext context) {
+                                      return SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            _index == 3
+                                                ? Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                      left: 6.0,
+                                                      top: 6.0,
+                                                    ),
+                                                    child: methods.textOnly(
+                                                        ("Author: ${_allFeedbackList[index]["email"]}"),
+                                                        "Leoscar",
+                                                        12.0,
+                                                        Colors.black,
+                                                        FontWeight.normal,
+                                                        FontStyle.normal,
+                                                        TextAlign.start),
+                                                  )
+                                                : SizedBox.shrink(),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: Text(
+                                                "\"${_index == 2 ? _onlyUserFeedbackList[index]["feedback"] : _allFeedbackList[index]["feedback"]}\"",
+                                                textAlign: TextAlign.justify,
+                                                style: TextStyle(
+                                                  fontFamily: "Leoscar",
+                                                  fontSize: 18.0,
+                                                  letterSpacing: 1.0,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                right: 6.0,
+                                                bottom: 6.0,
+                                              ),
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.bottomRight,
+                                                child: methods.textOnly(
+                                                    ("Date created: ${_index == 2 ? _onlyUserFeedbackList[index]["date"] : _allFeedbackList[index]["date"]}"),
+                                                    "Leoscar",
+                                                    12.0,
+                                                    Colors.black,
+                                                    FontWeight.normal,
+                                                    FontStyle.normal,
+                                                    TextAlign.end),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _index == 3
+                                      ? Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 6.0,
+                                            top: 6.0,
+                                          ),
+                                          child: methods.textOnly(
+                                              ("Author: ${_allFeedbackList[index]["email"]}"),
+                                              "Leoscar",
+                                              12.0,
+                                              Colors.black,
+                                              FontWeight.normal,
+                                              FontStyle.normal,
+                                              TextAlign.start),
+                                        )
+                                      : SizedBox.shrink(),
+                                  _index == 3 ? Spacer() : SizedBox.shrink(),
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      "\"${_index == 2 ? _onlyUserFeedbackList[index]["feedback"] : _allFeedbackList[index]["feedback"]}\"",
+                                      maxLines: 3,
+                                      overflow: TextOverflow.fade,
+                                      textAlign: TextAlign.justify,
+                                      style: TextStyle(
+                                        fontFamily: "Leoscar",
+                                        fontSize: 18.0,
+                                        letterSpacing: 1.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 6.0,
+                                      bottom: 6.0,
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: methods.textOnly(
+                                          ("Date created: ${_index == 2 ? _onlyUserFeedbackList[index]["date"] : _allFeedbackList[index]["date"]}"),
+                                          "Leoscar",
+                                          12.0,
+                                          Colors.black,
+                                          FontWeight.normal,
+                                          FontStyle.normal,
+                                          TextAlign.end),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
               ),
             ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            Future.delayed(Duration(milliseconds: 300), () {
-              methods.snackbarMessage(
-                context,
-                Duration(seconds: 1),
-                Color(0XFFB563E0),
-                true,
-                methods.textOnly("Feedback submitted", "Leoscar", 18.0,
-                    Colors.white, null, null, TextAlign.center),
-              );
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            primary: Colors.white,
-            onPrimary: Colors.grey[350],
-            elevation: 20.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50.0),
-              side: BorderSide(
-                color: Colors.black54,
-              ),
-            ),
-          ),
-          child: methods.textOnly("Submit", "Leoscar", 18.0, Colors.black,
-              FontWeight.normal, FontStyle.normal, TextAlign.center),
-        ),
-      ],
     );
   }
 
@@ -256,7 +675,7 @@ class _EditProfileState extends State<EditProfile> {
                 Radius.circular(8.0),
               ),
             ),
-            color: Colors.white,
+            color: widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
             child: Theme(
               data: ThemeData(
                 primarySwatch: MaterialColor(0XFF000000, _swatch),
@@ -312,41 +731,57 @@ class _EditProfileState extends State<EditProfile> {
         ElevatedButton(
           onPressed: () async {
             _passwordFocus.unfocus();
-            await http.post(
-                Uri.parse(
-                    "https://lifemaintenanceapplication.000webhostapp.com/php/inappverifypassword.php"),
-                body: {
-                  "email": widget.user.getEmail(),
-                  "password": _passwordController.text,
-                }).then((res) {
-              if (res.body == "success") {
-                setState(() {
-                  _passwordController.clear();
-                  _page++;
-                });
-              } else {
-                methods.snackbarMessage(
-                  context,
-                  Duration(
-                    milliseconds: 1500,
-                  ),
-                  Colors.red[400],
-                  true,
-                  methods.textOnly(
-                      "Wrong password...Please try again",
-                      "Leoscar",
-                      18.0,
-                      Colors.white,
-                      null,
-                      null,
-                      TextAlign.center),
-                );
-              }
-            });
+            if (_passwordController.text.isNotEmpty) {
+              _loading();
+              await http.post(
+                  Uri.parse(
+                      "https://lifemaintenanceapplication.000webhostapp.com/php/inappverifypassword.php"),
+                  body: {
+                    "email": widget.user.getEmail(),
+                    "password": _passwordController.text,
+                  }).then((res) {
+                if (res.body == "success") {
+                  setState(() {
+                    _passwordController.clear();
+                    _page++;
+                  });
+                } else {
+                  methods.snackbarMessage(
+                    context,
+                    Duration(
+                      milliseconds: 1500,
+                    ),
+                    Colors.red[400],
+                    true,
+                    methods.textOnly(
+                        "Wrong password...Please try again",
+                        "Leoscar",
+                        18.0,
+                        Colors.white,
+                        null,
+                        null,
+                        TextAlign.center),
+                  );
+                }
+              }).whenComplete(() => Navigator.pop(context));
+            } else {
+              methods.snackbarMessage(
+                context,
+                Duration(
+                  milliseconds: 1500,
+                ),
+                Colors.red[400],
+                true,
+                methods.textOnly("Password can't be blank", "Leoscar", 18.0,
+                    Colors.white, null, null, TextAlign.center),
+              );
+            }
           },
           style: ElevatedButton.styleFrom(
-            primary: Colors.white,
-            onPrimary: Colors.grey[350],
+            primary:
+                widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+            onPrimary:
+                widget.user.getDarkMode() ? Colors.grey[700] : Colors.grey[350],
             elevation: 20.0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(50.0),
@@ -388,7 +823,8 @@ class _EditProfileState extends State<EditProfile> {
                 fontSize: 20.0,
                 height: 1.2,
                 letterSpacing: 1.0,
-                color: Colors.white,
+                color:
+                    widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
               ),
               textAlign: TextAlign.justify,
             ),
@@ -407,7 +843,8 @@ class _EditProfileState extends State<EditProfile> {
                   Radius.circular(8.0),
                 ),
               ),
-              color: Colors.white,
+              color:
+                  widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
               child: TextField(
                 style: TextStyle(
                   fontFamily: "Leoscar",
@@ -462,79 +899,99 @@ class _EditProfileState extends State<EditProfile> {
               child: ElevatedButton(
                 onPressed: () async {
                   _emailFocus.unfocus();
-                  if (_verifyEmail == false) {
-                    Future.delayed(Duration(milliseconds: 300), () {
-                      methods.snackbarMessage(
-                        context,
-                        Duration(seconds: 1),
-                        Colors.red[400],
-                        true,
-                        methods.textOnly(
-                            "Please insert a valid email format",
-                            "Leoscar",
-                            18.0,
-                            Colors.white,
-                            null,
-                            null,
-                            TextAlign.center),
-                      );
-                    });
-                  } else {
-                    await http.post(
-                        Uri.parse(
-                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
-                        body: {
-                          "email": widget.user.getEmail(),
-                          "newEmail": _emailController.text,
-                        }).then((res) {
-                      if (res.body == "success") {
-                        Navigator.push(
+                  if (_emailController.text.isNotEmpty) {
+                    if (_verifyEmail == false) {
+                      Future.delayed(Duration(milliseconds: 300), () {
+                        methods.snackbarMessage(
                           context,
-                          PageTransition(
-                            child: LoginScreen(userLogout: 3),
-                            type: PageTransitionType.fade,
-                          ),
+                          Duration(seconds: 1),
+                          Colors.red[400],
+                          true,
+                          methods.textOnly(
+                              "Please insert a valid email format",
+                              "Leoscar",
+                              18.0,
+                              Colors.white,
+                              null,
+                              null,
+                              TextAlign.center),
                         );
-                        Future.delayed(Duration(milliseconds: 1000), () {
-                          methods.snackbarMessage(
+                      });
+                    } else {
+                      _loading();
+                      await http.post(
+                          Uri.parse(
+                              "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                          body: {
+                            "email": widget.user.getEmail(),
+                            "newEmail": _emailController.text,
+                          }).then((res) {
+                        if (res.body == "success") {
+                          Navigator.pop(context);
+                          Navigator.push(
                             context,
-                            Duration(seconds: 3),
-                            Color(0XFFB563E0),
-                            true,
-                            methods.textOnly(
-                                "Email changed successfully, please check your NEW email to verify your account",
-                                "Leoscar",
-                                18.0,
-                                Colors.white,
-                                null,
-                                null,
-                                TextAlign.center),
+                            PageTransition(
+                              child: LoginScreen(userLogout: 3),
+                              type: PageTransitionType.fade,
+                            ),
                           );
-                        });
-                      } else {
-                        Future.delayed(Duration(milliseconds: 300), () {
-                          methods.snackbarMessage(
-                            context,
-                            Duration(seconds: 1),
-                            Colors.red[400],
-                            true,
-                            methods.textOnly(
-                                "Email can't be changed...Please try again",
-                                "Leoscar",
-                                18.0,
-                                Colors.white,
-                                null,
-                                null,
-                                TextAlign.center),
-                          );
-                        });
-                      }
-                    });
+                          Future.delayed(Duration(milliseconds: 1000), () {
+                            methods.snackbarMessage(
+                              context,
+                              Duration(seconds: 3),
+                              Color(0XFFB563E0),
+                              true,
+                              methods.textOnly(
+                                  "Email changed successfully, please check your NEW email to verify your account",
+                                  "Leoscar",
+                                  18.0,
+                                  Colors.white,
+                                  null,
+                                  null,
+                                  TextAlign.center),
+                            );
+                          });
+                        } else {
+                          Navigator.pop(context);
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            methods.snackbarMessage(
+                              context,
+                              Duration(seconds: 1),
+                              Colors.red[400],
+                              true,
+                              methods.textOnly(
+                                  "Email can't be changed...Please try again",
+                                  "Leoscar",
+                                  18.0,
+                                  Colors.white,
+                                  null,
+                                  null,
+                                  TextAlign.center),
+                            );
+                          });
+                        }
+                      });
+                    }
+                  } else {
+                    methods.snackbarMessage(
+                      context,
+                      Duration(
+                        milliseconds: 1500,
+                      ),
+                      Colors.red[400],
+                      true,
+                      methods.textOnly("Email can't be blank", "Leoscar", 18.0,
+                          Colors.white, null, null, TextAlign.center),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.grey[350],
+                  primary: widget.user.getDarkMode()
+                      ? Colors.grey[300]
+                      : Colors.white,
+                  onPrimary: widget.user.getDarkMode()
+                      ? Colors.grey[700]
+                      : Colors.grey[350],
                   elevation: 20.0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50.0),
@@ -577,7 +1034,8 @@ class _EditProfileState extends State<EditProfile> {
                     Radius.circular(8.0),
                   ),
                 ),
-                color: Colors.white,
+                color:
+                    widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
                 child: TextField(
                   onChanged: (String value) {
                     _passwordMessage = "Password must be at least ";
@@ -666,7 +1124,8 @@ class _EditProfileState extends State<EditProfile> {
                     Radius.circular(8.0),
                   ),
                 ),
-                color: Colors.white,
+                color:
+                    widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
                 child: TextField(
                   onChanged: (String value) {
                     setState(() {
@@ -750,60 +1209,103 @@ class _EditProfileState extends State<EditProfile> {
                   onPressed: () async {
                     _passwordFocus.unfocus();
                     _retypePasswordFocus.unfocus();
-                    await http.post(
-                        Uri.parse(
-                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
-                        body: {
-                          "email": widget.user.getEmail(),
-                          "newPassword": _passwordController.text,
-                        }).then((res) {
-                      if (res.body == "success") {
-                        Navigator.push(
-                          context,
-                          PageTransition(
-                            child: LoginScreen(userLogout: 2),
-                            type: PageTransitionType.fade,
-                          ),
-                        );
-                        Future.delayed(Duration(milliseconds: 1000), () {
-                          methods.snackbarMessage(
+                    if (_passwordController.text.isNotEmpty &&
+                        _retypePasswordController.text.isNotEmpty) {
+                      _loading();
+                      await http.post(
+                          Uri.parse(
+                              "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                          body: {
+                            "email": widget.user.getEmail(),
+                            "newPassword": _passwordController.text,
+                          }).then((res) {
+                        if (res.body == "success") {
+                          Navigator.pop(context);
+                          Navigator.push(
                             context,
-                            Duration(seconds: 2),
-                            Color(0XFFB563E0),
-                            true,
-                            methods.textOnly(
-                                "Please insert your NEW password to login",
-                                "Leoscar",
-                                18.0,
-                                Colors.white,
-                                null,
-                                null,
-                                TextAlign.center),
+                            PageTransition(
+                              child: LoginScreen(userLogout: 2),
+                              type: PageTransitionType.fade,
+                            ),
                           );
-                        });
-                      } else {
-                        Future.delayed(Duration(milliseconds: 300), () {
-                          methods.snackbarMessage(
-                            context,
-                            Duration(seconds: 1),
-                            Colors.red[400],
-                            true,
-                            methods.textOnly(
-                                "Password can't be changed...Please try again",
-                                "Leoscar",
-                                18.0,
-                                Colors.white,
-                                null,
-                                null,
-                                TextAlign.center),
-                          );
-                        });
-                      }
-                    });
+                          Future.delayed(Duration(milliseconds: 1000), () {
+                            methods.snackbarMessage(
+                              context,
+                              Duration(seconds: 2),
+                              Color(0XFFB563E0),
+                              true,
+                              methods.textOnly(
+                                  "Please insert your NEW password to login",
+                                  "Leoscar",
+                                  18.0,
+                                  Colors.white,
+                                  null,
+                                  null,
+                                  TextAlign.center),
+                            );
+                          });
+                        } else {
+                          Navigator.pop(context);
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            methods.snackbarMessage(
+                              context,
+                              Duration(seconds: 1),
+                              Colors.red[400],
+                              true,
+                              methods.textOnly(
+                                  "Password can't be changed...Please try again",
+                                  "Leoscar",
+                                  18.0,
+                                  Colors.white,
+                                  null,
+                                  null,
+                                  TextAlign.center),
+                            );
+                          });
+                        }
+                      });
+                    } else if (!_verifyPassword) {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          milliseconds: 1500,
+                        ),
+                        Colors.red[400],
+                        true,
+                        methods.textOnly(_passwordMessage, "Leoscar", 18.0,
+                            Colors.white, null, null, TextAlign.center),
+                      );
+                    } else if (!_verifyRetypePassword) {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          milliseconds: 1500,
+                        ),
+                        Colors.red[400],
+                        true,
+                        methods.textOnly(_retypePasswordMessage, "Leoscar",
+                            18.0, Colors.white, null, null, TextAlign.center),
+                      );
+                    } else {
+                      methods.snackbarMessage(
+                        context,
+                        Duration(
+                          milliseconds: 1500,
+                        ),
+                        Colors.red[400],
+                        true,
+                        methods.textOnly("Password can't be blank", "Leoscar",
+                            18.0, Colors.white, null, null, TextAlign.center),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.white,
-                    onPrimary: Colors.grey[350],
+                    primary: widget.user.getDarkMode()
+                        ? Colors.grey[300]
+                        : Colors.white,
+                    onPrimary: widget.user.getDarkMode()
+                        ? Colors.grey[700]
+                        : Colors.grey[350],
                     elevation: 20.0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50.0),
@@ -862,6 +1364,7 @@ class _EditProfileState extends State<EditProfile> {
           ),
           child: ElevatedButton(
             onPressed: () async {
+              _loading();
               await http.post(
                   Uri.parse(
                       "https://lifemaintenanceapplication.000webhostapp.com/php/deleteaccount.php"),
@@ -869,6 +1372,7 @@ class _EditProfileState extends State<EditProfile> {
                     "email": widget.user.getEmail(),
                   }).then((res) {
                 if (res.body == "success") {
+                  Navigator.pop(context);
                   Navigator.push(
                     context,
                     PageTransition(
@@ -893,6 +1397,7 @@ class _EditProfileState extends State<EditProfile> {
                     );
                   });
                 } else {
+                  Navigator.pop(context);
                   methods.snackbarMessage(
                     context,
                     Duration(
@@ -913,8 +1418,11 @@ class _EditProfileState extends State<EditProfile> {
               });
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.white,
-              onPrimary: Colors.grey[350],
+              primary:
+                  widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+              onPrimary: widget.user.getDarkMode()
+                  ? Colors.grey[700]
+                  : Colors.grey[350],
               elevation: 20.0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50.0),
@@ -1012,6 +1520,50 @@ class _EditProfileState extends State<EditProfile> {
           child: child,
         ),
       );
+
+  void _loading() {
+    showModalBottomSheet(
+        context: context,
+        enableDrag: false,
+        isDismissible: false,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10.0),
+            topRight: Radius.circular(10.0),
+          ),
+        ),
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, newSetState) {
+            return Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: _gif,
+                  scale: 3,
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  Future<void> _loadFeedbackList() async {
+    await http
+        .post(Uri.parse(
+            "https://lifemaintenanceapplication.000webhostapp.com/php/loadfeedbacklist.php"))
+        .then((res) async {
+      if (res.body != "no data") {
+        var _extractData = json.decode(res.body);
+        setState(() {
+          _allFeedbackList = _extractData;
+          for (int _i = 0; _i < _extractData.length; _i++) {
+            if (_allFeedbackList[_i]["email"] == widget.user.getEmail()) {
+              _onlyUserFeedbackList.add(_extractData[_i]);
+            }
+          }
+        });
+      }
+    });
+  }
 }
 
 class AnimatedWave extends StatelessWidget {
@@ -1019,8 +1571,10 @@ class AnimatedWave extends StatelessWidget {
   final double height;
   final double speed;
   final double offset;
+  final bool isDarkMode;
 
-  AnimatedWave({this.page, this.height, this.speed, this.offset = 0.0});
+  AnimatedWave(
+      {this.page, this.height, this.speed, this.offset = 0.0, this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
@@ -1033,7 +1587,8 @@ class AnimatedWave extends StatelessWidget {
             tween: 0.0.tweenTo(2 * pi),
             builder: (context, child, value) {
               return CustomPaint(
-                foregroundPainter: CurvePainter(page, value + offset),
+                foregroundPainter:
+                    CurvePainter(page, value + offset, isDarkMode),
               );
             }),
       );
@@ -1044,14 +1599,19 @@ class AnimatedWave extends StatelessWidget {
 class CurvePainter extends CustomPainter {
   final int page;
   final double value;
+  final bool isDarkMode;
 
-  CurvePainter(this.page, this.value);
+  CurvePainter(this.page, this.value, this.isDarkMode);
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint white;
     if (page != 6 && page != 7) {
-      white = Paint()..color = Colors.white.withAlpha(60);
+      if (isDarkMode) {
+        white = Paint()..color = Colors.grey.withAlpha(60);
+      } else {
+        white = Paint()..color = Colors.white.withAlpha(60);
+      }
     } else {
       white = Paint()..color = Colors.black.withAlpha(100);
     }
@@ -1084,20 +1644,28 @@ enum _BgProps { color1, color2 }
 
 class AnimatedBackground extends StatelessWidget {
   final int page;
-  AnimatedBackground(this.page);
+  final bool isDarkMode;
+  AnimatedBackground(this.page, this.isDarkMode);
 
   @override
   Widget build(BuildContext context) {
-    // var tween;
     Color _color1;
     Color _color2;
     Color _color3;
     Color _color4;
     if (page != 6 && page != 7) {
-      _color1 = Color(0XFFFC00FF).withOpacity(0.5);
-      _color2 = Color(0XFFFC00FF).withOpacity(0.8);
-      _color3 = Color(0XFF00DBDE).withOpacity(0.5);
-      _color4 = Color(0XFF00DBDE).withOpacity(0.8);
+      _color1 = isDarkMode
+          ? Color(0XFFFC00FF).withOpacity(0.4)
+          : Color(0XFFFC00FF).withOpacity(0.5);
+      _color2 = isDarkMode
+          ? Color(0XFFFC00FF).withOpacity(0.6)
+          : Color(0XFFFC00FF).withOpacity(0.8);
+      _color3 = isDarkMode
+          ? Color(0XFF00DBDE).withOpacity(0.4)
+          : Color(0XFF00DBDE).withOpacity(0.5);
+      _color4 = isDarkMode
+          ? Color(0XFF00DBDE).withOpacity(0.6)
+          : Color(0XFF00DBDE).withOpacity(0.8);
     } else if (page == 6) {
       _color1 = Colors.red.withOpacity(0.8);
       _color2 = Colors.red.withOpacity(1);

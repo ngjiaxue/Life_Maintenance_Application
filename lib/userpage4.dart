@@ -620,7 +620,7 @@ class _UserPage4State extends State<UserPage4>
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: _gif,
-                scale: 2,
+                scale: 3,
               ),
             ),
           );
