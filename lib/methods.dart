@@ -446,7 +446,7 @@ class Methods {
                 child: Container(
                   decoration: BoxDecoration(
                     color: _active
-                        ? (_isDarkMode ? Colors.grey[300] : Colors.white)
+                        ? (_isDarkMode ? Color(0XFF424242) : Colors.white)
                         : Colors.transparent,
                     borderRadius: BorderRadius.all(
                       Radius.circular(100.0),
@@ -462,7 +462,9 @@ class Methods {
                         fontFamily: "Leoscar",
                         fontSize: 14.0,
                         letterSpacing: 1.0,
-                        color: _active ? Colors.black : Colors.white,
+                        color: _active
+                            ? (_isDarkMode ? Colors.white : Colors.black)
+                            : Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,

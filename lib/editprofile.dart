@@ -32,6 +32,7 @@ class _EditProfileState extends State<EditProfile> {
   bool _pageChanging = false;
   List _allFeedbackList = [];
   List _onlyUserFeedbackList = [];
+  String _feedbackHeader = "Send Us Your Feedback!";
 
   Map<int, Color> _swatch = {
     50: Color.fromRGBO(0, 0, 0, .1),
@@ -135,7 +136,9 @@ class _EditProfileState extends State<EditProfile> {
                       IconButton(
                         icon: Icon(
                           FlutterIcons.md_arrow_round_back_ion,
-                          color: Colors.white,
+                          color: widget.user.getDarkMode()
+                              ? Colors.white70
+                              : Colors.white,
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
@@ -146,7 +149,7 @@ class _EditProfileState extends State<EditProfile> {
                         ),
                         child: methods.textOnly(
                             _page == 1
-                                ? "Send Us Your Feedback!"
+                                ? _feedbackHeader
                                 : _page == 2
                                     ? "Change Email?"
                                     : _page == 3
@@ -158,7 +161,9 @@ class _EditProfileState extends State<EditProfile> {
                                                 : "Delete Account?",
                             "Leoscar",
                             22.0,
-                            Colors.white,
+                            widget.user.getDarkMode()
+                                ? Colors.white70
+                                : Colors.white,
                             FontWeight.bold,
                             FontStyle.normal,
                             TextAlign.center),
@@ -202,6 +207,7 @@ class _EditProfileState extends State<EditProfile> {
                                 ? () {}
                                 : () {
                                     setState(() {
+                                      _feedbackHeader = "All feedback(s)";
                                       _pageChanging = true;
                                       _menuInstantPressed = false;
                                       _index = 3;
@@ -231,6 +237,7 @@ class _EditProfileState extends State<EditProfile> {
                             ? () {}
                             : () {
                                 setState(() {
+                                  _feedbackHeader = "Feedback(s) History";
                                   _pageChanging = true;
                                   _menuInstantPressed = false;
                                   _index = 2;
@@ -259,6 +266,7 @@ class _EditProfileState extends State<EditProfile> {
                             ? () {}
                             : () {
                                 setState(() {
+                                  _feedbackHeader = "Send Us Your Feedback!";
                                   _pageChanging = true;
                                   _menuInstantPressed = false;
                                   _index = 1;
@@ -337,7 +345,7 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                     ),
                     color: widget.user.getDarkMode()
-                        ? Colors.grey[300]
+                        ? Colors.white70
                         : Colors.white,
                     child: Theme(
                       data: ThemeData(
@@ -439,7 +447,7 @@ class _EditProfileState extends State<EditProfile> {
                   },
                   style: ElevatedButton.styleFrom(
                     primary: widget.user.getDarkMode()
-                        ? Colors.grey[300]
+                        ? Colors.white70
                         : Colors.white,
                     onPrimary: widget.user.getDarkMode()
                         ? Colors.grey[700]
@@ -463,198 +471,219 @@ class _EditProfileState extends State<EditProfile> {
                 ),
               ],
             )
-          : Padding(
-              padding: const EdgeInsets.only(
-                top: 80.0,
-                left: 20.0,
-                right: 20.0,
-              ),
-              child: Container(
-                child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: _index == 2
-                        ? _onlyUserFeedbackList.length
-                        : _allFeedbackList.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: 10.0,
-                        ),
-                        child: Container(
-                          height: _index == 2
-                              ? _screenHeight / 7.5
-                              : _screenHeight / 6.5,
-                          child: Card(
-                            color: widget.user.getDarkMode()
-                                ? Colors.grey[300]
-                                : Colors.white,
-                            elevation: 10.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8.0),
-                              ),
-                              side: BorderSide(
-                                width: 3,
-                                color: index % 5 == 0
-                                    ? Color(0XFF015F9F)
-                                    : index % 5 == 1
-                                        ? Color(0XFF00D1D0)
-                                        : index % 5 == 2
-                                            ? Color(0XFF00CC49)
-                                            : index % 5 == 3
-                                                ? Color(0XFFFA9308)
-                                                : Color(0XFFEE1F27),
-                              ),
+          : (_index == 2 && _onlyUserFeedbackList.length == 0) ||
+                  (_index == 3 && _allFeedbackList.length == 0)
+              ? Center(
+                  child: methods.noRecordFound(7, 20),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(
+                    top: 80.0,
+                    left: 20.0,
+                    right: 20.0,
+                  ),
+                  child: Container(
+                    child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: _index == 2
+                            ? _onlyUserFeedbackList.length
+                            : _allFeedbackList.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 10.0,
                             ),
-                            child: InkWell(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8.0),
-                              ),
-                              splashColor: index % 5 == 0
-                                  ? Color(0XFF015F9F)
-                                  : index % 5 == 1
-                                      ? Color(0XFF00D1D0)
-                                      : index % 5 == 2
-                                          ? Color(0XFF00CC49)
-                                          : index % 5 == 3
-                                              ? Color(0XFFFA9308)
-                                              : Color(0XFFEE1F27),
-                              onTap: () {
-                                showModalBottomSheet(
-                                    backgroundColor: widget.user.getDarkMode()
-                                        ? Colors.grey[300]
-                                        : Colors.white,
-                                    context: context,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10.0),
-                                        topRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    builder: (BuildContext context) {
-                                      return SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            _index == 3
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                      left: 6.0,
-                                                      top: 6.0,
+                            child: Container(
+                              height: _index == 2
+                                  ? _screenHeight / 7.5
+                                  : _screenHeight / 6.5,
+                              child: Card(
+                                elevation: 10.0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8.0),
+                                  ),
+                                  side: BorderSide(
+                                    width: 3,
+                                    color: index % 5 == 0
+                                        ? Color(0XFF015F9F)
+                                        : index % 5 == 1
+                                            ? Color(0XFF00D1D0)
+                                            : index % 5 == 2
+                                                ? Color(0XFF00CC49)
+                                                : index % 5 == 3
+                                                    ? Color(0XFFFA9308)
+                                                    : Color(0XFFEE1F27),
+                                  ),
+                                ),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8.0),
+                                  ),
+                                  splashColor: index % 5 == 0
+                                      ? Color(0XFF015F9F)
+                                      : index % 5 == 1
+                                          ? Color(0XFF00D1D0)
+                                          : index % 5 == 2
+                                              ? Color(0XFF00CC49)
+                                              : index % 5 == 3
+                                                  ? Color(0XFFFA9308)
+                                                  : Color(0XFFEE1F27),
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                        context: context,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10.0),
+                                            topRight: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        builder: (BuildContext context) {
+                                          return SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                _index == 3
+                                                    ? Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                          left: 6.0,
+                                                          top: 6.0,
+                                                        ),
+                                                        child: methods.textOnly(
+                                                            ("Author: ${_allFeedbackList[index]["email"]}"),
+                                                            "Leoscar",
+                                                            12.0,
+                                                            widget.user
+                                                                    .getDarkMode()
+                                                                ? Colors.white70
+                                                                : Colors.black,
+                                                            FontWeight.normal,
+                                                            FontStyle.normal,
+                                                            TextAlign.start),
+                                                      )
+                                                    : SizedBox.shrink(),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Text(
+                                                    "\"${_index == 2 ? _onlyUserFeedbackList[index]["feedback"] : _allFeedbackList[index]["feedback"]}\"",
+                                                    textAlign:
+                                                        TextAlign.justify,
+                                                    style: TextStyle(
+                                                      fontFamily: "Leoscar",
+                                                      fontSize: 18.0,
+                                                      letterSpacing: 1.0,
+                                                      color: widget.user
+                                                              .getDarkMode()
+                                                          ? Colors.white70
+                                                          : Colors.black,
                                                     ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    right: 6.0,
+                                                    bottom: 6.0,
+                                                  ),
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.bottomRight,
                                                     child: methods.textOnly(
-                                                        ("Author: ${_allFeedbackList[index]["email"]}"),
+                                                        ("Date created: ${_index == 2 ? _onlyUserFeedbackList[index]["date"] : _allFeedbackList[index]["date"]}"),
                                                         "Leoscar",
                                                         12.0,
-                                                        Colors.black,
+                                                        widget.user
+                                                                .getDarkMode()
+                                                            ? Colors.white70
+                                                            : Colors.black,
                                                         FontWeight.normal,
                                                         FontStyle.normal,
-                                                        TextAlign.start),
-                                                  )
-                                                : SizedBox.shrink(),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Text(
-                                                "\"${_index == 2 ? _onlyUserFeedbackList[index]["feedback"] : _allFeedbackList[index]["feedback"]}\"",
-                                                textAlign: TextAlign.justify,
-                                                style: TextStyle(
-                                                  fontFamily: "Leoscar",
-                                                  fontSize: 18.0,
-                                                  letterSpacing: 1.0,
-                                                  color: Colors.black,
+                                                        TextAlign.end),
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
-                                            Padding(
+                                          );
+                                        });
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _index == 3
+                                          ? Padding(
                                               padding: const EdgeInsets.only(
-                                                right: 6.0,
-                                                bottom: 6.0,
+                                                left: 6.0,
+                                                top: 6.0,
                                               ),
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.bottomRight,
-                                                child: methods.textOnly(
-                                                    ("Date created: ${_index == 2 ? _onlyUserFeedbackList[index]["date"] : _allFeedbackList[index]["date"]}"),
-                                                    "Leoscar",
-                                                    12.0,
-                                                    Colors.black,
-                                                    FontWeight.normal,
-                                                    FontStyle.normal,
-                                                    TextAlign.end),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                              },
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _index == 3
-                                      ? Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 6.0,
-                                            top: 6.0,
+                                              child: methods.textOnly(
+                                                  ("Author: ${_allFeedbackList[index]["email"]}"),
+                                                  "Leoscar",
+                                                  12.0,
+                                                  widget.user.getDarkMode()
+                                                      ? Colors.white70
+                                                      : Colors.black,
+                                                  FontWeight.normal,
+                                                  FontStyle.normal,
+                                                  TextAlign.start),
+                                            )
+                                          : SizedBox.shrink(),
+                                      _index == 3
+                                          ? Spacer()
+                                          : SizedBox.shrink(),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Text(
+                                          "\"${_index == 2 ? _onlyUserFeedbackList[index]["feedback"] : _allFeedbackList[index]["feedback"]}\"",
+                                          maxLines: 3,
+                                          overflow: TextOverflow.fade,
+                                          textAlign: TextAlign.justify,
+                                          style: TextStyle(
+                                            fontFamily: "Leoscar",
+                                            fontSize: 18.0,
+                                            letterSpacing: 1.0,
+                                            color: widget.user.getDarkMode()
+                                                ? Colors.white70
+                                                : Colors.black,
                                           ),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 6.0,
+                                          bottom: 6.0,
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.bottomRight,
                                           child: methods.textOnly(
-                                              ("Author: ${_allFeedbackList[index]["email"]}"),
+                                              ("Date created: ${_index == 2 ? _onlyUserFeedbackList[index]["date"] : _allFeedbackList[index]["date"]}"),
                                               "Leoscar",
                                               12.0,
-                                              Colors.black,
+                                              widget.user.getDarkMode()
+                                                  ? Colors.white70
+                                                  : Colors.black,
                                               FontWeight.normal,
                                               FontStyle.normal,
-                                              TextAlign.start),
-                                        )
-                                      : SizedBox.shrink(),
-                                  _index == 3 ? Spacer() : SizedBox.shrink(),
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      "\"${_index == 2 ? _onlyUserFeedbackList[index]["feedback"] : _allFeedbackList[index]["feedback"]}\"",
-                                      maxLines: 3,
-                                      overflow: TextOverflow.fade,
-                                      textAlign: TextAlign.justify,
-                                      style: TextStyle(
-                                        fontFamily: "Leoscar",
-                                        fontSize: 18.0,
-                                        letterSpacing: 1.0,
-                                        color: Colors.black,
+                                              TextAlign.end),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                  Spacer(),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 6.0,
-                                      bottom: 6.0,
-                                    ),
-                                    child: Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: methods.textOnly(
-                                          ("Date created: ${_index == 2 ? _onlyUserFeedbackList[index]["date"] : _allFeedbackList[index]["date"]}"),
-                                          "Leoscar",
-                                          12.0,
-                                          Colors.black,
-                                          FontWeight.normal,
-                                          FontStyle.normal,
-                                          TextAlign.end),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    }),
-              ),
-            ),
+                          );
+                        }),
+                  ),
+                ),
     );
   }
 
@@ -675,7 +704,7 @@ class _EditProfileState extends State<EditProfile> {
                 Radius.circular(8.0),
               ),
             ),
-            color: widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+            color: widget.user.getDarkMode() ? Colors.white70 : Colors.white,
             child: Theme(
               data: ThemeData(
                 primarySwatch: MaterialColor(0XFF000000, _swatch),
@@ -778,8 +807,7 @@ class _EditProfileState extends State<EditProfile> {
             }
           },
           style: ElevatedButton.styleFrom(
-            primary:
-                widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+            primary: widget.user.getDarkMode() ? Colors.white70 : Colors.white,
             onPrimary:
                 widget.user.getDarkMode() ? Colors.grey[700] : Colors.grey[350],
             elevation: 20.0,
@@ -824,7 +852,7 @@ class _EditProfileState extends State<EditProfile> {
                 height: 1.2,
                 letterSpacing: 1.0,
                 color:
-                    widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+                    widget.user.getDarkMode() ? Colors.white70 : Colors.white,
               ),
               textAlign: TextAlign.justify,
             ),
@@ -843,8 +871,7 @@ class _EditProfileState extends State<EditProfile> {
                   Radius.circular(8.0),
                 ),
               ),
-              color:
-                  widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+              color: widget.user.getDarkMode() ? Colors.white70 : Colors.white,
               child: TextField(
                 style: TextStyle(
                   fontFamily: "Leoscar",
@@ -986,9 +1013,8 @@ class _EditProfileState extends State<EditProfile> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: widget.user.getDarkMode()
-                      ? Colors.grey[300]
-                      : Colors.white,
+                  primary:
+                      widget.user.getDarkMode() ? Colors.white70 : Colors.white,
                   onPrimary: widget.user.getDarkMode()
                       ? Colors.grey[700]
                       : Colors.grey[350],
@@ -1035,7 +1061,7 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
                 color:
-                    widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+                    widget.user.getDarkMode() ? Colors.white70 : Colors.white,
                 child: TextField(
                   onChanged: (String value) {
                     _passwordMessage = "Password must be at least ";
@@ -1125,7 +1151,7 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
                 color:
-                    widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+                    widget.user.getDarkMode() ? Colors.white70 : Colors.white,
                 child: TextField(
                   onChanged: (String value) {
                     setState(() {
@@ -1301,7 +1327,7 @@ class _EditProfileState extends State<EditProfile> {
                   },
                   style: ElevatedButton.styleFrom(
                     primary: widget.user.getDarkMode()
-                        ? Colors.grey[300]
+                        ? Colors.white70
                         : Colors.white,
                     onPrimary: widget.user.getDarkMode()
                         ? Colors.grey[700]
@@ -1352,7 +1378,7 @@ class _EditProfileState extends State<EditProfile> {
               fontSize: 20.0,
               height: 1.2,
               letterSpacing: 1.0,
-              color: Colors.white,
+              color: widget.user.getDarkMode() ? Colors.white70 : Colors.white,
             ),
             textAlign: TextAlign.justify,
           ),
@@ -1419,7 +1445,7 @@ class _EditProfileState extends State<EditProfile> {
             },
             style: ElevatedButton.styleFrom(
               primary:
-                  widget.user.getDarkMode() ? Colors.grey[300] : Colors.white,
+                  widget.user.getDarkMode() ? Colors.white70 : Colors.white,
               onPrimary: widget.user.getDarkMode()
                   ? Colors.grey[700]
                   : Colors.grey[350],
@@ -1465,15 +1491,21 @@ class _EditProfileState extends State<EditProfile> {
             ),
             child: Icon(
               FlutterIcons.warning_ant,
-              color: Colors.white,
+              color: widget.user.getDarkMode() ? Colors.white70 : Colors.white,
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(
               top: 3.0,
             ),
-            child: methods.textOnly(text, "Leoscar", 20.0, Colors.white,
-                FontWeight.normal, FontStyle.normal, TextAlign.center),
+            child: methods.textOnly(
+                text,
+                "Leoscar",
+                20.0,
+                widget.user.getDarkMode() ? Colors.white70 : Colors.white,
+                FontWeight.normal,
+                FontStyle.normal,
+                TextAlign.center),
           ),
         ],
       ),
@@ -1498,8 +1530,14 @@ class _EditProfileState extends State<EditProfile> {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
-            child: methods.textOnly(message, "Leoscar", 13.0, Colors.white,
-                FontWeight.normal, FontStyle.normal, TextAlign.start),
+            child: methods.textOnly(
+                message,
+                "Leoscar",
+                13.0,
+                widget.user.getDarkMode() ? Colors.white70 : Colors.white,
+                FontWeight.normal,
+                FontStyle.normal,
+                TextAlign.start),
           ),
           CustomPaint(
             painter: TrianglePainter(),
