@@ -126,7 +126,7 @@ class _AddItemState extends State<AddItem> {
                                       isAdmin: widget.user.getIsAdmin(),
                                       callback1: () async {
                                         if (this.mounted) {
-                                          await _loadList(widget.option, false);
+                                          await _loadList(widget.option);
                                         }
                                       },
                                     ),
@@ -493,7 +493,7 @@ class _AddItemState extends State<AddItem> {
                                 pendingApprovalList: _pendingApprovalList,
                                 callback1: () async {
                                   if (this.mounted) {
-                                    await _loadList(widget.option, true);
+                                    await _loadList(widget.option);
                                     await _loadPendingApprovalList();
                                   }
                                 },
@@ -535,7 +535,7 @@ class _AddItemState extends State<AddItem> {
                           isAdmin: widget.user.getIsAdmin(),
                           callback1: () async {
                             if (this.mounted) {
-                              await _loadList(widget.option, false);
+                              await _loadList(widget.option);
                             }
                           },
                         ),
@@ -603,14 +603,17 @@ class _AddItemState extends State<AddItem> {
   }
 
   _queryList(String _query, bool fromNewItem) {
+    setState(() {
+      _searchList.clear();
+    });
     bool _atLeastOneData = false;
-    if (_oldQuery.length != _query.length ||
-        _query.substring(_query.length - 1, _query.length) == " " ||
-        fromNewItem) {
-      setState(() {
-        _searchList.clear();
-      });
-    }
+    // if (_oldQuery.length != _query.length ||
+    //     _query.substring(_query.length - 1, _query.length) == " " ||
+    //     fromNewItem) {
+    //   setState(() {
+    //     _searchList.clear();
+    //   });
+    // }
     if (_query.isNotEmpty) {
       for (int _i = 0; _i < _dbList.length; _i++) {
         if (_dbList[_i]["name"].toLowerCase().contains(_query.toLowerCase())) {
@@ -629,6 +632,7 @@ class _AddItemState extends State<AddItem> {
       _searchList.add("no data");
     }
     _oldQuery = _query;
+    print(_searchList);
   }
 
   Future<void> _addToList(Map<String, dynamic> list, String amount) async {
@@ -676,7 +680,7 @@ class _AddItemState extends State<AddItem> {
     });
   }
 
-  Future<void> _loadList(String option, bool _fromPendingApproval) async {
+  Future<void> _loadList(String option) async {
     await http.post(
         Uri.parse(
             "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
@@ -696,9 +700,6 @@ class _AddItemState extends State<AddItem> {
             _dbList = _extractData;
           });
         }
-        if (!_fromPendingApproval) {
-          _queryList(_searchController.text, true);
-        }
       } else {
         methods.snackbarMessage(
           context,
@@ -711,6 +712,8 @@ class _AddItemState extends State<AddItem> {
               Colors.white, null, null, TextAlign.center),
         );
       }
+    }).whenComplete(() {
+      _queryList(_searchController.text, true);
     });
   }
 
