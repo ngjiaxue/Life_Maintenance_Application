@@ -26,17 +26,17 @@ dependencies:
     sdk: flutter
   http: ^0.13.1
   intl: ^0.17.0
-  badges: ^1.1.6
-  fl_chart: ^0.35.0
+  badges: ^2.0.1
+  fl_chart: ^0.36.2
   line_icons: ^2.0.1
   supercharged: ^2.0.0
   numberpicker: ^2.0.1
-  image_picker: ^0.7.4
   image_cropper: ^1.4.0
   flutter_icons: ^1.1.0
   slider_button: ^0.6.0
   hawk_fab_menu: ^0.3.2
-  page_transition: ^1.1.7+5
+  image_picker: ^0.8.1+3
+  page_transition: ^2.0.2
   simple_animations: ^3.0.2
   animated_text_kit: ^4.0.0
   shared_preferences: ^2.0.5
