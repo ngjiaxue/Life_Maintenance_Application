@@ -329,7 +329,11 @@ class _PendingApprovalState extends State<PendingApproval> {
                                           width: _screenHeight / 7,
                                           imageUrl:
                                               widget.pendingApprovalList[index]
-                                                  ["imagesource"],
+                                                          ["imagesource"] ==
+                                                      null
+                                                  ? ""
+                                                  : widget.pendingApprovalList[
+                                                      index]["imagesource"],
                                           placeholder: (context, url) =>
                                               Container(
                                             decoration: BoxDecoration(
