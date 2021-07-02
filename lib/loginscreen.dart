@@ -701,6 +701,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     DateTime(DateTime.now().year - 100, 1, 1),
                                 maxTime: DateTime.now(),
                                 theme: DatePickerTheme(
+                                  backgroundColor:
+                                      _darkMode ? _darkColor : Colors.white,
                                   cancelStyle: TextStyle(
                                     fontFamily: "Leoscar",
                                     fontSize: 17.0,

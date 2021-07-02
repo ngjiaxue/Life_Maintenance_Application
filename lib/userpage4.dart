@@ -1057,10 +1057,10 @@ class _UserPage4State extends State<UserPage4>
                   dismissThresholds: 0.5,
                   action: () {},
                   onDismissed: (dir) {
+                    Navigator.pop(context);
                     setState(() {
                       widget.user.setDarkMode(widget.user.getDarkMode());
                     });
-                    Navigator.pop(context);
                     SchedulerBinding.instance.addPostFrameCallback((_) {
                       _savePref();
                       callback2();
