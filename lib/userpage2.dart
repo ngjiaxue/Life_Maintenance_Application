@@ -1,11 +1,10 @@
-import 'package:flutter/scheduler.dart';
-
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/scheduler.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -485,11 +484,7 @@ class _UserPage2State extends State<UserPage2>
                                   height: _screenHeight / 4.3,
                                   width: _screenHeight / 4.3,
                                   imageUrl: widget.user.getUserFoodList()[index]
-                                              ["imagesource"] ==
-                                          null
-                                      ? ""
-                                      : widget.user.getUserFoodList()[index]
-                                          ["imagesource"],
+                                      ["imagesource"],
                                   placeholder: (context, url) => Container(
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
@@ -549,7 +544,6 @@ class _UserPage2State extends State<UserPage2>
                           callback1: () async {
                             if (this.mounted) {
                               await _loadUserList("food");
-                              print("hifrompg2");
                             }
                           },
                         ),

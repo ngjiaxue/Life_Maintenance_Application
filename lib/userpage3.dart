@@ -1,13 +1,12 @@
-import 'package:flutter/scheduler.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:numberpicker/numberpicker.dart';
-
 import 'user.dart';
 import 'additem.dart';
 import 'methods.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/scheduler.dart';
+import 'package:line_icons/line_icons.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -493,12 +492,8 @@ class _UserPage3State extends State<UserPage3>
                                   fit: BoxFit.cover,
                                   height: _screenHeight / 4.3,
                                   width: _screenHeight / 4.3,
-                                  imageUrl: widget.user
-                                                  .getUserExerciseList()[index]
-                                              ["imagesource"] ==
-                                          null
-                                      ? "nosource"
-                                      : widget.user.getUserExerciseList()[index]
+                                  imageUrl:
+                                      widget.user.getUserExerciseList()[index]
                                           ["imagesource"],
                                   placeholder: (context, url) => Container(
                                     decoration: BoxDecoration(
