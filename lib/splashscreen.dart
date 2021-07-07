@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     ]);
     return MaterialApp(
       title: "Life Maintenance Application",
-      // debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
       theme: _darkMode == true
           ? ThemeData(
               brightness: Brightness.dark,
