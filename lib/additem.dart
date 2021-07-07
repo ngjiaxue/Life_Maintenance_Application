@@ -37,7 +37,7 @@ class _AddItemState extends State<AddItem> {
   double _amount = 100.0;
   int _duration = 30;
   bool _darkMode = false;
-  String _oldQuery = "";
+  // String _oldQuery = "";
   List _dbList = [];
   List _searchList = [];
   List _pendingApprovalList = [];
@@ -631,8 +631,8 @@ class _AddItemState extends State<AddItem> {
     if (_query.isNotEmpty && _atLeastOneData == false) {
       _searchList.add("no data");
     }
-    _oldQuery = _query;
-    print(_searchList);
+    // _oldQuery = _query;
+    // print(_searchList);
   }
 
   Future<void> _addToList(Map<String, dynamic> list, String amount) async {
