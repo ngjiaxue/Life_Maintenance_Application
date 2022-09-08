@@ -421,7 +421,7 @@ class _PendingApprovalState extends State<PendingApproval> {
     });
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/verifyapproval.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/verifyapproval.php"),
         body: {
           "approve": approve.toString(),
           "id": widget.pendingApprovalList[index]["id"],

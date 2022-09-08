@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
     if (_email.isNotEmpty && _password.isNotEmpty) {
       await http.post(
           Uri.parse(
-              "https://lifemaintenanceapplication.000webhostapp.com/php/login.php"),
+              "https://shrunk-troubleshoot.000webhostapp.com/php/login.php"),
           body: {
             "email": _email,
             "password": _password,

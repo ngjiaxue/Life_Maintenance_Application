@@ -280,7 +280,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   Future<void> _loadList(String option) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/loadlist.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/loadlist.php"),
         body: {
           "option": option,
         }).then((res) async {
@@ -311,7 +311,7 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
   Future<void> _loadUserList(String option) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/loaduserlist.php"),
         body: {
           "email": widget.user.getEmail(),
           "weight": widget.user.getWeight(),

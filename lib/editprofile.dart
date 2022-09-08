@@ -387,7 +387,7 @@ class _EditProfileState extends State<EditProfile> {
                       _loading();
                       await http.post(
                           Uri.parse(
-                              "https://lifemaintenanceapplication.000webhostapp.com/php/addfeedback.php"),
+                              "https://shrunk-troubleshoot.000webhostapp.com/php/addfeedback.php"),
                           body: {
                             "email": widget.user.getEmail(),
                             "feedback": _feedbackController.text,
@@ -764,7 +764,7 @@ class _EditProfileState extends State<EditProfile> {
               _loading();
               await http.post(
                   Uri.parse(
-                      "https://lifemaintenanceapplication.000webhostapp.com/php/inappverifypassword.php"),
+                      "https://shrunk-troubleshoot.000webhostapp.com/php/inappverifypassword.php"),
                   body: {
                     "email": widget.user.getEmail(),
                     "password": _passwordController.text,
@@ -948,7 +948,7 @@ class _EditProfileState extends State<EditProfile> {
                       _loading();
                       await http.post(
                           Uri.parse(
-                              "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                              "https://shrunk-troubleshoot.000webhostapp.com/php/editprofile.php"),
                           body: {
                             "email": widget.user.getEmail(),
                             "newEmail": _emailController.text,
@@ -1240,7 +1240,7 @@ class _EditProfileState extends State<EditProfile> {
                       _loading();
                       await http.post(
                           Uri.parse(
-                              "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                              "https://shrunk-troubleshoot.000webhostapp.com/php/editprofile.php"),
                           body: {
                             "email": widget.user.getEmail(),
                             "newPassword": _passwordController.text,
@@ -1393,7 +1393,7 @@ class _EditProfileState extends State<EditProfile> {
               _loading();
               await http.post(
                   Uri.parse(
-                      "https://lifemaintenanceapplication.000webhostapp.com/php/deleteaccount.php"),
+                      "https://shrunk-troubleshoot.000webhostapp.com/php/deleteaccount.php"),
                   body: {
                     "email": widget.user.getEmail(),
                   }).then((res) {
@@ -1587,7 +1587,7 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> _loadFeedbackList() async {
     await http
         .post(Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/loadfeedbacklist.php"))
+            "https://shrunk-troubleshoot.000webhostapp.com/php/loadfeedbacklist.php"))
         .then((res) async {
       if (res.body != "no data") {
         var _extractData = json.decode(res.body);

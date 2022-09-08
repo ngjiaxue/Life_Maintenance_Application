@@ -580,7 +580,7 @@ class _UserPage3State extends State<UserPage3>
   Future<void> _loadUserList(String option) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/loaduserlist.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/loaduserlist.php"),
         body: {
           "email": widget.user.getEmail(),
           "weight": widget.user.getWeight(),
@@ -614,7 +614,7 @@ class _UserPage3State extends State<UserPage3>
       String _option, String _amount, String _date, String _email) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/edituserlist.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/edituserlist.php"),
         body: {
           "option": _option,
           "amount": _amount,
@@ -662,7 +662,7 @@ class _UserPage3State extends State<UserPage3>
       String _option, String _amount, String _date, String _email) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/deleteuserlist.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/deleteuserlist.php"),
         body: {
           "option": _option,
           "amount": _amount,

@@ -1607,7 +1607,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         _informationValidate1) {
                       await http.post(
                           Uri.parse(
-                              "https://lifemaintenanceapplication.000webhostapp.com/php/resendverificationemail.php"),
+                              "https://shrunk-troubleshoot.000webhostapp.com/php/resendverificationemail.php"),
                           body: {
                             'email': _resendverificationEmailController.text,
                           }).then((res) {
@@ -1715,7 +1715,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text.isNotEmpty) {
       await http.post(
           Uri.parse(
-              "https://lifemaintenanceapplication.000webhostapp.com/php/login.php"),
+              "https://shrunk-troubleshoot.000webhostapp.com/php/login.php"),
           body: {
             'email': _emailController.text,
             'password': _passwordController.text,
@@ -1981,7 +1981,7 @@ class _LoginScreenState extends State<LoginScreen> {
         //add user data into database
         await http.post(
             Uri.parse(
-                "https://lifemaintenanceapplication.000webhostapp.com/php/signup.php"),
+                "https://shrunk-troubleshoot.000webhostapp.com/php/signup.php"),
             body: {
               "name": _nameController1.text,
               "dob": _dobController.text,

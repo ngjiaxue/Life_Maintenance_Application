@@ -429,7 +429,7 @@ class _UserPage1State extends State<UserPage1> {
                                     });
                                     await http.post(
                                         Uri.parse(
-                                            "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                                            "https://shrunk-troubleshoot.000webhostapp.com/php/editprofile.php"),
                                         body: {
                                           "page1Edit": _index.toString(),
                                           "value": _tempValue.toString(),
@@ -579,7 +579,7 @@ class _UserPage1State extends State<UserPage1> {
     //                         });
     //                         await http.post(
     //                             Uri.parse(
-    //                                 "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+    //                                 "https://shrunk-troubleshoot.000webhostapp.com/php/editprofile.php"),
     //                             body: {
     //                               "page1Edit": _index.toString(),
     //                               "value": _tempValue.toString(),

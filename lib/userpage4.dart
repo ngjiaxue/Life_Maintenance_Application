@@ -91,7 +91,7 @@ class _UserPage4State extends State<UserPage4>
                             height: _screenWidth,
                             width: _screenWidth,
                             imageUrl:
-                                "https://lifemaintenanceapplication.000webhostapp.com/images/${widget.user.getEmail()}.jpg",
+                                "https://shrunk-troubleshoot.000webhostapp.com/images/${widget.user.getEmail()}.jpg",
                             placeholder: (context, url) => Container(
                               decoration: BoxDecoration(
                                 image: DecorationImage(
@@ -419,7 +419,7 @@ class _UserPage4State extends State<UserPage4>
                                               .hideCurrentSnackBar();
                                           await http.post(
                                               Uri.parse(
-                                                  "https://lifemaintenanceapplication.000webhostapp.com/php/editprofile.php"),
+                                                  "https://shrunk-troubleshoot.000webhostapp.com/php/editprofile.php"),
                                               body: {
                                                 "name": _nameController.text,
                                                 "dob": _dobController.text,
@@ -1317,7 +1317,7 @@ class _UserPage4State extends State<UserPage4>
           String base64Image = base64Encode(_image.readAsBytesSync());
           await http.post(
               Uri.parse(
-                  "https://lifemaintenanceapplication.000webhostapp.com/php/updateprofilepic.php"),
+                  "https://shrunk-troubleshoot.000webhostapp.com/php/updateprofilepic.php"),
               body: {
                 "email": widget.user.getEmail(),
                 "encoded_string": base64Image,
@@ -1326,7 +1326,7 @@ class _UserPage4State extends State<UserPage4>
               setState(() {
                 DefaultCacheManager manager = new DefaultCacheManager();
                 manager.removeFile(
-                    "https://lifemaintenanceapplication.000webhostapp.com/images/${widget.user.getEmail()}.jpg");
+                    "https://shrunk-troubleshoot.000webhostapp.com/images/${widget.user.getEmail()}.jpg");
                 imageCache.clear();
               });
               SchedulerBinding.instance.addPostFrameCallback((_) {

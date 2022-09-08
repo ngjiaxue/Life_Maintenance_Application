@@ -341,7 +341,7 @@ class _AddNewItemState extends State<AddNewItem> {
   Future<void> _addToList(AssetImage _gif) async {
     await http.post(
         Uri.parse(
-            "https://lifemaintenanceapplication.000webhostapp.com/php/addlist.php"),
+            "https://shrunk-troubleshoot.000webhostapp.com/php/addlist.php"),
         body: {
           "option": widget.option,
           "name": _nameController.text,
